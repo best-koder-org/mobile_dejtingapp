@@ -39,7 +39,7 @@ dependencies:
   # Photo upload dependencies
   path: ^1.9.0
   mime: ^1.0.4
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0
   cached_network_image: ^3.3.1
   crypto: ^3.0.5
   url_launcher: ^6.3.0

@@ -12,7 +12,10 @@ class DevMode {
 
   /// Fake data for auto-filling onboarding screens
   static const String fakeName = 'Test User';
-  static const String fakePhone = '+46701234567';
+  static const String fakePhone = '+46700000001';
+  static const String fakePhoneLocal = '700000001';
+  static const String fakeCountryCode = '+46';
+  static const String fakeSmsCode = '123456';
   static final DateTime fakeBirthday = DateTime(2000, 1, 15);
   static const String fakeGender = 'Man';
   static const String fakeOrientation = 'Straight';

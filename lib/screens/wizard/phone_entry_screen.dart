@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_auth/smart_auth.dart';
+import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../widgets/dev_mode_banner.dart';
 
@@ -9,6 +10,8 @@ import '../../widgets/dev_mode_banner.dart';
 /// On Android: auto-shows Phone Number Hint popup (one-tap, like Uber/Rider).
 /// User picks their SIM number from system dialog — no manual typing.
 /// Fallback: manual entry with country selector.
+///
+/// In DevMode: pre-fills test phone number so you just tap Continue.
 class PhoneEntryScreen extends StatefulWidget {
   const PhoneEntryScreen({super.key});
 
@@ -32,10 +35,21 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   void initState() {
     super.initState();
     _phoneController.addListener(_validatePhone);
-    // Auto-show phone number hint on Android after build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _requestPhoneNumberHint();
-    });
+
+    // DevMode: pre-fill test phone number so user just taps Continue
+    if (DevMode.enabled) {
+      _phoneController.text = DevMode.fakePhoneLocal;
+      _selectedCountryCode = DevMode.fakeCountryCode;
+      // Trigger validation immediately
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _validatePhone();
+      });
+    } else {
+      // Auto-show phone number hint on Android after build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _requestPhoneNumberHint();
+      });
+    }
   }
 
   @override
@@ -76,11 +90,11 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   void _parseAndFillPhone(String fullPhone) {
     // Common country codes sorted by length (longest first to avoid partial matches)
     final countryCodes = {
-      '+46': '🇸🇪',  // Sweden
-      '+44': '🇬🇧',  // UK
-      '+49': '🇩🇪',  // Germany
-      '+33': '🇫🇷',  // France
-      '+1': '🇺🇸',   // US/Canada
+      '+46': '🇸🇪', // Sweden
+      '+44': '🇬🇧', // UK
+      '+49': '🇩🇪', // Germany
+      '+33': '🇫🇷', // France
+      '+1': '🇺🇸', // US/Canada
     };
 
     String detectedCode = '+46';
@@ -104,9 +118,17 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   }
 
   void _validatePhone() {
-    final phone = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+    final phone = _phoneController.text.replaceAll(RegExp(r'[^\d+]'), '');
     setState(() {
-      _isValidPhone = phone.length >= 9 && phone.length <= 15;
+      // Allow either local number (9-15 digits) or full international (+XX...)
+      if (phone.startsWith('+')) {
+        // User typed full international number — must be 10+ chars (e.g. +46700000001)
+        final digitsOnly = phone.replaceAll(RegExp(r'[^\d]'), '');
+        _isValidPhone = digitsOnly.length >= 10 && digitsOnly.length <= 15;
+      } else {
+        final digitsOnly = phone.replaceAll(RegExp(r'[^\d]'), '');
+        _isValidPhone = digitsOnly.length >= 9 && digitsOnly.length <= 15;
+      }
       _errorMessage = null;
     });
   }
@@ -119,7 +141,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select Country', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text('Select Country',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildCountryOption('🇸🇪', 'Sweden', '+46'),
             _buildCountryOption('🇺🇸', 'United States', '+1'),
@@ -136,7 +159,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     return ListTile(
       leading: Text(flag, style: const TextStyle(fontSize: 32)),
       title: Text(name),
-      trailing: Text(code, style: const TextStyle(fontWeight: FontWeight.bold, color: coralColor)),
+      trailing: Text(code,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, color: coralColor)),
       onTap: () {
         setState(() {
           _selectedCountryFlag = flag;
@@ -148,11 +173,33 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     );
   }
 
+  /// Build the full E.164 phone number, avoiding double country codes.
+  /// Handles: "700000001" → "+46700000001"
+  ///          "+46700000001" → "+46700000001" (no double prefix)
+  ///          "46700000001" → "+46700000001" (detects raw country code without +)
+  String _buildFullPhoneNumber() {
+    final raw = _phoneController.text.replaceAll(RegExp(r'[\s\-()]'), '');
+
+    // Case 1: User typed full international number with +
+    if (raw.startsWith('+')) {
+      return raw;
+    }
+
+    // Case 2: User typed country code without + (e.g. "46700000001")
+    final codeDigits = _selectedCountryCode.substring(1); // "46"
+    if (raw.startsWith(codeDigits) && raw.length > codeDigits.length + 6) {
+      return '+$raw';
+    }
+
+    // Case 3: Local number only (e.g. "700000001")
+    return '$_selectedCountryCode$raw';
+  }
+
   Future<void> _handleContinue() async {
     if (!_isValidPhone || _isSending) return;
 
-    final rawPhone = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
-    final fullPhone = '$_selectedCountryCode$rawPhone';
+    final fullPhone = _buildFullPhoneNumber();
+    debugPrint('📱 Sending verification to: $fullPhone');
 
     setState(() {
       _isSending = true;
@@ -176,7 +223,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         },
         onVerificationCompleted: (credential) async {
           if (!mounted) return;
-          final idToken = await FirebasePhoneAuthService.signInWithAutoCredential(credential);
+          final idToken =
+              await FirebasePhoneAuthService.signInWithAutoCredential(
+                  credential);
           if (!mounted) return;
           setState(() => _isSending = false);
           if (idToken != null) {
@@ -206,7 +255,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
       if (mounted) {
         setState(() {
           _isSending = false;
-          _errorMessage = 'Failed to send verification code. Please try again.';
+          _errorMessage =
+              'Failed to send verification code. Please try again.';
         });
       }
     }
@@ -226,7 +276,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () =>
+                Navigator.popUntil(context, (route) => route.isFirst),
           ),
         ],
       ),
@@ -252,53 +303,95 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
 
                   const Text(
                     'Can we get your number?',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
                   ),
                   const SizedBox(height: 16),
                   const Text(
                     'We\'ll send you a text with a verification code. '
                     'Message and data rates may apply.',
-                    style: TextStyle(fontSize: 16, color: Colors.black54, height: 1.5),
+                    style: TextStyle(
+                        fontSize: 16, color: Colors.black54, height: 1.5),
                   ),
                   const SizedBox(height: 32),
+
+                  // DevMode banner showing pre-filled test number
+                  if (DevMode.enabled)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green[300]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.bug_report, color: Colors.green[700], size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Test mode: ${DevMode.fakePhone} pre-filled. Tap Continue!',
+                              style: TextStyle(fontSize: 13, color: Colors.green[800], fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   // Country selector + Phone input
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: _errorMessage != null ? Colors.red : Colors.grey[300]!),
+                      border: Border.all(
+                          color: _errorMessage != null
+                              ? Colors.red
+                              : Colors.grey[300]!),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(
                       children: [
                         InkWell(
                           onTap: _showCountryPicker,
                           child: Row(
                             children: [
-                              Text(_selectedCountryFlag, style: const TextStyle(fontSize: 28)),
+                              Text(_selectedCountryFlag,
+                                  style: const TextStyle(fontSize: 28)),
                               const SizedBox(width: 8),
-                              Text(_selectedCountryCode, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text(_selectedCountryCode,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
                               const Icon(Icons.arrow_drop_down),
                             ],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Container(width: 1, height: 40, color: Colors.grey[300]),
+                        Container(
+                            width: 1, height: 40, color: Colors.grey[300]),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            autofocus: defaultTargetPlatform != TargetPlatform.android, // Don't autofocus on Android (hint dialog takes focus)
+                            autofocus:
+                                defaultTargetPlatform != TargetPlatform.android,
                             enabled: !_isSending,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Phone number',
-                              hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.normal),
+                              hintStyle: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.normal),
                             ),
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[\d\s\-()]')),
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[\d\s\-()+ ]')),
                               LengthLimitingTextInputFormatter(20),
                             ],
                           ),
@@ -318,15 +411,16 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Tap to re-show phone hint (Android only)
-                  if (defaultTargetPlatform == TargetPlatform.android)
+                  // Tap to re-show phone hint (Android only, non-dev)
+                  if (defaultTargetPlatform == TargetPlatform.android && !DevMode.enabled)
                     Center(
                       child: TextButton.icon(
                         onPressed: () {
                           _hintShown = false;
                           _requestPhoneNumberHint();
                         },
-                        icon: const Icon(Icons.sim_card, size: 18, color: coralColor),
+                        icon: const Icon(Icons.sim_card,
+                            size: 18, color: coralColor),
                         label: const Text(
                           'Use a different SIM number',
                           style: TextStyle(color: coralColor, fontSize: 14),
@@ -336,15 +430,21 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
 
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, color: Colors.grey[700], size: 20),
+                        Icon(Icons.info_outline,
+                            color: Colors.grey[700], size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'When you tap "Continue", we\'ll send you a text with a verification code.',
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.4),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[700],
+                                height: 1.4),
                           ),
                         ),
                       ],
@@ -357,21 +457,28 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: (_isValidPhone && !_isSending) ? _handleContinue : null,
+                      onPressed: (_isValidPhone && !_isSending)
+                          ? _handleContinue
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: coralColor,
                         disabledBackgroundColor: Colors.grey[300],
                         foregroundColor: Colors.white,
                         disabledForegroundColor: Colors.grey[500],
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28)),
                         elevation: _isValidPhone ? 2 : 0,
                       ),
                       child: _isSending
                           ? const SizedBox(
-                              height: 24, width: 24,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2.5),
                             )
-                          : const Text('Continue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          : const Text('Continue',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -380,7 +487,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/community-guidelines'),
+            onSkip: () => Navigator.pushNamed(
+                context, '/onboarding/community-guidelines'),
             label: 'Skip Phone',
           ),
         ],

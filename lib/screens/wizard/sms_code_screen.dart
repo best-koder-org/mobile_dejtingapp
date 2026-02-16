@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../services/auth_session_manager.dart';
 import '../../widgets/dev_mode_banner.dart';
@@ -8,6 +9,8 @@ import '../../widgets/dev_mode_banner.dart';
 /// SMS Verification Code Entry Screen
 /// 6-digit code input with auto-advance, resend timer, and retry limits.
 /// Verifies via Firebase → exchanges for Keycloak JWT → starts session.
+///
+/// In DevMode: auto-fills the test code (123456) and skips Keycloak if unavailable.
 class SmsCodeScreen extends StatefulWidget {
   const SmsCodeScreen({super.key});
 
@@ -45,7 +48,30 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
     _startResendTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _extractRouteArgs();
-      _focusNodes[0].requestFocus();
+      // DevMode: auto-fill test SMS code after a brief delay
+      if (DevMode.enabled) {
+        _autoFillTestCode();
+      } else {
+        _focusNodes[0].requestFocus();
+      }
+    });
+  }
+
+  /// Auto-fill the test SMS code in DevMode so user doesn't have to type it
+  void _autoFillTestCode() {
+    final testCode = DevMode.fakeSmsCode; // "123456"
+    for (int i = 0; i < _codeLength && i < testCode.length; i++) {
+      _controllers[i].text = testCode[i];
+    }
+    setState(() {}); // refresh UI to show filled digits
+    // Small delay then verify (gives user a moment to see what's happening)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        final code = _controllers.map((c) => c.text).join();
+        if (code.length == _codeLength) {
+          _verifyCode(code);
+        }
+      }
     });
   }
 
@@ -160,23 +186,52 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
     }
   }
 
-  /// Exchange Firebase token → Keycloak JWT → start app session
+  /// Exchange Firebase token → Keycloak JWT → start app session.
+  /// In DevMode: if Keycloak is unavailable, skip forward anyway.
   Future<void> _completeLogin(String firebaseIdToken) async {
     setState(() => _isVerifying = true);
 
-    final result = await AuthSessionManager.loginWithPhone(firebaseIdToken);
+    try {
+      final result = await AuthSessionManager.loginWithPhone(firebaseIdToken);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result.success) {
-      // Phone verified + Keycloak session active → continue onboarding
-      Navigator.pushNamed(context, '/onboarding/community-guidelines');
-    } else {
-      setState(() {
-        _isVerifying = false;
-        _errorMessage = result.message ?? 'Login failed. Please try again.';
-      });
-      _clearCode();
+      if (result.success) {
+        // Phone verified + Keycloak session active → continue onboarding
+        Navigator.pushNamed(context, '/onboarding/community-guidelines');
+      } else if (DevMode.enabled) {
+        // DevMode: Keycloak exchange failed (probably not running) — skip forward
+        debugPrint('🔧 DevMode: Keycloak exchange failed, skipping forward. Error: ${result.message}');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🔧 DevMode: Skipped Keycloak (not running). Phone verified via Firebase.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          Navigator.pushNamed(context, '/onboarding/community-guidelines');
+        }
+      } else {
+        setState(() {
+          _isVerifying = false;
+          _errorMessage = result.message ?? 'Login failed. Please try again.';
+        });
+        _clearCode();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      if (DevMode.enabled) {
+        // DevMode: any exception during login → skip forward
+        debugPrint('🔧 DevMode: Login exception, skipping forward. Error: $e');
+        Navigator.pushNamed(context, '/onboarding/community-guidelines');
+      } else {
+        setState(() {
+          _isVerifying = false;
+          _errorMessage = 'Could not complete phone login. Please try again.';
+        });
+        _clearCode();
+      }
     }
   }
 
@@ -270,7 +325,33 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                         : 'We sent a 6-digit code to your phone number.',
                     style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.4),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 16),
+
+                  // DevMode banner
+                  if (DevMode.enabled)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green[300]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.bug_report, color: Colors.green[700], size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Test mode: code ${DevMode.fakeSmsCode} auto-filled',
+                              style: TextStyle(fontSize: 13, color: Colors.green[800], fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 8),
 
                   // 6 digit input boxes
                   Row(
