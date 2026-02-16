@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:smart_auth/smart_auth.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../widgets/dev_mode_banner.dart';
 
 /// Phone Number Entry Screen
-/// Tinder-style single-field phone entry with country selector.
-/// On "Continue" sends SMS via Firebase Phone Auth.
+/// On Android: auto-shows Phone Number Hint popup (one-tap, like Uber/Rider).
+/// User picks their SIM number from system dialog — no manual typing.
+/// Fallback: manual entry with country selector.
 class PhoneEntryScreen extends StatefulWidget {
   const PhoneEntryScreen({super.key});
 
@@ -17,22 +20,87 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   static const Color coralColor = Color(0xFFFF6B6B);
 
   final TextEditingController _phoneController = TextEditingController();
+  final SmartAuth _smartAuth = SmartAuth.instance;
   String _selectedCountryCode = '+46';
   String _selectedCountryFlag = '🇸🇪';
   bool _isValidPhone = false;
   bool _isSending = false;
   String? _errorMessage;
+  bool _hintShown = false;
 
   @override
   void initState() {
     super.initState();
     _phoneController.addListener(_validatePhone);
+    // Auto-show phone number hint on Android after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestPhoneNumberHint();
+    });
   }
 
   @override
   void dispose() {
     _phoneController.dispose();
     super.dispose();
+  }
+
+  /// Show Android system Phone Number Hint dialog.
+  /// User picks their SIM number — auto-fills the field.
+  Future<void> _requestPhoneNumberHint() async {
+    if (_hintShown) return;
+    _hintShown = true;
+
+    // Only works on Android
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      debugPrint('📱 Phone hint skipped (not Android)');
+      return;
+    }
+
+    try {
+      final res = await _smartAuth.requestPhoneNumberHint();
+      if (res.hasData && res.data != null) {
+        final phone = res.data!;
+        debugPrint('📱 Phone hint selected: $phone');
+        _parseAndFillPhone(phone);
+      } else {
+        debugPrint('📱 Phone hint dismissed by user');
+      }
+    } catch (e) {
+      debugPrint('📱 Phone hint error: $e');
+      // Silently fall through to manual entry
+    }
+  }
+
+  /// Parse a full international phone number and fill the UI fields.
+  /// e.g. "+46701234567" → country code "+46", number "701234567"
+  void _parseAndFillPhone(String fullPhone) {
+    // Common country codes sorted by length (longest first to avoid partial matches)
+    final countryCodes = {
+      '+46': '🇸🇪',  // Sweden
+      '+44': '🇬🇧',  // UK
+      '+49': '🇩🇪',  // Germany
+      '+33': '🇫🇷',  // France
+      '+1': '🇺🇸',   // US/Canada
+    };
+
+    String detectedCode = '+46';
+    String detectedFlag = '🇸🇪';
+    String localNumber = fullPhone;
+
+    for (final entry in countryCodes.entries) {
+      if (fullPhone.startsWith(entry.key)) {
+        detectedCode = entry.key;
+        detectedFlag = entry.value;
+        localNumber = fullPhone.substring(entry.key.length);
+        break;
+      }
+    }
+
+    setState(() {
+      _selectedCountryCode = detectedCode;
+      _selectedCountryFlag = detectedFlag;
+      _phoneController.text = localNumber;
+    });
   }
 
   void _validatePhone() {
@@ -97,7 +165,6 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         onCodeSent: (verificationId) {
           if (!mounted) return;
           setState(() => _isSending = false);
-          // Navigate to SMS code screen, passing verificationId and phone
           Navigator.pushNamed(
             context,
             '/onboarding/verify-code',
@@ -109,7 +176,6 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         },
         onVerificationCompleted: (credential) async {
           if (!mounted) return;
-          // Auto-verified (Android only) — sign in and exchange
           final idToken = await FirebasePhoneAuthService.signInWithAutoCredential(credential);
           if (!mounted) return;
           setState(() => _isSending = false);
@@ -178,7 +244,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                     child: LinearProgressIndicator(
                       value: 0.0,
                       backgroundColor: Colors.grey[200],
-                      valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
+                      valueColor: const AlwaysStoppedAnimation(coralColor),
                       minHeight: 4,
                     ),
                   ),
@@ -223,7 +289,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                           child: TextField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            autofocus: true,
+                            autofocus: defaultTargetPlatform != TargetPlatform.android, // Don't autofocus on Android (hint dialog takes focus)
                             enabled: !_isSending,
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                             decoration: const InputDecoration(
@@ -251,6 +317,22 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                   ],
 
                   const SizedBox(height: 16),
+
+                  // Tap to re-show phone hint (Android only)
+                  if (defaultTargetPlatform == TargetPlatform.android)
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          _hintShown = false;
+                          _requestPhoneNumberHint();
+                        },
+                        icon: const Icon(Icons.sim_card, size: 18, color: coralColor),
+                        label: const Text(
+                          'Use a different SIM number',
+                          style: TextStyle(color: coralColor, fontSize: 14),
+                        ),
+                      ),
+                    ),
 
                   Container(
                     padding: const EdgeInsets.all(12),
