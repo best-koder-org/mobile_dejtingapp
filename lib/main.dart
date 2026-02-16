@@ -76,7 +76,7 @@ class DatingApp extends StatelessWidget {
         '/welcome': (context) => const WelcomeScreen(),
         
         // Onboarding wizard flow
-        '/onboarding/phone': (context) => const PhoneEntryScreen(),
+        '/onboarding/phone-entry': (context) => const PhoneEntryScreen(),
         '/onboarding/community-guidelines': (context) => const CommunityGuidelinesScreen(),
         '/onboarding/first-name': (context) => const FirstNameScreen(),
         '/onboarding/birthday': (context) => const BirthdayScreen(),
