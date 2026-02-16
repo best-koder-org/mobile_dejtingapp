@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "281392688916",
+    "project_id": "dejting-94dec",
+    "storage_bucket": "dejting-94dec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281392688916:android:e6f7e76da4018d1770dc01",
+        "android_client_info": {
+          "package_name": "com.dejting.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa-1Dq6RIAq8gogeRyQyl50i_1pO4VCXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
