@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import '../utils/jwt_utils.dart';
 import 'api_service.dart';
 import 'auth_service_pkce.dart';
+import 'firebase_phone_auth_service.dart';
+import 'keycloak_token_exchange_service.dart';
 
 class AuthSessionResult {
   final bool success;
@@ -202,6 +204,75 @@ class AuthSessionManager {
       debugPrint('AuthSessionManager.loginWithPKCE failed: $e');
       debugPrint('$stack');
       return AuthSessionResult.failure('Login failed. Please try again.');
+    }
+  }
+
+
+
+  /// Phone OTP login — Firebase verifies phone, Keycloak issues JWT.
+  /// Called after Firebase phone verification succeeds.
+  ///
+  /// [firebaseIdToken] The Firebase ID token from successful phone auth.
+  static Future<AuthSessionResult> loginWithPhone(String firebaseIdToken) async {
+    try {
+      // Exchange Firebase token for Keycloak tokens
+      final tokenResponse =
+          await KeycloakTokenExchangeService.exchangeFirebaseToken(firebaseIdToken);
+      if (tokenResponse == null) {
+        return AuthSessionResult.failure(
+          'Could not complete phone login. Please try again.',
+        );
+      }
+
+      final accessToken = tokenResponse['access_token'] as String?;
+      final refreshToken = tokenResponse['refresh_token'] as String?;
+      if (accessToken == null || refreshToken == null) {
+        return AuthSessionResult.failure('Authentication token missing');
+      }
+
+      final idToken = tokenResponse['id_token'] as String?;
+      final expiresIn = _readInt(tokenResponse['expires_in']) ?? 300;
+      final refreshExpiresIn = _readInt(tokenResponse['refresh_expires_in']);
+
+      final accessExpiresAt =
+          DateTime.now().toUtc().add(Duration(seconds: expiresIn));
+      final refreshExpiresAt = refreshExpiresIn != null
+          ? DateTime.now().toUtc().add(Duration(seconds: refreshExpiresIn))
+          : null;
+
+      final tokenPayload = JwtUtils.decodePayload(accessToken) ?? {};
+      final userInfo = await AuthService.fetchUserInfo(accessToken) ?? {};
+
+      // Use phone number as fallback username
+      final phoneNumber = FirebasePhoneAuthService.getCurrentPhoneNumber() ?? 'phone_user';
+
+      final profile = _normalizeProfile(
+        tokenPayload: tokenPayload,
+        userInfo: userInfo,
+        fallbackUsername: phoneNumber,
+      );
+
+      final userId = (profile['sub'] ??
+              tokenPayload['sub'] ??
+              profile['preferred_username'] ??
+              'unknown')
+          .toString();
+
+      await AppState().login(
+        userId: userId,
+        accessToken: accessToken,
+        accessTokenExpiresAt: accessExpiresAt,
+        refreshToken: refreshToken,
+        refreshTokenExpiresAt: refreshExpiresAt,
+        idToken: idToken,
+        profile: profile,
+      );
+
+      return AuthSessionResult.ok();
+    } catch (e, stack) {
+      debugPrint('AuthSessionManager.loginWithPhone failed: $e');
+      debugPrint('$stack');
+      return AuthSessionResult.failure('Phone login failed. Please try again.');
     }
   }
 

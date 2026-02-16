@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/firebase_phone_auth_service.dart';
 import '../../widgets/dev_mode_banner.dart';
 
 /// Phone Number Entry Screen
-/// Tinder-style single-field phone entry with country selector
+/// Tinder-style single-field phone entry with country selector.
+/// On "Continue" sends SMS via Firebase Phone Auth.
 class PhoneEntryScreen extends StatefulWidget {
   const PhoneEntryScreen({super.key});
 
@@ -18,6 +20,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   String _selectedCountryCode = '+46';
   String _selectedCountryFlag = '🇸🇪';
   bool _isValidPhone = false;
+  bool _isSending = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -35,6 +39,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     final phone = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
     setState(() {
       _isValidPhone = phone.length >= 9 && phone.length <= 15;
+      _errorMessage = null;
     });
   }
 
@@ -75,9 +80,70 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     );
   }
 
-  void _handleContinue() {
-    if (!_isValidPhone) return;
-    Navigator.pushNamed(context, '/onboarding/verify-code');
+  Future<void> _handleContinue() async {
+    if (!_isValidPhone || _isSending) return;
+
+    final rawPhone = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+    final fullPhone = '$_selectedCountryCode$rawPhone';
+
+    setState(() {
+      _isSending = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await FirebasePhoneAuthService.verifyPhoneNumber(
+        phoneNumber: fullPhone,
+        onCodeSent: (verificationId) {
+          if (!mounted) return;
+          setState(() => _isSending = false);
+          // Navigate to SMS code screen, passing verificationId and phone
+          Navigator.pushNamed(
+            context,
+            '/onboarding/verify-code',
+            arguments: {
+              'verificationId': verificationId,
+              'phoneNumber': fullPhone,
+            },
+          );
+        },
+        onVerificationCompleted: (credential) async {
+          if (!mounted) return;
+          // Auto-verified (Android only) — sign in and exchange
+          final idToken = await FirebasePhoneAuthService.signInWithAutoCredential(credential);
+          if (!mounted) return;
+          setState(() => _isSending = false);
+          if (idToken != null) {
+            Navigator.pushNamed(
+              context,
+              '/onboarding/verify-code',
+              arguments: {
+                'autoVerified': true,
+                'firebaseIdToken': idToken,
+                'phoneNumber': fullPhone,
+              },
+            );
+          }
+        },
+        onError: (message) {
+          if (!mounted) return;
+          setState(() {
+            _isSending = false;
+            _errorMessage = message;
+          });
+        },
+        onAutoRetrievalTimeout: () {
+          debugPrint('Auto-retrieval timeout');
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
+          _errorMessage = 'Failed to send verification code. Please try again.';
+        });
+      }
+    }
   }
 
   @override
@@ -133,7 +199,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                   // Country selector + Phone input
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
+                      border: Border.all(color: _errorMessage != null ? Colors.red : Colors.grey[300]!),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -158,6 +224,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             autofocus: true,
+                            enabled: !_isSending,
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                             decoration: const InputDecoration(
                               border: InputBorder.none,
@@ -173,6 +240,16 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                       ],
                     ),
                   ),
+
+                  // Error message
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
 
                   Container(
@@ -198,7 +275,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _isValidPhone ? _handleContinue : null,
+                      onPressed: (_isValidPhone && !_isSending) ? _handleContinue : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: coralColor,
                         disabledBackgroundColor: Colors.grey[300],
@@ -207,7 +284,12 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                         elevation: _isValidPhone ? 2 : 0,
                       ),
-                      child: const Text('Continue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      child: _isSending
+                          ? const SizedBox(
+                              height: 24, width: 24,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                            )
+                          : const Text('Continue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(height: 24),

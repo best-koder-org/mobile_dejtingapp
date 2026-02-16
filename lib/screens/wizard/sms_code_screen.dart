@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/firebase_phone_auth_service.dart';
+import '../../services/auth_session_manager.dart';
 import '../../widgets/dev_mode_banner.dart';
 
 /// SMS Verification Code Entry Screen
-/// 6-digit code input with auto-advance, resend timer, and retry limits
+/// 6-digit code input with auto-advance, resend timer, and retry limits.
+/// Verifies via Firebase → exchanges for Keycloak JWT → starts session.
 class SmsCodeScreen extends StatefulWidget {
   const SmsCodeScreen({super.key});
 
@@ -30,14 +33,36 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
   bool _isVerifying = false;
   String? _errorMessage;
 
+  // Data from phone_entry_screen
+  String? _verificationId;
+  String? _phoneNumber;
+  bool _autoVerified = false;
+  String? _firebaseIdToken;
+
   @override
   void initState() {
     super.initState();
     _startResendTimer();
-    // Auto-focus first field
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _extractRouteArgs();
       _focusNodes[0].requestFocus();
     });
+  }
+
+  void _extractRouteArgs() {
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args == null) return;
+
+    _verificationId = args['verificationId'] as String?;
+    _phoneNumber = args['phoneNumber'] as String?;
+    _autoVerified = args['autoVerified'] == true;
+    _firebaseIdToken = args['firebaseIdToken'] as String?;
+
+    // If auto-verified (Android), skip OTP entry — exchange token immediately
+    if (_autoVerified && _firebaseIdToken != null) {
+      _completeLogin(_firebaseIdToken!);
+    }
   }
 
   @override
@@ -73,12 +98,10 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       _focusNodes[index + 1].requestFocus();
     }
 
-    // Clear error on edit
     if (_errorMessage != null) {
       setState(() => _errorMessage = null);
     }
 
-    // Check if code is complete
     final code = _controllers.map((c) => c.text).join();
     if (code.length == _codeLength) {
       _verifyCode(code);
@@ -96,36 +119,105 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
   }
 
   Future<void> _verifyCode(String code) async {
+    if (_verificationId == null) {
+      setState(() => _errorMessage = 'Verification session expired. Go back and try again.');
+      return;
+    }
+
     setState(() {
       _isVerifying = true;
       _errorMessage = null;
     });
 
-    // TODO: Replace with real Firebase/Twilio verification
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // Verify OTP with Firebase
+      final firebaseIdToken = await FirebasePhoneAuthService.verifySmsCode(
+        verificationId: _verificationId!,
+        smsCode: code,
+      );
+
+      if (firebaseIdToken == null) {
+        if (mounted) {
+          setState(() {
+            _isVerifying = false;
+            _errorMessage = 'Invalid code. Please try again.';
+          });
+          _clearCode();
+        }
+        return;
+      }
+
+      // Firebase verified — now exchange for Keycloak JWT
+      await _completeLogin(firebaseIdToken);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isVerifying = false;
+          _errorMessage = 'Verification failed. Please try again.';
+        });
+        _clearCode();
+      }
+    }
+  }
+
+  /// Exchange Firebase token → Keycloak JWT → start app session
+  Future<void> _completeLogin(String firebaseIdToken) async {
+    setState(() => _isVerifying = true);
+
+    final result = await AuthSessionManager.loginWithPhone(firebaseIdToken);
 
     if (!mounted) return;
 
-    // For now, accept any 6-digit code in dev
-    setState(() => _isVerifying = false);
-    Navigator.pushNamed(context, '/onboarding/community-guidelines');
+    if (result.success) {
+      // Phone verified + Keycloak session active → continue onboarding
+      Navigator.pushNamed(context, '/onboarding/community-guidelines');
+    } else {
+      setState(() {
+        _isVerifying = false;
+        _errorMessage = result.message ?? 'Login failed. Please try again.';
+      });
+      _clearCode();
+    }
+  }
+
+  void _clearCode() {
+    for (final c in _controllers) {
+      c.clear();
+    }
+    _focusNodes[0].requestFocus();
   }
 
   void _resendCode() {
-    if (!_canResend || _resendCount >= _maxResends) return;
+    if (!_canResend || _resendCount >= _maxResends || _phoneNumber == null) return;
 
     setState(() {
       _resendCount++;
       _errorMessage = null;
     });
 
-    // Clear existing code
-    for (final c in _controllers) {
-      c.clear();
-    }
-    _focusNodes[0].requestFocus();
+    _clearCode();
 
-    // TODO: Actually resend the SMS via Firebase/Twilio
+    // Re-send SMS via Firebase
+    FirebasePhoneAuthService.verifyPhoneNumber(
+      phoneNumber: _phoneNumber!,
+      onCodeSent: (newVerificationId) {
+        _verificationId = newVerificationId;
+      },
+      onVerificationCompleted: (credential) async {
+        final idToken = await FirebasePhoneAuthService.signInWithAutoCredential(credential);
+        if (idToken != null) {
+          _completeLogin(idToken);
+        }
+      },
+      onError: (message) {
+        if (mounted) {
+          setState(() => _errorMessage = message);
+        }
+      },
+      onAutoRetrievalTimeout: () {
+        debugPrint('Auto-retrieval timeout on resend');
+      },
+    );
 
     _startResendTimer();
 
@@ -169,14 +261,14 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                   const SizedBox(height: 32),
                   const Text(
                     'Enter verification\ncode',
-                    style: TextStyle(
-                        fontSize: 32, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'We sent a 6-digit code to your phone number.',
-                    style: TextStyle(
-                        fontSize: 16, color: Colors.grey[600], height: 1.4),
+                    _phoneNumber != null
+                        ? 'We sent a 6-digit code to $_phoneNumber'
+                        : 'We sent a 6-digit code to your phone number.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.4),
                   ),
                   const SizedBox(height: 40),
 
@@ -196,38 +288,28 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                             textAlign: TextAlign.center,
                             keyboardType: TextInputType.number,
                             maxLength: 1,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            enabled: !_isVerifying,
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                             decoration: InputDecoration(
                               counterText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: _errorMessage != null
-                                      ? Colors.red
-                                      : Colors.grey[300]!,
+                                  color: _errorMessage != null ? Colors.red : Colors.grey[300]!,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                    color: _coral, width: 2),
+                                borderSide: const BorderSide(color: _coral, width: 2),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                    color: Colors.red, width: 2),
+                                borderSide: const BorderSide(color: Colors.red, width: 2),
                               ),
                               filled: true,
-                              fillColor: _focusNodes[i].hasFocus
-                                  ? Colors.white
-                                  : Colors.grey[50],
+                              fillColor: _focusNodes[i].hasFocus ? Colors.white : Colors.grey[50],
                             ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             onChanged: (v) => _onDigitChanged(i, v),
                           ),
                         ),
@@ -237,10 +319,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 16),
-                    Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red, fontSize: 14),
-                    ),
+                    Text(_errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 14)),
                   ],
 
                   const SizedBox(height: 32),
@@ -265,44 +344,31 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                               onPressed: _resendCode,
                               child: const Text(
                                 "Didn't receive it? Resend code",
-                                style: TextStyle(
-                                  color: _coral,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(color: _coral, fontSize: 15, fontWeight: FontWeight.w600),
                               ),
                             )
                           : Text(
                               _resendCount >= _maxResends
                                   ? 'Maximum resend attempts reached'
                                   : 'Resend code in ${_secondsRemaining}s',
-                              style: TextStyle(
-                                  fontSize: 14, color: Colors.grey[500]),
+                              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                             ),
                     ),
                   ],
 
                   const Spacer(),
 
-                  // Info note
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline,
-                            color: Colors.grey[600], size: 20),
+                        Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Standard SMS rates may apply. The code will expire in 10 minutes.',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                                height: 1.3),
+                            style: TextStyle(fontSize: 12, color: Colors.grey[600], height: 1.3),
                           ),
                         ),
                       ],
@@ -313,8 +379,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(
-                context, '/onboarding/community-guidelines'),
+            onSkip: () => Navigator.pushNamed(context, '/onboarding/community-guidelines'),
             label: 'Skip SMS',
           ),
         ],
