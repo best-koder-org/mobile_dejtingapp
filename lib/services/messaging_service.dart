@@ -75,6 +75,16 @@ class MessagingService {
   Stream<Message> get messageStream => _messageController.stream;
   Stream<String> get connectionStatusStream =>
       _connectionStatusController.stream;
+
+  // --- Typing indicator ---
+  final StreamController<Map<String, dynamic>> _typingController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get typingStream => _typingController.stream;
+
+  // --- Read receipt notifications ---
+  final StreamController<String> _readReceiptController =
+      StreamController<String>.broadcast();
+  Stream<String> get readReceiptStream => _readReceiptController.stream;
   ConnectionState get connectionState => _connectionState;
   bool get isConnected => _connectionState == ConnectionState.connected;
 
@@ -157,6 +167,7 @@ class MessagingService {
       _hubConnection!.on('MessageReceived', _onReceiveMessage); // MMP spec name
       _hubConnection!.on('MessageSent', _onMessageSent);
       _hubConnection!.on('MessageRead', _onMessageRead);
+      _hubConnection!.on('TypingChanged', _onTypingChanged);
       _hubConnection!.on('Error', _onHubError);
 
       // --- Connection lifecycle ---
@@ -344,11 +355,26 @@ class MessagingService {
         final idx = conv.indexWhere((m) => m.id == messageId);
         if (idx != -1) {
           conv[idx] = conv[idx].copyWith(isRead: true, readAt: DateTime.now());
+          _readReceiptController.add(messageId);
           break;
         }
       }
+      if (kDebugMode) print('👁️ MessageRead: $messageId');
     } catch (e) {
       if (kDebugMode) print('❌ _onMessageRead error: $e');
+    }
+  }
+
+  void _onTypingChanged(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty) return;
+    try {
+      final data = parameters[0] as Map<String, dynamic>;
+      _typingController.add(data);
+      if (kDebugMode) {
+        print('⌨️ TypingChanged: userId=${data['userId']} isTyping=${data['isTyping']}');
+      }
+    } catch (e) {
+      if (kDebugMode) print('❌ _onTypingChanged error: $e');
     }
   }
 
@@ -654,6 +680,21 @@ class MessagingService {
   }
 
   // =========================================================================
+  // Typing Indicator
+  // =========================================================================
+
+  /// Send typing indicator to the other user.
+  /// [matchId] is the conversation/match identifier.
+  Future<void> sendTyping(String matchId, bool isTyping) async {
+    if (!this.isConnected || _hubConnection == null) return;
+    try {
+      await _hubConnection!.invoke('Typing', args: [matchId, isTyping]);
+    } catch (e) {
+      if (kDebugMode) print('⚠️ sendTyping error: $e');
+    }
+  }
+
+  // =========================================================================
   // Mark as Read
   // =========================================================================
 
@@ -753,6 +794,8 @@ class MessagingService {
     _flushTimer?.cancel();
     _messageController.close();
     _connectionStatusController.close();
+    _typingController.close();
+    _readReceiptController.close();
     _hubConnection?.stop();
   }
 }

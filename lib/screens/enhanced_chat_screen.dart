@@ -28,6 +28,14 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   late StreamSubscription _messageSubscription;
   late StreamSubscription _statusSubscription;
 
+  // Typing indicator state
+  late StreamSubscription _typingSubscription;
+  late StreamSubscription<String> _readReceiptSubscription;
+  bool _otherUserTyping = false;
+  Timer? _typingDebounce;
+  Timer? _typingTimeout;
+  bool _iAmTyping = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +48,18 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
     _scrollController.dispose();
     _refreshTimer?.cancel();
+    _typingDebounce?.cancel();
+    _typingTimeout?.cancel();
+    // Send stop typing on leave
+    if (_iAmTyping) _sendTypingState(false);
     _messageSubscription.cancel();
     _statusSubscription.cancel();
+    _typingSubscription.cancel();
+    _readReceiptSubscription.cancel();
     super.dispose();
   }
 
@@ -80,6 +95,58 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         _connectionStatus = status;
       });
     });
+
+    // Listen to typing indicators
+    _typingSubscription = _messagingService.typingStream.listen((data) {
+      final userId = data['userId']?.toString();
+      final isTyping = data['isTyping'] == true;
+      if (userId == widget.match.otherUserProfile?.userId) {
+        setState(() => _otherUserTyping = isTyping);
+        // Auto-clear typing after 5s (safety net if stop event lost)
+        _typingTimeout?.cancel();
+        if (isTyping) {
+          _typingTimeout = Timer(const Duration(seconds: 5), () {
+            if (mounted) setState(() => _otherUserTyping = false);
+          });
+        }
+      }
+    });
+
+    // Listen to read receipts for live checkmark updates
+    _readReceiptSubscription = _messagingService.readReceiptStream.listen((messageId) {
+      final idx = _messages.indexWhere((m) => m.id == messageId);
+      if (idx != -1 && mounted) {
+        setState(() {
+          _messages[idx] = _messages[idx].copyWith(isRead: true, readAt: DateTime.now());
+        });
+      }
+    });
+
+    // Listen to text field changes for typing indicator
+    _messageController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    final hasText = _messageController.text.trim().isNotEmpty;
+    if (hasText && !_iAmTyping) {
+      _iAmTyping = true;
+      _sendTypingState(true);
+    }
+    // Debounce: stop typing after 2s of no input
+    _typingDebounce?.cancel();
+    _typingDebounce = Timer(const Duration(seconds: 2), () {
+      if (_iAmTyping) {
+        _iAmTyping = false;
+        _sendTypingState(false);
+      }
+    });
+  }
+
+  void _sendTypingState(bool isTyping) {
+    final matchId = widget.match.id;
+    if (matchId.isNotEmpty) {
+      _messagingService.sendTyping(matchId, isTyping);
+    }
   }
 
   void _startAutoRefresh() {
@@ -155,6 +222,10 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
 
       if (result != null) {
         _messageController.clear();
+        // Stop typing indicator
+        _iAmTyping = false;
+        _typingDebounce?.cancel();
+        _sendTypingState(false);
         _scrollToBottom();
       } else {
         if (mounted) {
@@ -458,6 +529,39 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                       ),
           ),
 
+          // Typing indicator
+          if (_otherUserTyping)
+            Padding(
+              padding: const EdgeInsets.only(left: 16, bottom: 4),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundImage: NetworkImage(
+                      profile?.photoUrls.isNotEmpty == true
+                          ? profile!.photoUrls.first
+                          : 'https://picsum.photos/400/600?random=1',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceElevated,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _TypingDots(),
+                        const SizedBox(width: 4),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Message Input
           Container(
             padding: const EdgeInsets.all(16),
@@ -646,6 +750,65 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           ),
         ],
       ),
+    );
+  }
+}
+
+
+/// Animated typing dots indicator (three bouncing dots).
+class _TypingDots extends StatefulWidget {
+  @override
+  State<_TypingDots> createState() => _TypingDotsState();
+}
+
+class _TypingDotsState extends State<_TypingDots>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (i) {
+            final delay = i * 0.2;
+            final t = (_controller.value + delay) % 1.0;
+            // Bounce: quick up-down in first 0.5, then idle
+            final bounce = t < 0.5 ? (1 - (2 * t - 0.5).abs()) * 4.0 : 0.0;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Transform.translate(
+                offset: Offset(0, -bounce),
+                child: Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: AppTheme.textTertiary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }
