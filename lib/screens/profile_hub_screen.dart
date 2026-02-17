@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
-import 'package:dejtingapp/services/api_service.dart';
+import 'package:dejtingapp/services/api_service.dart' hide PhotoService;
 import 'package:dejtingapp/services/verification_service.dart';
 import 'package:dejtingapp/services/safety_service.dart';
 import 'package:dejtingapp/services/photo_service.dart';
 import 'package:dejtingapp/widgets/verification_badge.dart';
+import 'package:dejtingapp/utils/profile_completion_calculator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'verification_selfie_screen.dart';
 import 'settings_screen.dart';
 
-/// Hinge-style profile hub with 3 tabs:
-///   Get more  |  Safety  |  My DejTing
-/// Circular profile photo header with name + verified badge.
+/// DejTing profile hub — inspired by Hinge but branded for DejTing.
+///
+/// 3 tabs:  Get more  |  Safety  |  My DejTing
+///
+/// Features our own concepts:
+///   • Spark ⚡ — a special like + message that stands out
+///   • Spotlight 🔦 — get highlighted in the discover feed
+///   • DejTing Plus — premium subscription tier
 class ProfileHubScreen extends StatefulWidget {
   const ProfileHubScreen({super.key});
 
@@ -30,8 +36,12 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   bool _isVerified = false;
   int _profileCompletion = 0;
   int _blockedCount = 0;
-  bool _isLoading = true;
   Map<String, String>? _imageHeaders;
+
+  // Spark / Spotlight balances (persisted later via backend)
+  int _sparksRemaining = 1; // Free users get 1/week
+  int _spotlightMinutes = 0;
+  bool _isPlusSubscriber = false;
 
   // Services
   final _verificationService = VerificationService();
@@ -56,13 +66,12 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
       final token = await appState.getOrRefreshAuthToken();
       final userId = int.tryParse(appState.userId ?? '');
 
-      // Load name from app state or session
-      _displayName = appState.displayName ?? 'Profile';
+      _displayName = appState.userProfile?['preferred_username'] as String? ?? appState.userProfile?['name'] as String? ?? 'Profile';
 
       if (token != null) {
         _imageHeaders = {'Authorization': 'Bearer $token'};
 
-        // Load primary photo
+        // Load photos + calculate profile completion
         if (userId != null) {
           final summary = await _photoService.getUserPhotos(
             authToken: token,
@@ -76,14 +85,23 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             _primaryPhotoUrl = primaryPhoto.urls.medium.isNotEmpty
                 ? primaryPhoto.urls.medium
                 : primaryPhoto.urls.thumbnail;
+
+            // Profile completion based on photos available
+            _profileCompletion = ProfileCompletionCalculator.calculateProfileCompletion(
+              firstName: _displayName,
+              lastName: '',
+              bio: '', // We don't have bio cached here — profile editor owns it
+              photoUrls: summary.photos.map((p) => p.urls.thumbnail).toList(),
+              interests: [],
+            );
           }
         }
 
-        // Load verification status
+        // Verification status
         final verStatus = await _verificationService.getStatus();
         _isVerified = verStatus?.isVerified ?? false;
 
-        // Load blocked users count
+        // Block count
         try {
           final blocked = await SafetyService.getBlockedUsers();
           _blockedCount = blocked.length;
@@ -96,7 +114,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
     }
 
     if (mounted) {
-      setState(() => _isLoading = false);
+      setState(() {});
     }
   }
 
@@ -106,10 +124,9 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // ─── Profile Header (circular photo + name + badge) ───
             _buildProfileHeader(),
 
-            // ─── Tab Bar ───
+            // Tab Bar
             Container(
               decoration: const BoxDecoration(
                 border: Border(
@@ -126,7 +143,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               ),
             ),
 
-            // ─── Tab Content ───
+            // Tab Content
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -144,18 +161,17 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   }
 
   // ════════════════════════════════════════════════════════
-  // Profile Header — Hinge style
+  // Profile Header
   // ════════════════════════════════════════════════════════
+
   Widget _buildProfileHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
       child: Column(
         children: [
-          // Circular photo with edit button
           Stack(
             alignment: Alignment.center,
             children: [
-              // Outer ring (gradient or solid)
               Container(
                 width: 110,
                 height: 110,
@@ -176,35 +192,13 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                             imageUrl: _primaryPhotoUrl!,
                             httpHeaders: _imageHeaders,
                             fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
-                              color: AppTheme.surfaceElevated,
-                              child: const Icon(
-                                Icons.person,
-                                size: 48,
-                                color: AppTheme.textTertiary,
-                              ),
-                            ),
-                            errorWidget: (_, __, ___) => Container(
-                              color: AppTheme.surfaceElevated,
-                              child: const Icon(
-                                Icons.person,
-                                size: 48,
-                                color: AppTheme.textTertiary,
-                              ),
-                            ),
+                            placeholder: (_, __) => _photoPlaceholder(),
+                            errorWidget: (_, __, ___) => _photoPlaceholder(),
                           )
-                        : Container(
-                            color: AppTheme.surfaceElevated,
-                            child: const Icon(
-                              Icons.person,
-                              size: 48,
-                              color: AppTheme.textTertiary,
-                            ),
-                          ),
+                        : _photoPlaceholder(),
                   ),
                 ),
               ),
-              // Edit icon (top-right)
               Positioned(
                 top: 0,
                 right: 0,
@@ -218,25 +212,15 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceElevated,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.dividerColor,
-                        width: 1,
-                      ),
+                      border: Border.all(color: AppTheme.dividerColor, width: 1),
                     ),
-                    child: const Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: AppTheme.textPrimary,
-                    ),
+                    child: const Icon(Icons.edit, size: 16, color: AppTheme.textPrimary),
                   ),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // Name + verified badge
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -257,87 +241,76 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
     );
   }
 
+  Widget _photoPlaceholder() {
+    return Container(
+      color: AppTheme.surfaceElevated,
+      child: const Icon(Icons.person, size: 48, color: AppTheme.textTertiary),
+    );
+  }
+
   // ════════════════════════════════════════════════════════
-  // Tab 1: Get More (upgrades, boosts, premium features)
+  // Tab 1: Get More
   // ════════════════════════════════════════════════════════
+
   Widget _buildGetMoreTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Premium upgrade card
+        // ── DejTing Plus promo ──
         _buildPromoCard(
-          title: 'DejTing Premium',
-          subtitle: 'Get noticed sooner and go on\n3x as many dates',
-          icon: Icons.workspace_premium,
-          gradientColors: [
-            AppTheme.secondaryColor,
-            AppTheme.primaryColor,
-          ],
-          buttonText: 'Upgrade',
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Premium coming soon!')),
-            );
-          },
+          title: 'DejTing Plus',
+          subtitle: 'Unlimited Sparks, weekly Spotlight,\nand see who likes you first.',
+          gradientColors: [AppTheme.secondaryColor, AppTheme.primaryColor],
+          buttonText: _isPlusSubscriber ? 'Manage' : 'Upgrade',
+          onPressed: () => _showPlusSheet(),
         ),
 
         const SizedBox(height: 16),
 
-        // Boost card
+        // ── Spotlight card ──
+        _buildFeatureCard(
+          icon: Icons.flashlight_on,
+          iconColor: AppTheme.warningColor,
+          badgeCount: _spotlightMinutes > 0 ? _spotlightMinutes : null,
+          badgeLabel: _spotlightMinutes > 0 ? '${_spotlightMinutes}m' : null,
+          title: 'Spotlight',
+          subtitle: 'Jump to the front — get seen by 10× more people for 30 min.',
+          onTap: () => _showSpotlightSheet(),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Sparks card ──
         _buildFeatureCard(
           icon: Icons.bolt,
           iconColor: AppTheme.tealAccent,
-          badgeCount: 0,
-          title: 'Boost',
-          subtitle: 'Get seen by 11x more people',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Boosts coming soon!')),
-            );
-          },
+          badgeCount: _sparksRemaining,
+          title: 'Sparks',
+          subtitle: 'Send a Spark with a message — 3× more likely to match.',
+          onTap: () => _showSparksSheet(),
         ),
 
         const SizedBox(height: 12),
 
-        // Roses card
-        _buildFeatureCard(
-          icon: Icons.local_florist,
-          iconColor: AppTheme.primaryLight,
-          badgeCount: 1,
-          title: 'Roses',
-          subtitle: '2x as likely to lead to a date',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Roses coming soon!')),
-            );
-          },
-        ),
-
-        const SizedBox(height: 12),
-
-        // Profile completeness card
+        // ── Profile Strength card ──
         _buildFeatureCard(
           icon: Icons.stars,
-          iconColor: AppTheme.warningColor,
+          iconColor: ProfileCompletionCalculator.getCompletionColor(_profileCompletion),
           title: 'Profile Strength',
-          subtitle: 'Complete profiles get 3x more likes',
-          trailing: Text(
-            '$_profileCompletion%',
-            style: TextStyle(
-              color: AppTheme.primaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+          subtitle: ProfileCompletionCalculator.getMatchQualityBonus(_profileCompletion),
+          trailing: _buildCompletionIndicator(),
+          onTap: () => Navigator.pushNamed(context, '/profile').then(
+            (_) => _loadProfileData(),
           ),
-          onTap: () => Navigator.pushNamed(context, '/profile'),
         ),
       ],
     );
   }
 
   // ════════════════════════════════════════════════════════
-  // Tab 2: Safety (Verification, Block List, Resources)
+  // Tab 2: Safety
   // ════════════════════════════════════════════════════════
+
   Widget _buildSafetyTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -345,61 +318,48 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         // Selfie Verification
         _buildSafetyCard(
           icon: Icons.verified_user,
-          iconBgColor: AppTheme.secondaryColor.withValues(alpha: 0.15),
           iconColor: AppTheme.secondaryColor,
           isChecked: _isVerified,
           title: 'Selfie verification',
-          subtitle: _isVerified ? "You're verified." : 'Verify your identity',
+          subtitle: _isVerified ? "You're verified ✓" : 'Verify your identity',
           onTap: () async {
             final result = await Navigator.push<bool>(
               context,
-              MaterialPageRoute(
-                builder: (_) => const _VerificationSelfieRoute(),
-              ),
+              MaterialPageRoute(builder: (_) => const VerificationSelfieScreen()),
             );
-            if (result == true) {
-              _loadProfileData(); // Refresh verification status
-            }
+            if (result == true) _loadProfileData();
           },
         ),
 
         const SizedBox(height: 12),
 
-        // Comment Filter (placeholder — mirrors Hinge)
+        // Comment filter
         _buildSafetyCard(
           icon: Icons.chat_bubble_outline,
-          iconBgColor: AppTheme.secondaryColor.withValues(alpha: 0.15),
           iconColor: AppTheme.secondaryColor,
           isChecked: true,
-          title: 'Comment Filter',
-          subtitle: 'Hiding likes containing disrespectful\nlanguage.',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Comment filter settings coming soon')),
-            );
-          },
+          title: 'Message filter',
+          subtitle: 'Hiding messages with disrespectful language.',
+          onTap: () => _showComingSoon('Message filter settings'),
         ),
 
         const SizedBox(height: 12),
 
-        // Block List
+        // Block list
         _buildSafetyCard(
           icon: Icons.block,
-          iconBgColor: AppTheme.secondaryColor.withValues(alpha: 0.15),
           iconColor: AppTheme.secondaryColor,
           isChecked: true,
-          title: 'Block List',
-          subtitle: 'Blocking $_blockedCount contact${_blockedCount == 1 ? '' : 's'}.',
-          onTap: () {
-            _showBlockListDialog();
-          },
+          title: 'Block list',
+          subtitle: '$_blockedCount contact${_blockedCount == 1 ? '' : 's'} blocked.',
+          onTap: () => _showBlockListSheet(),
         ),
 
         const SizedBox(height: 32),
 
-        // Explore safety resources header
+        // Safety resources header
         Text(
-          'Explore safety resources',
+          'Safety resources',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -407,26 +367,21 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 
         const SizedBox(height: 16),
 
-        // Crisis Hotlines + Help Centre row
         Row(
           children: [
             Expanded(
               child: _buildResourceButton(
                 icon: Icons.phone_in_talk,
-                label: 'Crisis Hotlines',
+                label: 'Crisis hotlines',
                 onTap: () => _launchUrl('https://www.iasp.info/resources/Crisis_Centres/'),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildResourceButton(
-                icon: Icons.help_outline,
-                label: 'Help Centre',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Help centre coming soon')),
-                  );
-                },
+                icon: Icons.shield_outlined,
+                label: 'Safety tips',
+                onTap: () => _launchUrl('https://www.staysafe.org/dating-safety-tips/'),
               ),
             ),
           ],
@@ -436,13 +391,14 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   }
 
   // ════════════════════════════════════════════════════════
-  // Tab 3: My DejTing (prompts, tips, settings, help)
+  // Tab 3: My DejTing
   // ════════════════════════════════════════════════════════
+
   Widget _buildMyDejTingTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Break new ice / Update prompts
+        // Fresh Start card
         Container(
           padding: const EdgeInsets.all(24),
           decoration: AppTheme.cardDecoration,
@@ -451,41 +407,40 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               Container(
                 width: 56,
                 height: 56,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppTheme.surfaceElevated,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.question_answer_outlined,
+                  Icons.auto_awesome,
                   size: 28,
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.tealAccent,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                'Break new ice',
+                'Fresh start',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Tired of the same convos? Answer a new\nPrompt for fresh conversations.',
+                'Update your prompts and photos\nto spark new conversations.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
               OutlinedButton(
-                onPressed: () => Navigator.pushNamed(context, '/profile'),
+                onPressed: () => Navigator.pushNamed(context, '/profile').then(
+                  (_) => _loadProfileData(),
+                ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppTheme.textPrimary),
                   foregroundColor: AppTheme.textPrimary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 ),
-                child: const Text('Update prompts'),
+                child: const Text('Edit profile'),
               ),
             ],
           ),
@@ -493,37 +448,29 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 
         const SizedBox(height: 16),
 
-        // Help Centre card
+        // Dating tips
+        _buildFeatureCard(
+          icon: Icons.lightbulb_outline,
+          iconColor: AppTheme.warningColor,
+          title: 'Dating tips',
+          subtitle: 'Expert-backed advice for better dates',
+          onTap: () => _showComingSoon('Dating tips'),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Help centre
         _buildFeatureCard(
           icon: Icons.help_outline,
           iconColor: AppTheme.textSecondary,
-          title: 'Help Centre',
-          subtitle: 'Safety, Security and more',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Help centre coming soon')),
-            );
-          },
+          title: 'Help centre',
+          subtitle: 'FAQs, safety and account support',
+          onTap: () => _showComingSoon('Help centre'),
         ),
 
         const SizedBox(height: 12),
 
-        // What Works card
-        _buildFeatureCard(
-          icon: Icons.lightbulb_outline,
-          iconColor: AppTheme.textSecondary,
-          title: 'What Works',
-          subtitle: 'Check out our expert dating tips',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Dating tips coming soon!')),
-            );
-          },
-        ),
-
-        const SizedBox(height: 12),
-
-        // Settings card
+        // Settings
         _buildFeatureCard(
           icon: Icons.settings,
           iconColor: AppTheme.textSecondary,
@@ -532,26 +479,19 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const _SettingsRoute(),
-              ),
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
             );
           },
         ),
 
         const SizedBox(height: 24),
 
-        // Logout button
+        // Logout
         Center(
           child: TextButton(
             onPressed: _showLogoutDialog,
-            style: TextButton.styleFrom(
-              foregroundColor: AppTheme.errorColor,
-            ),
-            child: const Text(
-              'Logout',
-              style: TextStyle(fontSize: 16),
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
+            child: const Text('Logout', style: TextStyle(fontSize: 16)),
           ),
         ),
 
@@ -561,264 +501,338 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   }
 
   // ════════════════════════════════════════════════════════
-  // Shared UI Components
+  // Bottom Sheets — Spark / Spotlight / Plus
   // ════════════════════════════════════════════════════════
 
-  Widget _buildPromoCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required List<Color> gradientColors,
-    required String buttonText,
-    required VoidCallback onPressed,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gradientColors,
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
+  void _showSparksSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => _BottomSheetWrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _SheetHandle(),
+            const SizedBox(height: 16),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppTheme.tealAccent.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.bolt, size: 36, color: AppTheme.tealAccent),
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: gradientColors.last,
-              minimumSize: const Size(160, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+            const SizedBox(height: 16),
+            Text(
+              'Send a Spark ⚡',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'A Spark lets you send a like with a personal message — so they know you\'re serious. '
+                'Profiles that receive a Spark are 3× more likely to match.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
-            child: Text(buttonText),
+            const SizedBox(height: 24),
+            // Balance
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.cardDecoration,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Your Sparks', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Row(
+                    children: [
+                      const Icon(Icons.bolt, size: 20, color: AppTheme.tealAccent),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_sparksRemaining',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: AppTheme.tealAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _isPlusSubscriber
+                  ? 'Plus subscribers get 5 Sparks per week.'
+                  : 'Free: 1 Spark per week. Upgrade for 5.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            if (!_isPlusSubscriber)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showPlusSheet();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Get more Sparks'),
+                ),
+              ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSpotlightSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => _BottomSheetWrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _SheetHandle(),
+            const SizedBox(height: 16),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppTheme.warningColor.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.flashlight_on, size: 36, color: AppTheme.warningColor),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Spotlight 🔦',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Spotlight puts your profile at the top of Discover for 30 minutes. '
+                'Get seen by up to 10× more people and land more matches.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // How it works
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.cardDecoration,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('How it works', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 12),
+                  _spotlightStep('1', 'Activate Spotlight'),
+                  const SizedBox(height: 8),
+                  _spotlightStep('2', 'Your profile jumps to the top of Discover'),
+                  const SizedBox(height: 8),
+                  _spotlightStep('3', 'Enjoy 30 min of boosted visibility'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _spotlightMinutes > 0
+                    ? null
+                    : () {
+                        setState(() => _spotlightMinutes = 30);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('🔦 Spotlight activated! 30 min of boosted visibility.'),
+                          ),
+                        );
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.warningColor,
+                  foregroundColor: Colors.black87,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  _spotlightMinutes > 0
+                      ? 'Active — ${_spotlightMinutes}m remaining'
+                      : _isPlusSubscriber
+                          ? 'Activate Spotlight (1/week free)'
+                          : 'Activate Spotlight',
+                ),
+              ),
+            ),
+            if (!_isPlusSubscriber) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Plus subscribers get 1 free Spotlight per week.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _spotlightStep(String number, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppTheme.warningColor.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: AppTheme.warningColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(text, style: Theme.of(context).textTheme.bodyMedium),
+      ],
+    );
+  }
+
+  void _showPlusSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => _BottomSheetWrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const _SheetHandle(),
+            const SizedBox(height: 8),
+            // Gradient header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [AppTheme.secondaryColor, AppTheme.primaryColor],
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'DejTing Plus',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'The full DejTing experience',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white70,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Perks list
+            _plusPerk(Icons.bolt, AppTheme.tealAccent, '5 Sparks per week', 'Free gets 1'),
+            _plusPerk(Icons.flashlight_on, AppTheme.warningColor, '1 free Spotlight per week', '30 min boost'),
+            _plusPerk(Icons.visibility, AppTheme.secondaryColor, 'See who likes you', 'Before matching'),
+            _plusPerk(Icons.tune, AppTheme.primaryColor, 'Advanced filters', 'Height, lifestyle, more'),
+            _plusPerk(Icons.refresh, AppTheme.tertiaryColor, 'Unlimited rewinds', 'Undo accidental skips'),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showComingSoon('DejTing Plus subscriptions');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Coming soon', style: TextStyle(fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _plusPerk(IconData icon, Color color, String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureCard({
-    required IconData icon,
-    required Color iconColor,
-    int? badgeCount,
-    required String title,
-    required String subtitle,
-    Widget? trailing,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: AppTheme.cardDecoration,
-        child: Row(
-          children: [
-            // Icon with optional badge
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
-                  child: Icon(icon, color: iconColor, size: 24),
-                ),
-                if (badgeCount != null)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$badgeCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            // Title + subtitle
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            trailing ??
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppTheme.textTertiary,
-                ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSafetyCard({
-    required IconData icon,
-    required Color iconBgColor,
-    required Color iconColor,
-    required bool isChecked,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: AppTheme.cardDecoration,
-        child: Row(
-          children: [
-            // Icon with checkmark overlay
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: iconBgColor,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
-                  child: Icon(icon, color: iconColor, size: 24),
-                ),
-                if (isChecked)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1E88E5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: AppTheme.textTertiary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResourceButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: AppTheme.cardDecoration,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20, color: AppTheme.textSecondary),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimary,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ════════════════════════════════════════════════════════
-  // Dialogs
+  // Block List Sheet
   // ════════════════════════════════════════════════════════
 
-  void _showBlockListDialog() async {
+  void _showBlockListSheet() async {
     try {
       final blocked = await SafetyService.getBlockedUsers();
       if (!mounted) return;
@@ -833,21 +847,10 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           expand: false,
           builder: (context, scrollController) => Column(
             children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.dividerColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+              const _SheetHandle(),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Block List',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                child: Text('Block list', style: Theme.of(context).textTheme.titleLarge),
               ),
               const Divider(height: 1),
               Expanded(
@@ -864,9 +867,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                         itemBuilder: (context, index) {
                           final user = blocked[index];
                           return ListTile(
-                            leading: const CircleAvatar(
-                              child: Icon(Icons.person),
-                            ),
+                            leading: const CircleAvatar(child: Icon(Icons.person)),
                             title: Text(
                               user['displayName'] ?? 'User ${user['blockedUserId']}',
                             ),
@@ -900,6 +901,250 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
     }
   }
 
+  // ════════════════════════════════════════════════════════
+  // Shared Builders
+  // ════════════════════════════════════════════════════════
+
+  Widget _buildPromoCard({
+    required String title,
+    required String subtitle,
+    required List<Color> gradientColors,
+    required String buttonText,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+          ),
+          const SizedBox(height: 12),
+          Text(subtitle, textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 16)),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: gradientColors.last,
+              minimumSize: const Size(160, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            child: Text(buttonText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required Color iconColor,
+    int? badgeCount,
+    String? badgeLabel,
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: AppTheme.cardDecoration,
+        child: Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 24),
+                ),
+                if (badgeCount != null || badgeLabel != null)
+                  Positioned(
+                    top: -6,
+                    right: -6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: iconColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        badgeLabel ?? '$badgeCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            trailing ?? const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSafetyCard({
+    required IconData icon,
+    required Color iconColor,
+    required bool isChecked,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: AppTheme.cardDecoration,
+        child: Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 24),
+                ),
+                if (isChecked)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1E88E5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check, size: 14, color: Colors.white),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResourceButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: AppTheme.cardDecoration,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: AppTheme.textSecondary),
+            const SizedBox(width: 8),
+            Text(label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textPrimary)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompletionIndicator() {
+    final color = ProfileCompletionCalculator.getCompletionColor(_profileCompletion);
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: _profileCompletion / 100,
+            strokeWidth: 3,
+            backgroundColor: AppTheme.dividerColor,
+            valueColor: AlwaysStoppedAnimation(color),
+          ),
+          Text(
+            '$_profileCompletion%',
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════
+  // Dialogs / Helpers
+  // ════════════════════════════════════════════════════════
+
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -914,17 +1159,19 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
-              );
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
             child: const Text('Logout'),
           ),
         ],
       ),
+    );
+  }
+
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature — coming soon!')),
     );
   }
 
@@ -937,28 +1184,41 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 }
 
 // ════════════════════════════════════════════════════════
-// Internal route wrappers (avoid circular imports)
+// Shared bottom-sheet widgets
 // ════════════════════════════════════════════════════════
 
-class _VerificationSelfieRoute extends StatelessWidget {
-  const _VerificationSelfieRoute();
+class _SheetHandle extends StatelessWidget {
+  const _SheetHandle();
 
   @override
   Widget build(BuildContext context) {
-    return const VerificationSelfieScreen();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: 40,
+        height: 4,
+        decoration: BoxDecoration(
+          color: AppTheme.dividerColor,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
   }
 }
 
-
-/// Minimal inline verification launcher — delegates to the real screen
-
-
-class _SettingsRoute extends StatelessWidget {
-  const _SettingsRoute();
+class _BottomSheetWrap extends StatelessWidget {
+  final Widget child;
+  const _BottomSheetWrap({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return const SettingsScreen();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: child,
+    );
   }
 }
-

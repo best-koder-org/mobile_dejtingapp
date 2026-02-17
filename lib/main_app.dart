@@ -5,7 +5,7 @@ import 'screens/home_screen.dart';
 import 'screens/enhanced_matches_screen.dart';
 import 'screens/profile_hub_screen.dart';
 import 'services/app_initialization_service.dart';
-import 'services/api_service.dart';
+import 'services/api_service.dart' hide PhotoService;
 import 'services/photo_service.dart';
 
 class MainApp extends StatefulWidget {
