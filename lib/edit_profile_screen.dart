@@ -12,22 +12,22 @@ import 'services/photo_service.dart';
 import 'utils/profile_completion_calculator.dart';
 import 'services/api_service.dart' as session_api;
 
-class TinderLikeProfileScreen extends StatefulWidget {
+class EditProfileScreen extends StatefulWidget {
   final UserProfile? userProfile;
   final bool isFirstTime;
 
-  const TinderLikeProfileScreen({
+  const EditProfileScreen({
     super.key,
     this.userProfile,
     this.isFirstTime = false,
   });
 
   @override
-  _TinderLikeProfileScreenState createState() =>
-      _TinderLikeProfileScreenState();
+  _EditProfileScreenState createState() =>
+      _EditProfileScreenState();
 }
 
-class _TinderLikeProfileScreenState extends State<TinderLikeProfileScreen> {
+class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   final PhotoService _photoService = PhotoService();
@@ -197,7 +197,7 @@ class _TinderLikeProfileScreenState extends State<TinderLikeProfileScreen> {
   }
 
   @override
-  void didUpdateWidget(TinderLikeProfileScreen oldWidget) {
+  void didUpdateWidget(EditProfileScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Refresh photos when widget updates (e.g., returning from another screen)
     _loadPhotosFromPhotoService();

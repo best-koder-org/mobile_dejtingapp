@@ -23,7 +23,7 @@ import 'screens/wizard/location_permission_screen.dart';
 import 'screens/wizard/notification_permission_screen.dart';
 import 'screens/wizard/onboarding_complete_screen.dart';
 
-import 'tinder_like_profile_screen.dart';
+import 'edit_profile_screen.dart';
 import 'services/api_service.dart';
 import 'config/environment.dart';
 import 'config/dev_mode.dart';
@@ -108,7 +108,7 @@ class DatingApp extends StatelessWidget {
         
         // Main app
         '/home': (context) => const MainApp(),
-        '/profile': (context) => const TinderLikeProfileScreen(isFirstTime: false),
+        '/profile': (context) => const EditProfileScreen(isFirstTime: false),
         '/photos': (context) {
           final appState = AppState();
           final token = appState.authToken;
