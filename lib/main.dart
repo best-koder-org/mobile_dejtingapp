@@ -16,6 +16,7 @@ import 'screens/wizard/relationship_goals_screen.dart';
 import 'screens/wizard/match_preferences_screen.dart';
 import 'screens/wizard/photos_screen.dart';
 import 'screens/wizard/sms_code_screen.dart';
+import 'screens/wizard/email_screen.dart';
 import 'screens/wizard/lifestyle_screen.dart';
 import 'screens/wizard/interests_screen.dart';
 import 'screens/wizard/aboutme_screen.dart';
@@ -99,6 +100,7 @@ class DatingApp extends StatelessWidget {
         '/onboarding/match-preferences': (context) => OnboardingProvider(data: _onboardingData, child: const MatchPreferencesScreen()),
         '/onboarding/photos': (context) => OnboardingProvider(data: _onboardingData, child: const PhotosScreen()),
         '/onboarding/verify-code': (context) => OnboardingProvider(data: _onboardingData, child: const SmsCodeScreen()),
+        '/onboarding/email': (context) => OnboardingProvider(data: _onboardingData, child: const EmailScreen()),
         '/onboarding/lifestyle': (context) => OnboardingProvider(data: _onboardingData, child: const LifestyleScreen()),
         '/onboarding/interests': (context) => OnboardingProvider(data: _onboardingData, child: const InterestsScreen()),
         '/onboarding/about-me': (context) => OnboardingProvider(data: _onboardingData, child: const AboutMeScreen()),
