@@ -1140,4 +1140,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String addUpToInterests(int max) {
     return 'Add up to $max interests to show on your profile.';
   }
+
+  @override
+  String get verificationSubtitle => 'Get a blue checkmark';
+
+  @override
+  String get notificationsSubtitle => 'New matches and messages';
+
+  @override
+  String get getMoreSparks => 'Get more Sparks';
 }

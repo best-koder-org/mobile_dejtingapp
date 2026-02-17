@@ -1020,7 +1020,7 @@ class _LikeCommentSheetState extends State<_LikeCommentSheet> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: _hasText ? () => widget.onSend(_controller.text.trim()) : null,
-                  child: const Text('Send with comment'),
+                  child: Text(AppLocalizations.of(context)!.sendWithComment),
                 ),
               ),
             ],

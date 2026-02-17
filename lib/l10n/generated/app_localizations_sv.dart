@@ -1145,4 +1145,13 @@ class AppLocalizationsSv extends AppLocalizations {
   String addUpToInterests(int max) {
     return 'Lägg till upp till $max intressen att visa på din profil.';
   }
+
+  @override
+  String get verificationSubtitle => 'Få en blå bock';
+
+  @override
+  String get notificationsSubtitle => 'Nya matchningar och meddelanden';
+
+  @override
+  String get getMoreSparks => 'Skaffa fler Sparks';
 }

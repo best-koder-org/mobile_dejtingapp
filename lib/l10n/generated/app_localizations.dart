@@ -2185,6 +2185,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add up to {max} interests to show on your profile.'**
   String addUpToInterests(int max);
+
+  /// No description provided for @verificationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a blue checkmark'**
+  String get verificationSubtitle;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New matches and messages'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @getMoreSparks.
+  ///
+  /// In en, this message translates to:
+  /// **'Get more Sparks'**
+  String get getMoreSparks;
 }
 
 class _AppLocalizationsDelegate

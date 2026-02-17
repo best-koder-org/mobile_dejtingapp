@@ -1,9 +1,7 @@
 {
   "@@locale": "sv",
-
   "appTitle": "DejTing",
   "appName": "DejTing",
-
   "continueButton": "Fortsätt",
   "nextButton": "Nästa",
   "cancelButton": "Avbryt",
@@ -29,11 +27,9 @@
   "notNow": "Inte nu",
   "comingSoon": "Kommer snart",
   "orDivider": "eller",
-
   "navDiscover": "Utforska",
   "navMatches": "Matchningar",
   "navProfile": "Profil",
-
   "loginTitle": "Logga in",
   "registerTitle": "Skapa konto",
   "loginTagline": "Hitta din perfekta match",
@@ -55,7 +51,6 @@
   "termsLink": "Villkor",
   "privacyIntro": ". Läs hur vi behandlar dina uppgifter i vår ",
   "privacyPolicyLink": "Integritetspolicy",
-
   "onboardingPhoneTitle": "Kan vi få ditt nummer?",
   "phoneVerificationExplainer": "Vi skickar ett SMS med en verifieringskod. Vanliga meddelandekostnader kan tillkomma.",
   "phoneNumberHint": "Telefonnummer",
@@ -64,7 +59,6 @@
   "selectCountry": "Välj land",
   "useDifferentSim": "Använd ett annat SIM-nummer",
   "continueInfoBox": "När du trycker \"Fortsätt\" skickar vi ett SMS med en verifieringskod.",
-
   "enterVerificationCode": "Ange verifieringskod",
   "codeSentToPhone": "Vi skickade en 6-siffrig kod till {phone}",
   "codeSentToPhoneFallback": "Vi skickade en 6-siffrig kod till ditt telefonnummer.",
@@ -79,7 +73,6 @@
   "resendCodeIn": "Skicka kod igen om {seconds}s",
   "codeResent": "Koden skickad igen ({remaining} kvar)",
   "smsRatesInfo": "Vanliga SMS-kostnader kan tillkomma. Koden löper ut om 10 minuter.",
-
   "welcomeToDejTing": "Välkommen till DejTing.",
   "followHouseRules": "Följ dessa husregler.",
   "ruleBeYourself": "Var dig själv",
@@ -91,11 +84,9 @@
   "ruleBeProactive": "Var aktiv",
   "ruleBeProactiveDesc": "Ta initiativ och skapa meningsfulla kontakter.",
   "iAgreeButton": "Jag godkänner",
-
   "whatsYourFirstName": "Vad heter du i förnamn?",
   "nameAppearOnProfile": "Så här visas det på din profil.",
   "firstNameHint": "Förnamn",
-
   "yourBirthday": "Din födelsedag?",
   "birthdayExplainer": "Din profil visar din ålder, inte ditt födelsedatum.\nDu kan inte ändra detta senare.",
   "monthLabel": "Månad",
@@ -104,7 +95,6 @@
   "youAreNYearsOld": "Du är {age} år gammal",
   "ageRequirement": "Ålderskrav",
   "mustBe18": "Du måste vara 18 år eller äldre för att använda appen.",
-
   "whatsYourGender": "Vad är ditt\nkön?",
   "genderMan": "Man",
   "genderWoman": "Kvinna",
@@ -113,19 +103,15 @@
   "moreOptions": "Fler",
   "selectGenderSheet": "Välj det som bäst\nrepresenterar dig",
   "showGenderOnProfile": "Visa mitt kön på min profil",
-
   "whatsYourOrientation": "Vad är din sexuella\nläggning?",
   "selectOrientations": "Välj alla som beskriver dig för att återspegla din identitet.",
   "showOrientationOnProfile": "Visa min läggning på min profil",
-
   "whatAreYouLookingFor": "Vad söker\ndu?",
   "notShownUnlessYouChoose": "Visas inte på profilen om du inte väljer det",
-
   "showMe": "Visa mig",
   "prefMen": "Män",
   "prefWomen": "Kvinnor",
   "prefEveryone": "Alla",
-
   "addPhotos": "Lägg till foton",
   "photosSubtitle": "Lägg till minst 2 foton för att fortsätta. Ditt första foto är din profilbild.",
   "takeAPhoto": "Ta ett foto",
@@ -153,31 +139,24 @@
   "deletePhoto": "Ta bort foto",
   "photoTips": "Fototips",
   "photoTipsBody": "• Använd tydliga foton av hög kvalitet\n• Se till att ditt ansikte syns\n• Undvik gruppfoton som huvudbild\n• Visa din personlighet och dina intressen\n• Håll det aktuellt och autentiskt",
-
   "lifestyleHabits": "Livsstilsvanor",
   "lifestyleSubtitle": "Dessa är valfria men hjälper till att hitta bättre matchningar.",
-
   "whatAreYouInto": "Vad gillar du?",
-
   "whatMakesYouYou": "Vad mer gör\ndig till dig?",
   "authenticitySubtitle": "Håll inte tillbaka. Äkthet attraherar äkthet.",
   "letsGo": "Kör igång! 🎉",
   "skipAndFinish": "Hoppa över & avsluta",
-
   "enableLocation": "Aktivera plats",
   "locationDescription": "Vi använder din plats för att visa potentiella matchningar i närheten. Ju närmare de är, desto enklare att träffas!",
   "enableLocationBtn": "Aktivera plats",
-
   "enableNotifications": "Aktivera notiser",
   "neverMissAMatch": "Missa aldrig en match",
   "notificationDescription": "Bli notifierad när någon gillar dig, när du får en ny match eller ett meddelande. Håll dig uppdaterad!",
   "enableNotificationsBtn": "Aktivera notiser",
-
   "settingUpProfile": "Skapar din profil...",
   "youreAllSet": "Allt är klart!",
   "profileReadySubtitle": "Din profil är redo. Dags att börja\nträffa fantastiska människor.",
   "startExploring": "Börja utforska",
-
   "discoverTitle": "Utforska",
   "findingPeopleNearYou": "Letar efter personer nära dig...",
   "somethingWentWrong": "Något gick fel",
@@ -192,7 +171,6 @@
   "saySomethingNice": "Skriv något trevligt...",
   "likeOnly": "Bara gilla",
   "sendWithComment": "Skicka med kommentar",
-
   "matchesTitle": "Matchningar",
   "newMatches": "Nya matchningar",
   "messagesTab": "Meddelanden",
@@ -204,7 +182,6 @@
   "startChattingMatches": "Börja chatta med dina matchningar!",
   "sayHello": "Säg hej!",
   "replyAction": "Svara",
-
   "refreshMessages": "Uppdatera meddelanden",
   "videoCallComingSoon": "Videosamtal kommer snart!",
   "safetyNotice": "Din säkerhet är viktig. Denna konversation övervakas för olämpligt innehåll.",
@@ -229,7 +206,6 @@
   "statusConnected": "Ansluten",
   "statusConnecting": "Ansluter...",
   "statusReconnecting": "Återansluter...",
-
   "aboutMeLabel": "OM MIG",
   "interestsLabel": "INTRESSEN",
   "lifestyleLabel": "LIVSSTIL",
@@ -244,7 +220,6 @@
   "reportProfile": "Rapportera profil",
   "reportSubmitted": "Rapport skickad. Tack.",
   "userHasBeenBlocked": "{name} har blockerats.",
-
   "getMore": "Få mer",
   "safety": "Säkerhet",
   "myDejTing": "Min DejTing",
@@ -275,7 +250,6 @@
   "settingsSubtitle": "Upptäckt, notiser, integritet",
   "noBlockedContacts": "Inga blockerade kontakter",
   "featureComingSoon": "{feature} — kommer snart!",
-
   "sectionAccount": "Konto",
   "editProfileSubtitle": "Uppdatera dina foton och bio",
   "verifyAccount": "Verifiera ditt konto",
@@ -305,7 +279,6 @@
   "versionNumber": "Version: 1.0.0",
   "aboutAppDescription": "Hitta din perfekta match med vår AI-drivna dejtingapp.",
   "madeByTeam": "Gjord med ❤️ av DatingApp-teamet",
-
   "verifyIdentityTitle": "Verifiera din identitet",
   "takeSelfieToVerify": "Ta en selfie för att verifiera",
   "selfieVerifyDescription": "Vi jämför din selfie med ditt profilfoto för att bekräfta att det verkligen är du. Detta håller alla säkra.",
@@ -324,7 +297,6 @@
   "verificationFailedResult": "Verifiering misslyckades",
   "alreadyVerified": "Du är redan verifierad!",
   "alreadyVerifiedDescription": "Din identitet har bekräftats. Andra användare kan se din blå verifieringsmarkering.",
-
   "verifiedProfile": "Verifierad profil",
   "getVerified": "Bli verifierad",
   "profileComplete": "Profilen klar! 🎉",
@@ -332,17 +304,14 @@
   "profileLookingGood": "Ser bra ut — fortsätt!",
   "addMoreInfoForMatches": "Lägg till mer info för att få matchningar",
   "completeLabel": "klar",
-
   "addPhoto": "Lägg till foto",
   "failedToLoad": "Kunde inte ladda",
-
   "errorGeneric": "Något gick fel. Försök igen.",
   "errorNetworkUnavailable": "Nätverket är inte tillgängligt. Kontrollera din anslutning.",
   "errorSessionExpired": "Din session har gått ut. Logga in igen.",
   "errorFieldRequired": "Detta fält är obligatoriskt",
   "errorLoadingMessages": "Kunde inte ladda meddelanden: {error}",
   "errorSendingMessage": "Fel vid sändning av meddelande: {error}",
-
   "profileTab": "Profil",
   "settingsTab": "Inställningar",
   "noNewPeople": "Kom tillbaka senare för nya personer",
@@ -352,7 +321,6 @@
   "aboutApp": "Om DatingApp",
   "accountSection": "Konto",
   "privacySettings": "Hantera dina integritetsinställningar",
-
   "onboardingPhoneHint": "Ange ditt telefonnummer",
   "onboardingVerifyCode": "Verifiera kod",
   "onboardingVerifying": "Verifierar...",
@@ -379,5 +347,8 @@
   "onboardingCompleteSubtitle": "Din profil är redo. Börja upptäcka fantastiska människor!",
   "startDiscoveringButton": "Börja utforska",
   "photoAdded": "Foto {index} tillagt (platshållare)",
-  "addUpToInterests": "Lägg till upp till {max} intressen att visa på din profil."
+  "addUpToInterests": "Lägg till upp till {max} intressen att visa på din profil.",
+  "verificationSubtitle": "Få en blå bock",
+  "notificationsSubtitle": "Nya matchningar och meddelanden",
+  "getMoreSparks": "Skaffa fler Sparks"
 }

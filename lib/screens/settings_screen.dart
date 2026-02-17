@@ -32,7 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.person, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.editProfile),
-            subtitle: const Text('Update your photos and bio'),
+            subtitle: Text(AppLocalizations.of(context)!.editProfileSubtitle),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               Navigator.pushNamed(context, '/profile');
@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.verified_user, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.verifyAccount),
-            subtitle: const Text('Get a blue checkmark'),
+            subtitle: Text(AppLocalizations.of(context)!.verificationSubtitle),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Verification flow
@@ -50,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.security, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.privacySecurity),
-            subtitle: const Text('Control your privacy settings'),
+            subtitle: Text(AppLocalizations.of(context)!.privacySecuritySubtitle),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Privacy settings
@@ -64,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.location_on, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.locationLabel),
-            subtitle: const Text('Update your location'),
+            subtitle: Text(AppLocalizations.of(context)!.locationSubtitle),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Location settings
@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             secondary: const Icon(Icons.visibility, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.showMeOnDejTing),
-            subtitle: const Text('Turn off to pause your account'),
+            subtitle: Text(AppLocalizations.of(context)!.pauseAccountSubtitle),
             value: _showMeOnTinder,
             activeColor: AppTheme.primaryColor,
             onChanged: (value) {
@@ -141,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             secondary: const Icon(Icons.notifications, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.pushNotifications),
-            subtitle: const Text('New matches and messages'),
+            subtitle: Text(AppLocalizations.of(context)!.notificationsSubtitle),
             value: _pushNotifications,
             activeColor: AppTheme.primaryColor,
             onChanged: (value) {
@@ -158,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             secondary: const Icon(Icons.cake, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.showAge),
-            subtitle: const Text('Display your age on your profile'),
+            subtitle: Text(AppLocalizations.of(context)!.showAgeSubtitle),
             value: _showAgeInProfile,
             activeColor: AppTheme.primaryColor,
             onChanged: (value) {
@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             secondary: const Icon(Icons.location_on, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context)!.showDistance),
-            subtitle: const Text('Display distance on your profile'),
+            subtitle: Text(AppLocalizations.of(context)!.showDistanceSubtitle),
             value: _showDistanceInProfile,
             activeColor: AppTheme.primaryColor,
             onChanged: (value) {
@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('About DatingApp'),
+            title: Text(AppLocalizations.of(context)!.aboutApp),
             content: const Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context)!.okButton),
               ),
             ],
           ),

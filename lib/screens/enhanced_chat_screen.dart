@@ -685,7 +685,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                 ),
               );
             },
-            child: const Text('Report'),
+            child: Text(AppLocalizations.of(context)!.reportButton),
           ),
         ],
       ),
@@ -713,7 +713,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                 const SnackBar(content: Text('User blocked successfully.')),
               );
             },
-            child: const Text('Block'),
+            child: Text(AppLocalizations.of(context)!.blockButton),
           ),
         ],
       ),
@@ -724,7 +724,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Stay Safe'),
+        title: Text(AppLocalizations.of(context)!.staySafe),
         content: const SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -747,7 +747,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            child: Text(AppLocalizations.of(context)!.gotItButton),
           ),
         ],
       ),

@@ -591,7 +591,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Get more Sparks'),
+                  child: Text(AppLocalizations.of(context)!.getMoreSparks),
                 ),
               ),
             const SizedBox(height: 24),
@@ -883,7 +883,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                                   }
                                 }
                               },
-                              child: const Text('Unblock'),
+                              child: Text(AppLocalizations.of(context)!.unblockButton),
                             ),
                           );
                         },
