@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/api_services.dart';
 import 'package:dejtingapp/models.dart';
+import 'package:dejtingapp/screens/profile_detail_screen.dart';
 
 /// Hinge-style scrollable Discover screen
 /// Shows one profile at a time as a vertically-scrollable card
@@ -91,6 +92,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onLikeContent(String contentType, String contentValue) {
     _showLikeSheet(contentType, contentValue);
+  }
+
+  void _viewCandidateProfile(MatchCandidate candidate) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileDetailScreen(
+          candidate: candidate,
+          isMatched: false,
+          onLike: () => _likeProfile(),
+          onSkip: _skipProfile,
+        ),
+      ),
+    );
   }
 
   void _showLikeSheet(String contentType, String value) {
@@ -279,6 +294,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildHeroPhoto(String? photoUrl, String name, int age, String? city, bool isVerified) {
     return GestureDetector(
+      onTap: () {
+        final candidate = _currentCandidate;
+        if (candidate != null) _viewCandidateProfile(candidate);
+      },
       onDoubleTap: () => _onLikeContent('photo', photoUrl ?? 'main'),
       child: Container(
         height: 480,

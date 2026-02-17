@@ -3,6 +3,7 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
 import '../models.dart';
 import '../services/messaging_service.dart';
+import 'profile_detail_screen.dart';
 
 class EnhancedChatScreen extends StatefulWidget {
   final Match match;
@@ -234,12 +235,14 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                         fontSize: 12,
                       ),
                     ),
-                    if (isMe && message.isRead) ...[
+                    if (isMe) ...[
                       const SizedBox(width: 4),
                       Icon(
-                        Icons.done_all,
-                        size: 12,
-                        color: AppTheme.textTertiary,
+                        message.isRead ? Icons.done_all : Icons.done,
+                        size: 14,
+                        color: message.isRead
+                            ? AppTheme.primaryColor
+                            : AppTheme.textTertiary,
                       ),
                     ],
                   ],
@@ -317,33 +320,47 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(
-                profile?.photoUrls.isNotEmpty == true
-                    ? profile!.photoUrls.first
-                    : 'https://picsum.photos/400/600?random=1',
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileDetailScreen(
+                  profile: profile,
+                  isMatched: true,
+                  onMessage: () {}, // Already in chat
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile?.firstName ?? 'Unknown',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+            );
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(
+                  profile?.photoUrls.isNotEmpty == true
+                      ? profile!.photoUrls.first
+                      : 'https://picsum.photos/400/600?random=1',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile?.firstName ?? 'Unknown',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  _buildConnectionStatus(),
-                ],
+                    _buildConnectionStatus(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(

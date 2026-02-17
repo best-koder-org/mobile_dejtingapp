@@ -6,6 +6,7 @@ import '../services/messaging_service.dart';
 import '../api_services.dart';
 import '../services/api_service.dart' show AppState;
 import 'enhanced_chat_screen.dart';
+import 'profile_detail_screen.dart';
 
 class EnhancedMatchesScreen extends StatefulWidget {
   const EnhancedMatchesScreen({super.key});
@@ -366,6 +367,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                     padding: const EdgeInsets.only(right: 12),
                     child: GestureDetector(
                       onTap: () => _openChat(match),
+                      onLongPress: () => _viewProfile(match),
                       child: Column(
                         children: [
                           Stack(
@@ -483,6 +485,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ],
         ),
         onTap: () => _openChat(match),
+        onLongPress: () => _viewProfile(match),
       ),
     );
   }
@@ -629,6 +632,19 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       // Refresh conversations when returning from chat
       _loadConversations();
     });
+  }
+
+  void _viewProfile(Match match) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileDetailScreen(
+          profile: match.otherUserProfile,
+          isMatched: true,
+          onMessage: () => _openChat(match),
+        ),
+      ),
+    );
   }
 
   String _formatTime(DateTime dateTime) {
