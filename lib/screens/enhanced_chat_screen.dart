@@ -1,3 +1,4 @@
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
@@ -332,7 +333,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'now';
+      return AppLocalizations.of(context)!.timeNow;
     } else if (difference.inMinutes < 60) {
       return '${difference.inMinutes}m';
     } else if (difference.inHours < 24) {
@@ -420,7 +421,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      profile?.firstName ?? 'Unknown',
+                      profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -437,13 +438,13 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refreshMessages,
-            tooltip: 'Refresh messages',
+            tooltip: AppLocalizations.of(context)!.refreshMessages,
           ),
           IconButton(
             icon: const Icon(Icons.videocam),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Video call coming soon!')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.videoCallComingSoon)),
               );
             },
           ),
@@ -468,7 +469,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Your safety matters. This conversation is monitored for inappropriate content.',
+                    AppLocalizations.of(context)!.safetyNotice,
                     style: TextStyle(
                       color: AppTheme.textSecondary,
                       fontSize: 12,
@@ -498,7 +499,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Start your conversation!',
+                              AppLocalizations.of(context)!.startConversation,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: AppTheme.textSecondary,
@@ -582,7 +583,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: 'Type a message...',
+                        hintText: AppLocalizations.of(context)!.typeMessage,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,
@@ -633,7 +634,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           children: [
             ListTile(
               leading: const Icon(Icons.report, color: Colors.red),
-              title: const Text('Report User'),
+              title: Text(AppLocalizations.of(context)!.reportUser),
               onTap: () {
                 Navigator.pop(context);
                 _showReportDialog();
@@ -641,7 +642,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
             ),
             ListTile(
               leading: const Icon(Icons.block, color: Colors.orange),
-              title: const Text('Block User'),
+              title: Text(AppLocalizations.of(context)!.blockUser),
               onTap: () {
                 Navigator.pop(context);
                 _showBlockDialog();
@@ -649,7 +650,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('Safety Tips'),
+              title: Text(AppLocalizations.of(context)!.safetyTips),
               onTap: () {
                 Navigator.pop(context);
                 _showSafetyTips();
@@ -665,14 +666,14 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Report User'),
-        content: const Text(
+        title: Text(AppLocalizations.of(context)!.reportUser),
+        content: Text(
           'Report this user for inappropriate behavior. Our team will review your report.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           TextButton(
             onPressed: () {
@@ -695,14 +696,14 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Block User'),
-        content: const Text(
+        title: Text(AppLocalizations.of(context)!.blockUser),
+        content: Text(
           'This will prevent them from messaging you and hide their profile.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           TextButton(
             onPressed: () {

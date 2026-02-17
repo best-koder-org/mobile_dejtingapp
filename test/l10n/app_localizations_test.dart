@@ -12,7 +12,7 @@ void main() {
     });
 
     test('appTitle returns DatingApp', () {
-      expect(l10n.appTitle, 'DatingApp');
+      expect(l10n.appTitle, 'DejTing');
     });
 
     test('common buttons have correct values', () {
@@ -93,7 +93,7 @@ void main() {
 
     test('navigation tab labels are present', () {
       expect(l10n.profileTab, 'Profile');
-      expect(l10n.matchesTab, 'Matches');
+      expect(l10n.navMatches, 'Matches');
       expect(l10n.messagesTab, 'Messages');
       expect(l10n.settingsTab, 'Settings');
     });
@@ -107,7 +107,7 @@ void main() {
 
     test('safety strings are present', () {
       expect(l10n.blockUser, 'Block User');
-      expect(l10n.reportUser, 'Report');
+      expect(l10n.reportUser, 'Report User');
     });
 
     test('supportedLocales contains en', () {

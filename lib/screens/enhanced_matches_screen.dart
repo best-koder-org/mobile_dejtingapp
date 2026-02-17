@@ -1,3 +1,4 @@
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
@@ -229,7 +230,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('Matches'),
+            Text(AppLocalizations.of(context)!.matchesTitle),
             const Spacer(),
             _buildConnectionStatus(),
           ],
@@ -243,7 +244,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           // Uses theme TabBar unselected
           tabs: [
             Tab(
-              text: 'New Matches',
+              text: AppLocalizations.of(context)!.newMatches,
               icon: _matches.isNotEmpty
                   ? Badge(
                       backgroundColor: AppTheme.surfaceElevated,
@@ -254,7 +255,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                   : const Icon(Icons.favorite),
             ),
             Tab(
-              text: 'Messages',
+              text: AppLocalizations.of(context)!.messagesTab,
               icon: _conversations.where((c) => c.unreadCount > 0).isNotEmpty
                   ? Badge(
                       backgroundColor: AppTheme.surfaceElevated,
@@ -325,17 +326,17 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
 
   Widget _buildMatchesTab() {
     if (_matches.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.favorite_border, size: 64, color: Colors.grey),
+            const Icon(Icons.favorite_border, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'No matches yet',
+              AppLocalizations.of(context)!.noMatchesYet,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text('Keep swiping to find your perfect match!'),
+            Text(AppLocalizations.of(context)!.keepSwiping),
           ],
         ),
       );
@@ -349,7 +350,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'New Matches',
+              AppLocalizations.of(context)!.newMatches,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -403,7 +404,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            profile?.firstName ?? 'Unknown',
+                            profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
@@ -455,7 +456,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ),
         ),
         title: Text(
-          profile?.firstName ?? 'Unknown',
+          profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
@@ -492,17 +493,17 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
 
   Widget _buildMessagesTab() {
     if (_conversations.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+            const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'No conversations yet',
+              AppLocalizations.of(context)!.noConversationsYet,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text('Start chatting with your matches!'),
+            Text(AppLocalizations.of(context)!.startChattingMatches),
           ],
         ),
       );
@@ -579,7 +580,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ],
         ),
         title: Text(
-          profile?.firstName ?? 'Unknown',
+          profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
           style: TextStyle(
             fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
           ),

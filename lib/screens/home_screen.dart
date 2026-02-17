@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/api_services.dart';
@@ -153,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Row(
         children: [
           Text(
-            'Discover',
+            AppLocalizations.of(context)!.discoverTitle,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -187,13 +188,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(color: AppTheme.primaryColor),
-          SizedBox(height: 16),
-          Text('Finding people near you...'),
+          const CircularProgressIndicator(color: AppTheme.primaryColor),
+          const SizedBox(height: 16),
+          Text(AppLocalizations.of(context)!.findingPeopleNearYou),
         ],
       ),
     );
@@ -208,15 +209,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             const Icon(Icons.wifi_off_rounded, size: 48, color: AppTheme.textTertiary),
             const SizedBox(height: 16),
-            Text('Something went wrong', style: Theme.of(context).textTheme.titleLarge),
+            Text(AppLocalizations.of(context)!.somethingWentWrong, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text('Check your connection and try again',
+            Text(AppLocalizations.of(context)!.checkConnectionRetry,
               style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadCandidates,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try Again'),
+              label: Text(AppLocalizations.of(context)!.tryAgainButton),
             ),
           ],
         ),
@@ -240,17 +241,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: const Icon(Icons.explore_rounded, size: 48, color: AppTheme.primaryColor),
             ),
             const SizedBox(height: 24),
-            Text("You've seen everyone!",
+            Text(AppLocalizations.of(context)!.seenEveryone,
               style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
-            Text('Check back later for new people',
+            Text(AppLocalizations.of(context)!.checkBackLater,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center),
             const SizedBox(height: 32),
             OutlinedButton.icon(
               onPressed: _loadCandidates,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Refresh'),
+              label: Text(AppLocalizations.of(context)!.refreshButton),
             ),
           ],
         ),
@@ -845,7 +846,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bgColor: AppTheme.surfaceColor,
             size: 56, iconSize: 28,
             onTap: _skipProfile,
-            label: 'Skip',
+            label: AppLocalizations.of(context)!.skipAction,
           ),
           const SizedBox(width: 16),
           _buildActionButton(
@@ -854,7 +855,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bgColor: AppTheme.primaryColor,
             size: 64, iconSize: 32,
             onTap: () => _likeProfile(),
-            label: 'Like',
+            label: AppLocalizations.of(context)!.likeButton,
             elevated: true,
           ),
         ],

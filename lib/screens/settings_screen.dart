@@ -1,3 +1,4 @@
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 
@@ -20,17 +21,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(AppLocalizations.of(context)!.settingsTitle),
         // Uses theme default AppBar
         // Uses theme default foreground
       ),
       body: ListView(
         children: [
           // Account Section
-          _buildSectionHeader('Account'),
+          _buildSectionHeader(AppLocalizations.of(context)!.sectionAccount),
           ListTile(
             leading: const Icon(Icons.person, color: AppTheme.primaryColor),
-            title: const Text('Edit Profile'),
+            title: Text(AppLocalizations.of(context)!.editProfile),
             subtitle: const Text('Update your photos and bio'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
@@ -39,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.verified_user, color: AppTheme.primaryColor),
-            title: const Text('Verify Your Account'),
+            title: Text(AppLocalizations.of(context)!.verifyAccount),
             subtitle: const Text('Get a blue checkmark'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
@@ -48,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.security, color: AppTheme.primaryColor),
-            title: const Text('Privacy & Security'),
+            title: Text(AppLocalizations.of(context)!.privacySecurity),
             subtitle: const Text('Control your privacy settings'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
@@ -59,10 +60,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(height: 32),
 
           // Discovery Settings
-          _buildSectionHeader('Discovery Settings'),
+          _buildSectionHeader(AppLocalizations.of(context)!.sectionDiscovery),
           ListTile(
             leading: const Icon(Icons.location_on, color: AppTheme.primaryColor),
-            title: const Text('Location'),
+            title: Text(AppLocalizations.of(context)!.locationLabel),
             subtitle: const Text('Update your location'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
@@ -122,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           SwitchListTile(
             secondary: const Icon(Icons.visibility, color: AppTheme.primaryColor),
-            title: const Text('Show me on DejTing'),
+            title: Text(AppLocalizations.of(context)!.showMeOnDejTing),
             subtitle: const Text('Turn off to pause your account'),
             value: _showMeOnTinder,
             activeColor: AppTheme.primaryColor,
@@ -136,10 +137,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(height: 32),
 
           // Notifications
-          _buildSectionHeader('Notifications'),
+          _buildSectionHeader(AppLocalizations.of(context)!.sectionNotifications),
           SwitchListTile(
             secondary: const Icon(Icons.notifications, color: AppTheme.primaryColor),
-            title: const Text('Push Notifications'),
+            title: Text(AppLocalizations.of(context)!.pushNotifications),
             subtitle: const Text('New matches and messages'),
             value: _pushNotifications,
             activeColor: AppTheme.primaryColor,
@@ -153,10 +154,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(height: 32),
 
           // Profile Display
-          _buildSectionHeader('Profile Display'),
+          _buildSectionHeader(AppLocalizations.of(context)!.sectionProfileDisplay),
           SwitchListTile(
             secondary: const Icon(Icons.cake, color: AppTheme.primaryColor),
-            title: const Text('Show Age'),
+            title: Text(AppLocalizations.of(context)!.showAge),
             subtitle: const Text('Display your age on your profile'),
             value: _showAgeInProfile,
             activeColor: AppTheme.primaryColor,
@@ -168,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.location_on, color: AppTheme.primaryColor),
-            title: const Text('Show Distance'),
+            title: Text(AppLocalizations.of(context)!.showDistance),
             subtitle: const Text('Display distance on your profile'),
             value: _showDistanceInProfile,
             activeColor: AppTheme.primaryColor,
@@ -182,10 +183,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(height: 32),
 
           // Support & About
-          _buildSectionHeader('Support & About'),
+          _buildSectionHeader(AppLocalizations.of(context)!.sectionSupportAbout),
           ListTile(
             leading: const Icon(Icons.help, color: AppTheme.primaryColor),
-            title: const Text('Help & Support'),
+            title: Text(AppLocalizations.of(context)!.helpSupport),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Help screen
@@ -193,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.info, color: AppTheme.primaryColor),
-            title: const Text('About'),
+            title: Text(AppLocalizations.of(context)!.aboutLabel),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               _showAboutDialog();
@@ -201,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.star, color: AppTheme.primaryColor),
-            title: const Text('Rate Us'),
+            title: Text(AppLocalizations.of(context)!.rateUs),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Rate app
@@ -223,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: const Text('Logout'),
+              child: Text(AppLocalizations.of(context)!.logoutButton),
             ),
           ),
 
@@ -279,12 +280,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Logout'),
-            content: const Text('Are you sure you want to logout?'),
+            title: Text(AppLocalizations.of(context)!.logoutButton),
+            content: Text(AppLocalizations.of(context)!.logoutConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancelButton),
               ),
               TextButton(
                 onPressed: () {
@@ -297,7 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Logout'),
+                child: Text(AppLocalizations.of(context)!.logoutButton),
               ),
             ],
           ),
