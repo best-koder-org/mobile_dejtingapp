@@ -1155,4 +1155,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueBtn => 'Continue';
+
+  @override
+  String get voicePromptTitle => 'Voice Prompt';
+
+  @override
+  String get voicePromptInstruction =>
+      'Record a short voice intro so matches can hear your vibe';
+
+  @override
+  String get voicePromptRecording => 'Recording… tap stop when you\'re done';
+
+  @override
+  String get voicePromptReview =>
+      'Listen to your recording and choose to save or re-record';
 }

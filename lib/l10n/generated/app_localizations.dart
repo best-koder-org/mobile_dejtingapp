@@ -2215,6 +2215,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueBtn;
+
+  /// No description provided for @voicePromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice Prompt'**
+  String get voicePromptTitle;
+
+  /// No description provided for @voicePromptInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a short voice intro so matches can hear your vibe'**
+  String get voicePromptInstruction;
+
+  /// No description provided for @voicePromptRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording… tap stop when you\'re done'**
+  String get voicePromptRecording;
+
+  /// No description provided for @voicePromptReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to your recording and choose to save or re-record'**
+  String get voicePromptReview;
 }
 
 class _AppLocalizationsDelegate

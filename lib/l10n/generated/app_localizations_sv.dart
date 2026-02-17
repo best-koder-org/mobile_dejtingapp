@@ -1160,4 +1160,18 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get continueBtn => 'Fortsätt';
+
+  @override
+  String get voicePromptTitle => 'Röstmeddelande';
+
+  @override
+  String get voicePromptInstruction =>
+      'Spela in en kort röstintro så dina matchningar kan höra din stämning';
+
+  @override
+  String get voicePromptRecording => 'Spelar in… tryck stopp när du är klar';
+
+  @override
+  String get voicePromptReview =>
+      'Lyssna på din inspelning och välj att spara eller spela in igen';
 }

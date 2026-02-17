@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/api_services.dart';
 import 'package:dejtingapp/services/swipe_service.dart';
+import 'package:dejtingapp/services/voice_prompt_service.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/screens/profile_detail_screen.dart';
 
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isLoading = true;
   bool _hasError = false;
   final ScrollController _scrollController = ScrollController();
+  final VoicePromptService _voiceService = VoicePromptService();
   late AnimationController _fadeController;
 
   @override
@@ -40,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _scrollController.dispose();
     _fadeController.dispose();
+    _voiceService.dispose();
     super.dispose();
   }
 
@@ -731,21 +735,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   color: AppTheme.primaryColor,
                   borderRadius: BorderRadius.circular(24),
                   child: InkWell(
-                    onTap: () {
-                      // TODO: Play voice prompt audio
-                      debugPrint('Play voice prompt: $voiceUrl');
+                    onTap: () async {
+                      if (_voiceService.isPlaying) {
+                        await _voiceService.stopPlayback();
+                        setState(() {});
+                      } else {
+                        await _voiceService.playFromUrl(voiceUrl);
+                        _voiceService.playerStateStream.listen((state) {
+                          if (state.processingState == ProcessingState.completed) {
+                            if (mounted) setState(() {});
+                          }
+                        });
+                        setState(() {});
+                      }
                     },
                     borderRadius: BorderRadius.circular(24),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+                          Icon(
+                            _voiceService.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                            color: Colors.white, size: 20,
+                          ),
                           SizedBox(width: 6),
-                          Text('Play', style: TextStyle(
-                            color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600,
-                          )),
+                          Text(
+                            _voiceService.isPlaying ? 'Stop' : 'Play',
+                            style: TextStyle(
+                              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ],
                       ),
                     ),

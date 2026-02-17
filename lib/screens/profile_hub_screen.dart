@@ -11,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'verification_selfie_screen.dart';
 import 'settings_screen.dart';
+import 'voice_prompt_screen.dart';
 
 /// DejTing profile hub — inspired by Hinge but branded for DejTing.
 ///
@@ -448,6 +449,27 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         ),
 
         const SizedBox(height: 16),
+
+        // Voice Prompt
+        _buildFeatureCard(
+          icon: Icons.mic_rounded,
+          iconColor: AppTheme.primaryColor,
+          title: AppLocalizations.of(context)!.voicePromptTitle,
+          subtitle: 'Record a voice intro for your profile',
+          onTap: () async {
+            final result = await Navigator.push<String>(
+              context,
+              MaterialPageRoute(builder: (_) => const VoicePromptScreen()),
+            );
+            if (result != null && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Voice prompt saved!')),
+              );
+            }
+          },
+        ),
+
+        const SizedBox(height: 12),
 
         // Dating tips
         _buildFeatureCard(

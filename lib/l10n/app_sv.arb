@@ -352,5 +352,9 @@
   "notificationsSubtitle": "Nya matchningar och meddelanden",
   "getMoreSparks": "Skaffa fler Sparks",
   "matchFound": "Det är en match!",
-  "continueBtn": "Fortsätt"
+  "continueBtn": "Fortsätt",
+  "voicePromptTitle": "Röstmeddelande",
+  "voicePromptInstruction": "Spela in en kort röstintro så dina matchningar kan höra din stämning",
+  "voicePromptRecording": "Spelar in… tryck stopp när du är klar",
+  "voicePromptReview": "Lyssna på din inspelning och välj att spara eller spela in igen"
 }
