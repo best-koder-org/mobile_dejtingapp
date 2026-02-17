@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -137,8 +138,8 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
         actions: [
           TextButton(
             onPressed: _skip,
-            child: const Text(
-              'Skip',
+            child: Text(
+              AppLocalizations.of(context)!.skipButton,
               style: TextStyle(color: Colors.white70, fontSize: 15),
             ),
           ),
@@ -168,8 +169,8 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        const Text(
-                          "What else makes\nyou, you?",
+                        Text(
+                          AppLocalizations.of(context)!.whatMakesYouYou,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -178,7 +179,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Don't hold back. Authenticity attracts authenticity.",
+                          AppLocalizations.of(context)!.authenticitySubtitle,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withAlpha(153),
@@ -244,8 +245,8 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                       ),
                       child: Text(
                         hasAnySelection
-                            ? "Let's go! 🎉"
-                            : 'Skip & finish',
+                            ? AppLocalizations.of(context)!.letsGo
+                            : AppLocalizations.of(context)!.skipAndFinish,
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),

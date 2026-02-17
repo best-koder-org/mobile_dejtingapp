@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -43,15 +44,15 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                       minHeight: 4,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
 
-                  const Text(
-                    'Welcome to DejTing.',
+                  Text(
+                    AppLocalizations.of(context)!.welcomeToDejTing,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: Colors.black, height: 1.2),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Please follow these House Rules.',
+                  SizedBox(height: 8),
+                  Text(
+                    AppLocalizations.of(context)!.followHouseRules,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: Colors.black87),
                   ),
                   const SizedBox(height: 40),
@@ -60,13 +61,13 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          _buildRule('Be yourself', 'Use authentic photos and accurate information about yourself.'),
+                          _buildRule(AppLocalizations.of(context)!.ruleBeYourself, AppLocalizations.of(context)!.ruleBeYourselfDesc),
                           const SizedBox(height: 28),
-                          _buildRule('Stay safe', 'Protect your personal information and report any suspicious behavior.'),
+                          _buildRule(AppLocalizations.of(context)!.ruleStaySafe, AppLocalizations.of(context)!.ruleStaySafeDesc),
                           const SizedBox(height: 28),
-                          _buildRule('Play it cool', 'Treat everyone with respect and kindness.'),
+                          _buildRule(AppLocalizations.of(context)!.rulePlayItCool, AppLocalizations.of(context)!.rulePlayItCoolDesc),
                           const SizedBox(height: 28),
-                          _buildRule('Be proactive', 'Take initiative and make meaningful connections.'),
+                          _buildRule(AppLocalizations.of(context)!.ruleBeProactive, AppLocalizations.of(context)!.ruleBeProactiveDesc),
                         ],
                       ),
                     ),
@@ -88,7 +89,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                           side: const BorderSide(color: Colors.black, width: 2),
                         ),
                       ),
-                      child: const Text('I agree', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                      child: Text(AppLocalizations.of(context)!.iAgreeButton, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(height: 20),

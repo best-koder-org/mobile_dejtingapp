@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 
 import '../config/environment.dart';
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.message ?? 'Browser login failed'),
+            content: Text(result.message ?? AppLocalizations.of(context)!.browserLoginFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -38,8 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Browser login failed. Please try again.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.browserLoginFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -72,9 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: const Icon(Icons.favorite, size: 64, color: Colors.white),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'DatingApp',
+                  SizedBox(height: 20),
+                  Text(
+                    AppLocalizations.of(context)!.appTitle,
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Find your perfect match',
+                    AppLocalizations.of(context)!.loginTagline,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withAlpha(200),
@@ -109,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Icon(Icons.phone_android, color: Colors.white, size: 48),
                         const SizedBox(height: 16),
                         Text(
-                          'No passwords needed',
+                          AppLocalizations.of(context)!.noPasswordsNeeded,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -118,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Sign in with your phone number.\nWe\'ll text you a verification code.',
+                          AppLocalizations.of(context)!.phoneSignInDescription,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -137,8 +138,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? null
                                 : () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                             icon: const Icon(Icons.sms, size: 20),
-                            label: const Text(
-                              'Continue with Phone Number',
+                            label: Text(
+                              AppLocalizations.of(context)!.continueWithPhone,
                               style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                             ),
                             style: ElevatedButton.styleFrom(
@@ -157,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Expanded(child: Divider(color: Colors.white.withAlpha(60))),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
-                              child: Text('or', style: TextStyle(color: Colors.white.withAlpha(120), fontSize: 13)),
+                              child: Text(AppLocalizations.of(context)!.orDivider, style: TextStyle(color: Colors.white.withAlpha(120), fontSize: 13)),
                             ),
                             Expanded(child: Divider(color: Colors.white.withAlpha(60))),
                           ],
@@ -178,8 +179,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.white, strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Sign in with Browser',
+                                : Text(
+                                    AppLocalizations.of(context)!.signInWithBrowser,
                                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                   ),
                             style: OutlinedButton.styleFrom(
@@ -200,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () => Navigator.pushNamed(context, '/welcome'),
                       icon: Icon(Icons.explore, color: Colors.white.withAlpha(180), size: 18),
                       label: Text(
-                        'Skip to onboarding',
+                        AppLocalizations.of(context)!.skipForNow,
                         style: TextStyle(
                           color: Colors.white.withAlpha(180),
                           fontSize: 14,

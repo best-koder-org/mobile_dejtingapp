@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -61,8 +62,8 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'What are you\nlooking for?',
+                  Text(
+                    AppLocalizations.of(context)!.whatAreYouLookingFor,
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
@@ -109,7 +110,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                     ),
                   ),
                   Text(
-                    'Not shown on profile unless you choose',
+                    AppLocalizations.of(context)!.notShownUnlessYouChoose,
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     textAlign: TextAlign.center,
                   ),
@@ -125,7 +126,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                         disabledBackgroundColor: Colors.grey[300],
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
                       ),
-                      child: const Text('Next', style: TextStyle(fontSize: 18)),
+                      child: Text(AppLocalizations.of(context)!.nextButton, style: TextStyle(fontSize: 18)),
                     ),
                   ),
                   const SizedBox(height: 24),

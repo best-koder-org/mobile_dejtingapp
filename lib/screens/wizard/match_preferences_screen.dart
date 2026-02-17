@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -53,8 +54,8 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Show me',
+                      Text(
+                        AppLocalizations.of(context)!.showMe,
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 40),
@@ -107,8 +108,8 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                               borderRadius: BorderRadius.circular(27),
                             ),
                           ),
-                          child: const Text(
-                            'Next',
+                          child: Text(
+                            AppLocalizations.of(context)!.nextButton,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),

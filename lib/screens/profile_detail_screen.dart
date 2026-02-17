@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/models.dart';
@@ -315,7 +316,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                     )),
                     if (_distanceKm != null) ...[
                       const SizedBox(width: 8),
-                      Text('· ${_distanceKm!.toStringAsFixed(0)} km away',
+                      Text('· ${AppLocalizations.of(context)!.kmAway(_distanceKm!.round())}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 14,
@@ -362,7 +363,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
         if (_bio != null && _bio!.isNotEmpty)
           _buildSectionCard(
             icon: Icons.person_outline_rounded,
-            label: 'ABOUT ME',
+            label: AppLocalizations.of(context)!.aboutMeLabel,
             child: Text(
               _bio!,
               style: const TextStyle(
@@ -403,14 +404,14 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 10),
           Text(
-            '$pct% Compatible',
+            AppLocalizations.of(context)!.percentCompatible(pct),
             style: const TextStyle(
               color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
             ),
           ),
           const Spacer(),
           Text(
-            'based on your preferences',
+            AppLocalizations.of(context)!.basedOnPreferences,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8), fontSize: 12,
             ),
@@ -538,7 +539,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   Widget _buildInterestsSection() {
     return _buildSectionCard(
       icon: Icons.interests_rounded,
-      label: 'INTERESTS',
+      label: AppLocalizations.of(context)!.interestsLabel,
       child: Wrap(
         spacing: 8, runSpacing: 8,
         children: _interests.map((interest) {
@@ -568,15 +569,15 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   Widget _buildLifestyleSection() {
     return _buildSectionCard(
       icon: Icons.spa_rounded,
-      label: 'LIFESTYLE',
+      label: AppLocalizations.of(context)!.lifestyleLabel,
       child: Column(
         children: [
           if (_drinking != null)
-            _buildLifestyleRow(Icons.local_bar_rounded, 'Drinking', _drinking!),
+            _buildLifestyleRow(Icons.local_bar_rounded, AppLocalizations.of(context)!.drinkingLabel, _drinking!),
           if (_smoking != null)
-            _buildLifestyleRow(Icons.smoking_rooms_rounded, 'Smoking', _smoking!),
+            _buildLifestyleRow(Icons.smoking_rooms_rounded, AppLocalizations.of(context)!.smokingLabel, _smoking!),
           if (_workout != null)
-            _buildLifestyleRow(Icons.fitness_center_rounded, 'Workout', _workout!),
+            _buildLifestyleRow(Icons.fitness_center_rounded, AppLocalizations.of(context)!.workoutLabel, _workout!),
         ],
       ),
     );
@@ -605,7 +606,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   Widget _buildLanguagesSection() {
     return _buildSectionCard(
       icon: Icons.translate_rounded,
-      label: 'LANGUAGES',
+      label: AppLocalizations.of(context)!.languagesLabel,
       child: Wrap(
         spacing: 8, runSpacing: 8,
         children: _languages.map((lang) {
@@ -694,7 +695,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           Navigator.pop(context);
         },
         icon: const Icon(Icons.chat_bubble_rounded),
-        label: const Text('Send a Message'),
+        label: Text(AppLocalizations.of(context)!.sendAMessage),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           foregroundColor: Colors.white,
@@ -767,21 +768,21 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 const SizedBox(height: 24),
                 _buildSheetOption(
                   icon: Icons.flag_outlined,
-                  label: 'Report Profile',
+                  label: AppLocalizations.of(context)!.reportProfile,
                   onTap: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Report submitted. Thank you.')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.reportSubmitted)),
                     );
                   },
                 ),
                 _buildSheetOption(
                   icon: Icons.block_rounded,
-                  label: 'Block User',
+                  label: AppLocalizations.of(context)!.blockUser,
                   onTap: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('$_displayName has been blocked.')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.userHasBeenBlocked(_displayName))),
                     );
                   },
                   isDestructive: true,
@@ -789,7 +790,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancelButton),
                 ),
               ],
             ),

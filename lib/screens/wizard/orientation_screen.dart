@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -104,13 +105,13 @@ class _OrientationScreenState extends State<OrientationScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Padding(
+                SizedBox(height: 24),
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "What's your sexual\norientation?",
+                      AppLocalizations.of(context)!.whatsYourOrientation,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -125,7 +126,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Select all that describe you to reflect your identity.',
+                      AppLocalizations.of(context)!.selectOrientations,
                       style: TextStyle(
                           fontSize: 14, color: Colors.grey[400]),
                     ),
@@ -220,7 +221,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          'Show my orientation on my profile',
+                          AppLocalizations.of(context)!.showOrientationOnProfile,
                           style: TextStyle(
                               fontSize: 14, color: Colors.grey[400]),
                         ),
@@ -246,7 +247,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(26)),
                       ),
-                      child: const Text('Next',
+                      child: Text(AppLocalizations.of(context)!.nextButton,
                           style: TextStyle(fontSize: 18)),
                     ),
                   ),

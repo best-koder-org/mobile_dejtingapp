@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -50,8 +51,8 @@ class LocationPermissionScreen extends StatelessWidget {
                         color: Color(0xFFFF6B6B),
                       ),
                       const SizedBox(height: 32),
-                      const Text(
-                        'Enable location',
+                      Text(
+                        AppLocalizations.of(context)!.enableLocation,
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -61,8 +62,7 @@ class LocationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'We use your location to show you potential matches nearby. '
-                        'The closer they are, the easier it is to meet up!',
+                        AppLocalizations.of(context)!.locationDescription,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -86,8 +86,8 @@ class LocationPermissionScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(27),
                             ),
                           ),
-                          child: const Text(
-                            'Enable Location',
+                          child: Text(
+                            AppLocalizations.of(context)!.enableLocationBtn,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
@@ -99,7 +99,7 @@ class LocationPermissionScreen extends StatelessWidget {
                           OnboardingProvider.of(context).goNext(context);
                         },
                         child: Text(
-                          'Not now',
+                          AppLocalizations.of(context)!.notNow,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[500],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -147,8 +148,8 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
         actions: [
           TextButton(
             onPressed: _skip,
-            child: const Text(
-              'Skip',
+            child: Text(
+              AppLocalizations.of(context)!.skipButton,
               style: TextStyle(color: Colors.white70, fontSize: 15),
             ),
           ),
@@ -178,8 +179,8 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        const Text(
-                          'Lifestyle habits',
+                        Text(
+                          AppLocalizations.of(context)!.lifestyleHabits,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -188,7 +189,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'These are optional but help find better matches and boost your profile completeness.',
+                          AppLocalizations.of(context)!.lifestyleSubtitle,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withAlpha(153),
@@ -252,7 +253,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        hasAnySelection ? 'Continue' : 'Skip for now',
+                        hasAnySelection ? AppLocalizations.of(context)!.continueButton : AppLocalizations.of(context)!.skipForNow,
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),

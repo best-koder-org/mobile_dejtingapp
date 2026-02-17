@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -118,8 +119,8 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please log in to manage your photos.'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.authRequiredDetail),
         backgroundColor: Colors.red,
       ),
     );
@@ -349,18 +350,18 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     return showDialog<ImageSource>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Photo Source'),
+        title: Text(AppLocalizations.of(context)!.selectPhotoSource),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
+              title: Text(AppLocalizations.of(context)!.camera),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
+              title: Text(AppLocalizations.of(context)!.gallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -558,17 +559,17 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Delete Photo'),
-            content: const Text('Are you sure you want to delete this photo?'),
+            title: Text(AppLocalizations.of(context)!.deletePhotoTitle),
+            content: Text(AppLocalizations.of(context)!.deletePhotoConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancelButton),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.deleteButton),
               ),
             ],
           ),
@@ -597,7 +598,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Photos'),
+        title: Text(AppLocalizations.of(context)!.addPhotos),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -763,13 +764,13 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                       color: AppTheme.primaryColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.star, color: Colors.white, size: 12),
                         SizedBox(width: 2),
                         Text(
-                          'Primary',
+                          AppLocalizations.of(context)!.primaryLabel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -809,7 +810,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            index == 0 ? 'Primary Photo' : 'Photo ${index + 1}',
+            index == 0 ? AppLocalizations.of(context)!.primaryPhoto : AppLocalizations.of(context)!.photoNumber(index + 1),
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 12,
@@ -818,7 +819,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           ),
           if (index < minPhotos)
             Text(
-              'Required',
+              AppLocalizations.of(context)!.requiredLabel,
               style: TextStyle(
                 color: Colors.orange.shade600,
                 fontSize: 10,
@@ -1006,7 +1007,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Replace Photo'),
+              title: Text(AppLocalizations.of(context)!.replacePhoto),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(index);
@@ -1015,7 +1016,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             if (index != 0) // Don't allow deleting primary photo easily
               ListTile(
                 leading: const Icon(Icons.star),
-                title: const Text('Set as Primary'),
+                title: Text(AppLocalizations.of(context)!.setAsPrimary),
                 onTap: () {
                   Navigator.pop(context);
                   _setPrimaryPhoto(index);
@@ -1023,8 +1024,8 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Delete Photo',
-                  style: TextStyle(color: Colors.red)),
+              title: Text(AppLocalizations.of(context)!.deletePhoto,
+                  style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _deletePhoto(index);
@@ -1032,7 +1033,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.cancel),
-              title: const Text('Cancel'),
+              title: Text(AppLocalizations.of(context)!.cancelButton),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -1116,7 +1117,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               Icon(Icons.lightbulb, color: Colors.blue.shade600, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Photo Tips',
+                AppLocalizations.of(context)!.photoTips,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

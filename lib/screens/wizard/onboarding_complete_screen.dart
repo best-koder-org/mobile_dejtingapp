@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../services/onboarding_api_service.dart';
 
@@ -94,14 +95,14 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
   }
 
   Widget _buildSubmitting() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(color: Color(0xFFFF6B6B)),
           SizedBox(height: 24),
           Text(
-            'Setting up your profile...',
+            AppLocalizations.of(context)!.settingUpProfile,
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
         ],
@@ -116,9 +117,9 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 64, color: Colors.orange),
-          const SizedBox(height: 24),
-          const Text(
-            'Something went wrong',
+          SizedBox(height: 24),
+          Text(
+            AppLocalizations.of(context)!.somethingWentWrong,
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -147,7 +148,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(27)),
               ),
-              child: const Text('Try Again',
+              child: Text(AppLocalizations.of(context)!.tryAgainButton,
                   style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
           ),
@@ -158,7 +159,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
               Navigator.pushNamedAndRemoveUntil(
                   context, '/home', (route) => false);
             },
-            child: const Text('Skip for now',
+            child: Text(AppLocalizations.of(context)!.skipForNow,
                 style: TextStyle(color: Colors.grey)),
           ),
         ],
@@ -186,13 +187,13 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
               child: const Icon(Icons.check, size: 64, color: Colors.white),
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           FadeTransition(
             opacity: _fadeAnimation,
-            child: const Column(
+            child: Column(
               children: [
                 Text(
-                  "You're all set!",
+                  AppLocalizations.of(context)!.youreAllSet,
                   style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -201,7 +202,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Your profile is ready. Time to start\nmeeting amazing people.',
+                  AppLocalizations.of(context)!.profileReadySubtitle,
                   style:
                       TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
                   textAlign: TextAlign.center,
@@ -225,7 +226,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(27)),
                 ),
-                child: const Text('Start Exploring',
+                child: Text(AppLocalizations.of(context)!.startExploring,
                     style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ),

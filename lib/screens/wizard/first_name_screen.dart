@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -53,9 +54,9 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("What's your first name?", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context)!.whatsYourFirstName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text("This is how it'll appear on your profile.", style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      Text(AppLocalizations.of(context)!.nameAppearOnProfile, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                       const SizedBox(height: 40),
                       TextField(
                         controller: _ctrl,
@@ -63,7 +64,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                         textCapitalization: TextCapitalization.words,
                         style: const TextStyle(fontSize: 24),
                         decoration: InputDecoration(
-                          hintText: 'First name',
+                          hintText: AppLocalizations.of(context)!.firstNameHint,
                           hintStyle: TextStyle(color: Colors.grey[400]),
                           border: const UnderlineInputBorder(),
                           focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFF6B6B), width: 2)),
@@ -79,7 +80,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                             backgroundColor: _isValid ? const Color(0xFFFF6B6B) : Colors.grey,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
                           ),
-                          child: const Text("Next", style: TextStyle(fontSize: 18, color: Colors.white)),
+                          child: Text(AppLocalizations.of(context)!.nextButton, style: TextStyle(fontSize: 18, color: Colors.white)),
                         ),
                       ),
                     ],

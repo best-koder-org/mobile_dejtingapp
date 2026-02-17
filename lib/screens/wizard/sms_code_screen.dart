@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../../config/dev_mode.dart';
@@ -148,7 +149,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
   Future<void> _verifyCode(String code) async {
     if (_verificationId == null) {
-      setState(() => _errorMessage = 'Verification session expired. Go back and try again.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.verificationSessionExpired);
       return;
     }
 
@@ -179,7 +180,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
         if (mounted) {
           setState(() {
             _isVerifying = false;
-            _errorMessage = 'Invalid code. Please try again.';
+            _errorMessage = AppLocalizations.of(context)!.invalidCode;
           });
           _clearCode();
         }
@@ -192,7 +193,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       if (mounted) {
         setState(() {
           _isVerifying = false;
-          _errorMessage = 'Verification failed. Please try again.';
+          _errorMessage = AppLocalizations.of(context)!.verificationFailed;
         });
         _clearCode();
       }
@@ -228,7 +229,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       } else {
         setState(() {
           _isVerifying = false;
-          _errorMessage = result.message ?? 'Login failed. Please try again.';
+          _errorMessage = result.message ?? AppLocalizations.of(context)!.loginFailed;
         });
         _clearCode();
       }
@@ -241,7 +242,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       } else {
         setState(() {
           _isVerifying = false;
-          _errorMessage = 'Could not complete phone login. Please try again.';
+          _errorMessage = AppLocalizations.of(context)!.couldNotCompleteLogin;
         });
         _clearCode();
       }
@@ -291,7 +292,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Code resent (${_maxResends - _resendCount} left)'),
+        content: Text(AppLocalizations.of(context)!.codeResent(_maxResends - _resendCount)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -327,15 +328,15 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'Enter verification\ncode',
+                  Text(
+                    AppLocalizations.of(context)!.enterVerificationCode,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     _phoneNumber != null
-                        ? 'We sent a 6-digit code to $_phoneNumber'
-                        : 'We sent a 6-digit code to your phone number.',
+                        ? AppLocalizations.of(context)!.codeSentToPhone(_phoneNumber!)
+                        : AppLocalizations.of(context)!.codeSentToPhoneFallback,
                     style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.4),
                   ),
                   const SizedBox(height: 16),
@@ -416,16 +417,16 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                     Text(_errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 14)),
                   ],
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
 
                   // Verifying spinner
                   if (_isVerifying)
-                    const Center(
+                    Center(
                       child: Column(
                         children: [
                           CircularProgressIndicator(color: _coral),
                           SizedBox(height: 12),
-                          Text('Verifying...'),
+                          Text(AppLocalizations.of(context)!.verifying),
                         ],
                       ),
                     ),
@@ -436,15 +437,15 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                       child: _canResend && _resendCount < _maxResends
                           ? TextButton(
                               onPressed: _resendCode,
-                              child: const Text(
-                                "Didn't receive it? Resend code",
+                              child: Text(
+                                AppLocalizations.of(context)!.resendCode,
                                 style: TextStyle(color: _coral, fontSize: 15, fontWeight: FontWeight.w600),
                               ),
                             )
                           : Text(
                               _resendCount >= _maxResends
-                                  ? 'Maximum resend attempts reached'
-                                  : 'Resend code in ${_secondsRemaining}s',
+                                  ? AppLocalizations.of(context)!.maxResendReached
+                                  : AppLocalizations.of(context)!.resendCodeIn(_secondsRemaining),
                               style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                             ),
                     ),
@@ -461,7 +462,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Standard SMS rates may apply. The code will expire in 10 minutes.',
+                            AppLocalizations.of(context)!.smsRatesInfo,
                             style: TextStyle(fontSize: 12, color: Colors.grey[600], height: 1.3),
                           ),
                         ),

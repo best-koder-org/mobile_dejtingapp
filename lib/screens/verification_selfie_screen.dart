@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/verification_service.dart';
 import '../widgets/verification_badge.dart';
@@ -92,7 +93,7 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verify Your Identity'),
+        title: Text(AppLocalizations.of(context)!.verifyIdentityTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -134,15 +135,14 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 32),
           Text(
-            'Take a Selfie to Verify',
+            AppLocalizations.of(context)!.takeSelfieToVerify,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 16),
           Text(
-            'We compare your selfie to your profile photo to confirm '
-            "it's really you. This keeps everyone safe.",
+            AppLocalizations.of(context)!.selfieVerifyDescription,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.grey.shade600,
@@ -150,10 +150,10 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 24),
           // Tips
-          _buildTip(Icons.light_mode, 'Good lighting, face clearly visible'),
-          _buildTip(Icons.face_retouching_natural, 'Look straight at camera'),
+          _buildTip(Icons.light_mode, AppLocalizations.of(context)!.selfieTip1),
+          _buildTip(Icons.face_retouching_natural, AppLocalizations.of(context)!.selfieTip2),
           _buildTip(Icons.no_accounts,
-              'No sunglasses, masks, or heavy filters'),
+              AppLocalizations.of(context)!.selfieTip3),
           const SizedBox(height: 16),
           if (attemptsLeft < 3)
             Text(
@@ -167,7 +167,7 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
             child: FilledButton.icon(
               onPressed: attemptsLeft > 0 ? _takeSelfie : null,
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Take Selfie'),
+              label: Text(AppLocalizations.of(context)!.takeSelfie),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -214,25 +214,24 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Looking good?',
+            AppLocalizations.of(context)!.lookingGood,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Make sure your face is clearly visible and matches '
-            'your profile photo.',
+            AppLocalizations.of(context)!.selfiePreviewDescription,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade600),
           ),
-          const Spacer(),
+          Spacer(),
           if (_isLoading)
-            const Column(
+            Column(
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('Verifying your identity...'),
+                Text(AppLocalizations.of(context)!.verifyingIdentity),
               ],
             )
           else ...[
@@ -246,13 +245,13 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('Submit for Verification'),
+                child: Text(AppLocalizations.of(context)!.submitForVerification),
               ),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: _retake,
-              child: const Text('Retake Photo'),
+              child: Text(AppLocalizations.of(context)!.retakePhoto),
             ),
           ],
         ],
@@ -299,10 +298,10 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           const SizedBox(height: 24),
           Text(
             isSuccess
-                ? 'Verified!'
+                ? AppLocalizations.of(context)!.verified
                 : isPending
-                    ? 'Under Review'
-                    : 'Verification Failed',
+                    ? AppLocalizations.of(context)!.underReview
+                    : AppLocalizations.of(context)!.verificationFailedResult,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: isSuccess
@@ -367,22 +366,21 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           const VerificationBadge(isVerified: true, size: 64, showLabel: true),
           const SizedBox(height: 24),
           Text(
-            "You're Already Verified!",
+            AppLocalizations.of(context)!.alreadyVerified,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 16),
           Text(
-            'Your identity has been confirmed. Other users can '
-            'see your blue verification badge.',
+            AppLocalizations.of(context)!.alreadyVerifiedDescription,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Go Back'),
+            child: Text(AppLocalizations.of(context)!.goBackButton),
           ),
         ],
       ),

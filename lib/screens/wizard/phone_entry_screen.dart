@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_auth/smart_auth.dart';
@@ -142,7 +143,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select Country',
+            Text(AppLocalizations.of(context)!.selectCountry,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildCountryOption('🇸🇪', 'Sweden', '+46'),
@@ -223,7 +224,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         return;
       } else {
         setState(() {
-          _errorMessage = 'Phone verification requires a mobile device (Android/iOS).';
+          _errorMessage = AppLocalizations.of(context)!.phoneVerificationMobileOnly;
         });
         return;
       }
@@ -285,7 +286,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         setState(() {
           _isSending = false;
           _errorMessage =
-              'Failed to send verification code. Please try again.';
+              AppLocalizations.of(context)!.failedToSendCode;
         });
       }
     }
@@ -328,19 +329,18 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                       minHeight: 4,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
 
-                  const Text(
-                    'Can we get your number?',
+                  Text(
+                    AppLocalizations.of(context)!.onboardingPhoneTitle,
                     style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'We\'ll send you a text with a verification code. '
-                    'Message and data rates may apply.',
+                  SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.phoneVerificationExplainer,
                     style: TextStyle(
                         fontSize: 16, color: Colors.black54, height: 1.5),
                   ),
@@ -411,9 +411,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                             enabled: !_isSending,
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w500),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Phone number',
+                              hintText: AppLocalizations.of(context)!.phoneNumberHint,
                               hintStyle: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.normal),
@@ -450,8 +450,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         },
                         icon: const Icon(Icons.sim_card,
                             size: 18, color: coralColor),
-                        label: const Text(
-                          'Use a different SIM number',
+                        label: Text(
+                          AppLocalizations.of(context)!.useDifferentSim,
                           style: TextStyle(color: coralColor, fontSize: 14),
                         ),
                       ),
@@ -469,7 +469,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'When you tap "Continue", we\'ll send you a text with a verification code.',
+                            AppLocalizations.of(context)!.continueInfoBox,
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[700],
@@ -505,7 +505,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                               child: CircularProgressIndicator(
                                   color: Colors.white, strokeWidth: 2.5),
                             )
-                          : const Text('Continue',
+                          : Text(AppLocalizations.of(context)!.continueButton,
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                     ),

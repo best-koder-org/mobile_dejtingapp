@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
@@ -62,12 +63,12 @@ class _PhotosScreenState extends State<PhotosScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt, color: Color(0xFFFF6B6B)),
-                title: const Text('Take a photo'),
+                title: Text(AppLocalizations.of(context)!.takeAPhoto),
                 onTap: () => Navigator.pop(ctx, ImageSource.camera),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library, color: Color(0xFFFF6B6B)),
-                title: const Text('Choose from gallery'),
+                title: Text(AppLocalizations.of(context)!.chooseFromGallery),
                 onTap: () => Navigator.pop(ctx, ImageSource.gallery),
               ),
             ],
@@ -189,13 +190,13 @@ class _PhotosScreenState extends State<PhotosScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Add photos",
+                      Text(
+                        AppLocalizations.of(context)!.addPhotos,
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Add at least 2 photos to continue. Your first photo is your profile photo.",
+                        AppLocalizations.of(context)!.photosSubtitle,
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 24),
@@ -233,7 +234,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
                                   width: 24, height: 24,
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
-                              : const Text("Continue", style: TextStyle(fontSize: 18, color: Colors.white)),
+                              : Text(AppLocalizations.of(context)!.continueButton, style: TextStyle(fontSize: 18, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -361,7 +362,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
                   children: [
                     const Icon(Icons.error_outline, color: Colors.red, size: 28),
                     const SizedBox(height: 4),
-                    const Text('Tap to retry', style: TextStyle(color: Colors.white, fontSize: 11)),
+                    Text(AppLocalizations.of(context)!.tapToRetry, style: TextStyle(color: Colors.white, fontSize: 11)),
                   ],
                 ),
               ),
@@ -417,8 +418,8 @@ class _PhotosScreenState extends State<PhotosScreen> {
                       color: const Color(0xFFFF6B6B),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Main',
+                    child: Text(
+                      AppLocalizations.of(context)!.mainPhotoBadge,
                       style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),

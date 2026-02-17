@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -41,9 +42,9 @@ class _GenderScreenState extends State<GenderScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                "Select one that best\nrepresents you",
+              SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.selectGenderSheet,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -109,8 +110,8 @@ class _GenderScreenState extends State<GenderScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "What's your\ngender?",
+                      Text(
+                        AppLocalizations.of(context)!.whatsYourGender,
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 40),
@@ -177,7 +178,7 @@ class _GenderScreenState extends State<GenderScreen> {
                                   (_selected != null &&
                                           !_quickOptions.contains(_selected))
                                       ? _selected!
-                                      : "More",
+                                      : AppLocalizations.of(context)!.moreOptions,
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: (_selected != null &&
@@ -202,9 +203,9 @@ class _GenderScreenState extends State<GenderScreen> {
                             onChanged: (v) =>
                                 setState(() => _showOnProfile = v ?? false),
                           ),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              "Show my gender on my profile",
+                              AppLocalizations.of(context)!.showGenderOnProfile,
                               style: TextStyle(fontSize: 14),
                             ),
                           ),
@@ -226,8 +227,8 @@ class _GenderScreenState extends State<GenderScreen> {
                               borderRadius: BorderRadius.circular(27),
                             ),
                           ),
-                          child: const Text(
-                            "Next",
+                          child: Text(
+                            AppLocalizations.of(context)!.nextButton,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),

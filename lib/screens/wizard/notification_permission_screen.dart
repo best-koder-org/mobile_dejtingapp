@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
@@ -50,8 +51,8 @@ class NotificationPermissionScreen extends StatelessWidget {
                         color: Color(0xFFFF6B6B),
                       ),
                       const SizedBox(height: 32),
-                      const Text(
-                        'Enable notifications',
+                      Text(
+                        AppLocalizations.of(context)!.enableNotifications,
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -60,8 +61,8 @@ class NotificationPermissionScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Never miss a match',
+                      Text(
+                        AppLocalizations.of(context)!.neverMissAMatch,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -71,8 +72,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Get notified when someone likes you, when you get a new match, '
-                        'or when you receive a message. Stay in the loop!',
+                        AppLocalizations.of(context)!.notificationDescription,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -96,8 +96,8 @@ class NotificationPermissionScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(27),
                             ),
                           ),
-                          child: const Text(
-                            'Enable Notifications',
+                          child: Text(
+                            AppLocalizations.of(context)!.enableNotificationsBtn,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
@@ -109,7 +109,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                           OnboardingProvider.of(context).goNext(context);
                         },
                         child: Text(
-                          'Not now',
+                          AppLocalizations.of(context)!.notNow,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[500],

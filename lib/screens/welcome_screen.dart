@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/dev_mode_banner.dart';
 
@@ -46,10 +47,10 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         child: const Icon(Icons.local_fire_department, color: Colors.white, size: 32),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
-                      const Text(
-                        'Create account',
+                      Text(
+                        AppLocalizations.of(context)!.createAccount,
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
@@ -64,14 +65,14 @@ class WelcomeScreen extends StatelessWidget {
                             WidgetSpan(
                               child: GestureDetector(
                                 onTap: () => _openUrl('https://dejtingapp.com/terms'),
-                                child: const Text('Terms', style: TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
+                                child: Text(AppLocalizations.of(context)!.termsLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
                               ),
                             ),
                             const TextSpan(text: '. Learn how we process your data in our '),
                             WidgetSpan(
                               child: GestureDetector(
                                 onTap: () => _openUrl('https://dejtingapp.com/privacy'),
-                                child: const Text('Privacy Policy', style: TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
+                                child: Text(AppLocalizations.of(context)!.privacyPolicyLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
                               ),
                             ),
                             const TextSpan(text: '.'),
@@ -87,7 +88,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showComingSoon(context, 'Apple Sign-In'),
                           icon: const Icon(Icons.apple, size: 24),
-                          label: const Text('Continue with Apple'),
+                          label: Text(AppLocalizations.of(context)!.continueWithApple),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
@@ -107,7 +108,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showComingSoon(context, 'Google Sign-In'),
                           icon: const Icon(Icons.g_mobiledata, size: 24),
-                          label: const Text('Continue with Google'),
+                          label: Text(AppLocalizations.of(context)!.continueWithGoogle),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: googleBlue,
                             foregroundColor: Colors.white,
@@ -124,7 +125,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                           icon: const Icon(Icons.phone, size: 20),
-                          label: const Text('Sign in with phone number'),
+                          label: Text(AppLocalizations.of(context)!.signInWithPhone),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey[900],
                             foregroundColor: Colors.white,
@@ -139,8 +140,8 @@ class WelcomeScreen extends StatelessWidget {
 
                       TextButton(
                         onPressed: () => _showComingSoon(context, 'Password Recovery'),
-                        child: const Text(
-                          'Trouble Logging In?',
+                        child: Text(
+                          AppLocalizations.of(context)!.troubleLoggingIn,
                           style: TextStyle(color: coralColor, fontSize: 14, decoration: TextDecoration.underline),
                         ),
                       ),
@@ -164,7 +165,7 @@ class WelcomeScreen extends StatelessWidget {
 
   void _showComingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature coming soon!'), backgroundColor: coralColor),
+      SnackBar(content: Text(AppLocalizations.of(context)!.featureComingSoon(feature)), backgroundColor: coralColor),
     );
   }
 
