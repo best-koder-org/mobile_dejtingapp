@@ -8,7 +8,6 @@ class OnboardingCoordinator {
   static const List<String> steps = [
     '/onboarding/phone-entry',
     '/onboarding/verify-code',
-    '/onboarding/email',
     '/onboarding/community-guidelines',
     '/onboarding/first-name',
     '/onboarding/birthday',

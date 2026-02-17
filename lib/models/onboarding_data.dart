@@ -13,8 +13,6 @@ class OnboardingData {
   String? firebaseIdToken;
   String? keycloakAccessToken;
 
-  // ── Step: Email ────────────────────────────────────────────
-  String? email;
 
   // ── Step: First Name ───────────────────────────────────────
   String? firstName;
