@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../providers/onboarding_provider.dart';
+import '../../services/onboarding_api_service.dart';
 
-/// Onboarding Complete Screen (T026 gap)
-/// Celebration screen shown after wizard is finished.
+/// Onboarding Complete Screen
+/// Submits wizard data to UserService, then celebrates and navigates to /home.
 class OnboardingCompleteScreen extends StatefulWidget {
   const OnboardingCompleteScreen({super.key});
 
   @override
-  State<OnboardingCompleteScreen> createState() => _OnboardingCompleteScreenState();
+  State<OnboardingCompleteScreen> createState() =>
+      _OnboardingCompleteScreenState();
 }
 
 class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
@@ -14,6 +17,9 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+
+  bool _isSubmitting = true;
+  String? _error;
 
   @override
   void initState() {
@@ -28,7 +34,28 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
-    _controller.forward();
+
+    // Submit wizard data as soon as screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) => _submitProfile());
+  }
+
+  Future<void> _submitProfile() async {
+    final data = OnboardingProvider.of(context).data;
+    debugPrint('📋 Submitting onboarding data: $data');
+
+    final error = await OnboardingApiService.submitAll(data);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isSubmitting = false;
+      _error = error;
+    });
+
+    if (error == null) {
+      // Success — play celebration animation
+      _controller.forward();
+    }
   }
 
   @override
@@ -54,89 +81,156 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [Color(0xFFFF7F50), Color(0xFFFF6B6B)],
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          size: 64,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: const Column(
-                        children: [
-                          Text(
-                            "You're all set!",
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Your profile is ready. Time to start\nmeeting amazing people.',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/home',
-                              (route) => false,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF6B6B),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(27),
-                            ),
-                          ),
-                          child: const Text(
-                            'Start Exploring',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _isSubmitting
+                  ? _buildSubmitting()
+                  : _error != null
+                      ? _buildError()
+                      : _buildSuccess(),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitting() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(color: Color(0xFFFF6B6B)),
+          SizedBox(height: 24),
+          Text(
+            'Setting up your profile...',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.orange),
+          const SizedBox(height: 24),
+          const Text(
+            'Something went wrong',
+            style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _error!,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isSubmitting = true;
+                  _error = null;
+                });
+                _submitProfile();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF6B6B),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(27)),
+              ),
+              child: const Text('Try Again',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              // Skip API and go home anyway
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/home', (route) => false);
+            },
+            child: const Text('Skip for now',
+                style: TextStyle(color: Colors.grey)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuccess() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFF7F50), Color(0xFFFF6B6B)],
+                ),
+              ),
+              child: const Icon(Icons.check, size: 64, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 40),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: const Column(
+              children: [
+                Text(
+                  "You're all set!",
+                  style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Your profile is ready. Time to start\nmeeting amazing people.',
+                  style:
+                      TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (route) => false);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF6B6B),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(27)),
+                ),
+                child: const Text('Start Exploring',
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Lifestyle Habits Screen — Smoking, Exercise, Pets
 /// Optional screen that contributes to profile completeness %
@@ -50,11 +51,15 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
 
   void _continue() {
     // TODO: Save lifestyle data to profile
-    Navigator.pushNamed(context, '/onboarding/interests');
+    final _d = OnboardingProvider.of(context).data; final _m = <String, String>{}; if (_smoking != null) _m['smoking'] = _smoking!; if (_exercise != null) _m['exercise'] = _exercise!; if (_pets != null) _m['pets'] = _pets!; _d.lifestyle = _m;
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   void _skip() {
-    Navigator.pushNamed(context, '/onboarding/interests');
+    final _d = OnboardingProvider.of(context).data; final _m = <String, String>{}; if (_smoking != null) _m['smoking'] = _smoking!; if (_exercise != null) _m['exercise'] = _exercise!; if (_pets != null) _m['pets'] = _pets!; _d.lifestyle = _m;
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   Widget _buildSection({
@@ -159,7 +164,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.77,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.white.withAlpha(51),
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,

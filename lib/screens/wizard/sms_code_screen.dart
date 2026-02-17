@@ -5,6 +5,7 @@ import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../services/auth_session_manager.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// SMS Verification Code Entry Screen
 /// 6-digit code input with auto-advance, resend timer, and retry limits.
@@ -198,7 +199,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
       if (result.success) {
         // Phone verified + Keycloak session active → continue onboarding
-        Navigator.pushNamed(context, '/onboarding/community-guidelines');
+        OnboardingProvider.of(context).goNext(context);
       } else if (DevMode.enabled) {
         // DevMode: Keycloak exchange failed (probably not running) — skip forward
         debugPrint('🔧 DevMode: Keycloak exchange failed, skipping forward. Error: ${result.message}');
@@ -210,7 +211,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
               duration: Duration(seconds: 3),
             ),
           );
-          Navigator.pushNamed(context, '/onboarding/community-guidelines');
+          OnboardingProvider.of(context).goNext(context);
         }
       } else {
         setState(() {
@@ -224,7 +225,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       if (DevMode.enabled) {
         // DevMode: any exception during login → skip forward
         debugPrint('🔧 DevMode: Login exception, skipping forward. Error: $e');
-        Navigator.pushNamed(context, '/onboarding/community-guidelines');
+        OnboardingProvider.of(context).goNext(context);
       } else {
         setState(() {
           _isVerifying = false;
@@ -307,7 +308,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.08,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,
@@ -460,7 +461,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/community-guidelines'),
+            onSkip: () => OnboardingProvider.of(context).goNext(context),
             label: 'Skip SMS',
           ),
         ],

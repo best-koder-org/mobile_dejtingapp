@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Interests Screen — "What are you into?"
 /// Categorized chip selection, max 10 interests total
@@ -81,11 +82,15 @@ class _InterestsScreenState extends State<InterestsScreen> {
 
   void _continue() {
     // TODO: Save interests to profile
-    Navigator.pushNamed(context, '/onboarding/about-me');
+    OnboardingProvider.of(context).data.interests = _selected.toList();
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   void _skip() {
-    Navigator.pushNamed(context, '/onboarding/about-me');
+    OnboardingProvider.of(context).data.interests = _selected.toList();
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   @override
@@ -119,7 +124,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.85,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.white.withAlpha(51),
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,

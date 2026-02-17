@@ -30,6 +30,9 @@ import 'config/dev_mode.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+import 'providers/onboarding_provider.dart';
+import 'models/onboarding_data.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -61,6 +64,10 @@ Future<void> main() async {
   runApp(const DatingApp());
 }
 
+/// Shared wizard data for the entire onboarding flow.
+/// Reset when wizard starts, persists across all screens.
+final OnboardingData _onboardingData = OnboardingData();
+
 class DatingApp extends StatelessWidget {
   const DatingApp({super.key});
 
@@ -82,22 +89,22 @@ class DatingApp extends StatelessWidget {
         '/welcome': (context) => const WelcomeScreen(),
         
         // Onboarding wizard flow
-        '/onboarding/phone-entry': (context) => const PhoneEntryScreen(),
-        '/onboarding/community-guidelines': (context) => const CommunityGuidelinesScreen(),
-        '/onboarding/first-name': (context) => const FirstNameScreen(),
-        '/onboarding/birthday': (context) => const BirthdayScreen(),
-        '/onboarding/gender': (context) => const GenderScreen(),
-        '/onboarding/orientation': (context) => const OrientationScreen(),
-        '/onboarding/relationship-goals': (context) => const RelationshipGoalsScreen(),
-        '/onboarding/match-preferences': (context) => const MatchPreferencesScreen(),
-        '/onboarding/photos': (context) => const PhotosScreen(),
-        '/onboarding/verify-code': (context) => const SmsCodeScreen(),
-        '/onboarding/lifestyle': (context) => const LifestyleScreen(),
-        '/onboarding/interests': (context) => const InterestsScreen(),
-        '/onboarding/about-me': (context) => const AboutMeScreen(),
-        '/onboarding/location': (context) => const LocationPermissionScreen(),
-        '/onboarding/notifications': (context) => const NotificationPermissionScreen(),
-        '/onboarding/complete': (context) => const OnboardingCompleteScreen(),
+        '/onboarding/phone-entry': (context) => OnboardingProvider(data: _onboardingData, child: const PhoneEntryScreen()),
+        '/onboarding/community-guidelines': (context) => OnboardingProvider(data: _onboardingData, child: const CommunityGuidelinesScreen()),
+        '/onboarding/first-name': (context) => OnboardingProvider(data: _onboardingData, child: const FirstNameScreen()),
+        '/onboarding/birthday': (context) => OnboardingProvider(data: _onboardingData, child: const BirthdayScreen()),
+        '/onboarding/gender': (context) => OnboardingProvider(data: _onboardingData, child: const GenderScreen()),
+        '/onboarding/orientation': (context) => OnboardingProvider(data: _onboardingData, child: const OrientationScreen()),
+        '/onboarding/relationship-goals': (context) => OnboardingProvider(data: _onboardingData, child: const RelationshipGoalsScreen()),
+        '/onboarding/match-preferences': (context) => OnboardingProvider(data: _onboardingData, child: const MatchPreferencesScreen()),
+        '/onboarding/photos': (context) => OnboardingProvider(data: _onboardingData, child: const PhotosScreen()),
+        '/onboarding/verify-code': (context) => OnboardingProvider(data: _onboardingData, child: const SmsCodeScreen()),
+        '/onboarding/lifestyle': (context) => OnboardingProvider(data: _onboardingData, child: const LifestyleScreen()),
+        '/onboarding/interests': (context) => OnboardingProvider(data: _onboardingData, child: const InterestsScreen()),
+        '/onboarding/about-me': (context) => OnboardingProvider(data: _onboardingData, child: const AboutMeScreen()),
+        '/onboarding/location': (context) => OnboardingProvider(data: _onboardingData, child: const LocationPermissionScreen()),
+        '/onboarding/notifications': (context) => OnboardingProvider(data: _onboardingData, child: const NotificationPermissionScreen()),
+        '/onboarding/complete': (context) => OnboardingProvider(data: _onboardingData, child: const OnboardingCompleteScreen()),
         
         // Main app
         '/home': (context) => const MainApp(),

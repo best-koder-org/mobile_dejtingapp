@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 class GenderScreen extends StatefulWidget {
   const GenderScreen({super.key});
@@ -85,7 +86,7 @@ class _GenderScreenState extends State<GenderScreen> {
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
             onPressed: () =>
-                Navigator.popUntil(context, (route) => route.isFirst),
+                OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -96,7 +97,7 @@ class _GenderScreenState extends State<GenderScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.38,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                   minHeight: 4,
@@ -215,8 +216,7 @@ class _GenderScreenState extends State<GenderScreen> {
                         height: 54,
                         child: ElevatedButton(
                           onPressed: _selected != null
-                              ? () => Navigator.pushNamed(
-                                  context, '/onboarding/relationship-goals')
+                              ? () { final _d = OnboardingProvider.of(context).data; _d.gender = _selected; _d.genderVisible = _showOnProfile; OnboardingProvider.of(context).goNext(context); }
                               : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _selected != null
@@ -239,8 +239,7 @@ class _GenderScreenState extends State<GenderScreen> {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () =>
-                Navigator.pushNamed(context, '/onboarding/relationship-goals'),
+            onSkip: () => OnboardingProvider.of(context).goNext(context),
             label: 'Skip Gender',
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Match Preferences Screen (ONB-100)
 /// Who do you want to match with? Select gender preferences.
@@ -29,7 +30,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () => OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -40,7 +41,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.62,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                   minHeight: 4,
@@ -96,7 +97,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                         height: 54,
                         child: ElevatedButton(
                           onPressed: _selected != null
-                              ? () => Navigator.pushNamed(context, '/onboarding/photos')
+                              ? () { OnboardingProvider.of(context).data.preferredGender = _selected; OnboardingProvider.of(context).goNext(context); }
                               : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _selected != null
@@ -119,7 +120,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/photos'),
+            onSkip: () { OnboardingProvider.of(context).data.preferredGender = _selected; OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Prefs',
           ),
         ],

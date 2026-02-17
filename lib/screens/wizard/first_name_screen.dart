@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 class FirstNameScreen extends StatefulWidget {
   const FirstNameScreen({super.key});
@@ -31,7 +32,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
-        actions: [IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => Navigator.popUntil(context, (route) => route.isFirst))],
+        actions: [IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => OnboardingProvider.of(context).abort(context))],
       ),
       body: Stack(
         children: [
@@ -40,7 +41,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.23,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                   minHeight: 4,
@@ -73,7 +74,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                         width: double.infinity,
                         height: 54,
                         child: ElevatedButton(
-                          onPressed: _isValid ? () => Navigator.pushNamed(context, '/onboarding/birthday') : null,
+                          onPressed: _isValid ? () { OnboardingProvider.of(context).data.firstName = _ctrl.text.trim(); OnboardingProvider.of(context).goNext(context); } : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _isValid ? const Color(0xFFFF6B6B) : Colors.grey,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
@@ -88,7 +89,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/birthday'),
+            onSkip: () { OnboardingProvider.of(context).data.firstName = _ctrl.text.trim(); OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Name',
           ),
         ],

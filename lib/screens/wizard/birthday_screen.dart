@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 class BirthdayScreen extends StatefulWidget {
   const BirthdayScreen({super.key});
@@ -65,7 +66,9 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
       );
       return;
     }
-    Navigator.pushNamed(context, '/onboarding/gender');
+    OnboardingProvider.of(context).data.dateOfBirth = DateTime(_year!, _month!, _day!);
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   @override
@@ -83,7 +86,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
             onPressed: () =>
-                Navigator.popUntil(context, (route) => route.isFirst),
+                OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -94,7 +97,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.31,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor:
                       const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
@@ -236,8 +239,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () =>
-                Navigator.pushNamed(context, '/onboarding/gender'),
+            onSkip: () { OnboardingProvider.of(context).data.dateOfBirth = DateTime(_year!, _month!, _day!); OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Birthday',
           ),
         ],

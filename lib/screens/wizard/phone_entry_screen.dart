@@ -5,6 +5,7 @@ import 'package:smart_auth/smart_auth.dart';
 import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Phone Number Entry Screen
 /// On Android: auto-shows Phone Number Hint popup (one-tap, like Uber/Rider).
@@ -277,7 +278,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
             onPressed: () =>
-                Navigator.popUntil(context, (route) => route.isFirst),
+                OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -293,7 +294,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.0,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(coralColor),
                       minHeight: 4,
@@ -487,8 +488,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(
-                context, '/onboarding/community-guidelines'),
+            onSkip: () => OnboardingProvider.of(context).goNext(context),
             label: 'Skip Phone',
           ),
         ],

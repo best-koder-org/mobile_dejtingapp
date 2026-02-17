@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Sexual Orientation Screen — Tinder-style card list with descriptions
 class OrientationScreen extends StatefulWidget {
@@ -81,7 +82,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
           IconButton(
             icon: const Icon(Icons.close, color: Colors.white),
             onPressed: () =>
-                Navigator.of(context).popUntil((r) => r.isFirst),
+                OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -95,7 +96,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.54,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.white.withAlpha(51),
                       valueColor: const AlwaysStoppedAnimation<Color>(
                           Color(0xFFFF6B6B)),
@@ -235,8 +236,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                     height: 52,
                     child: ElevatedButton(
                       onPressed: _isValid
-                          ? () => Navigator.pushNamed(
-                              context, '/onboarding/match-preferences')
+                          ? () { final _d = OnboardingProvider.of(context).data; _d.orientation = _selected.toList(); _d.orientationVisible = _showOnProfile; OnboardingProvider.of(context).goNext(context); }
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF6B6B),
@@ -256,8 +256,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () =>
-                Navigator.pushNamed(context, '/onboarding/match-preferences'),
+            onSkip: () => OnboardingProvider.of(context).goNext(context),
             label: 'Skip Orientation',
           ),
         ],

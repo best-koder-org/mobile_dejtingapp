@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Community Guidelines Screen
 /// Shows house rules that users must accept before proceeding
@@ -20,7 +21,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () => OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -36,7 +37,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.15,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                       minHeight: 4,
@@ -77,7 +78,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/onboarding/first-name'),
+                      onPressed: () {  OnboardingProvider.of(context).goNext(context); },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
@@ -96,7 +97,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/first-name'),
+            onSkip: () {  OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Rules',
           ),
         ],

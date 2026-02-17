@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Photos Screen - Final onboarding step
 /// Grid of photo upload placeholders (Tinder-style 2x3 grid)
@@ -35,7 +36,9 @@ class _PhotosScreenState extends State<PhotosScreen> {
 
   void _finish() {
     // Navigate to home, clearing the entire onboarding stack
-    Navigator.pushNamed(context, '/onboarding/lifestyle');
+    
+
+    OnboardingProvider.of(context).goNext(context);
   }
 
   @override
@@ -52,7 +55,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () => OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -63,7 +66,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.69,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                   minHeight: 4,
@@ -209,7 +212,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/lifestyle'),
+            onSkip: () {  OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Photos',
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// About Me Screen — Communication style, Love language, Education
 /// "What else makes you, you?" — optional profile enrichment
@@ -46,11 +47,11 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
 
   void _finish() {
     // TODO: Save about-me data to profile
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    final _d = OnboardingProvider.of(context).data; _d.communicationStyle = _communicationStyle; _d.loveLanguage = _loveLanguage; _d.education = _education; OnboardingProvider.of(context).goNext(context);
   }
 
   void _skip() {
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    final _d = OnboardingProvider.of(context).data; _d.communicationStyle = _communicationStyle; _d.loveLanguage = _loveLanguage; _d.education = _education; OnboardingProvider.of(context).goNext(context);
   }
 
   Widget _buildSection({
@@ -153,7 +154,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.95,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.white.withAlpha(51),
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,

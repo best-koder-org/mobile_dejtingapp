@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Notification Permission Screen (T026 gap)
 /// Asks user to enable push notifications for matches and messages.
@@ -20,7 +21,7 @@ class NotificationPermissionScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+            onPressed: () => OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -31,7 +32,7 @@ class NotificationPermissionScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: 0.92,
+                  value: OnboardingProvider.of(context).progress(context),
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation(Color(0xFFFF6B6B)),
                   minHeight: 4,
@@ -86,7 +87,8 @@ class NotificationPermissionScreen extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             // TODO: Request notification permission
-                            Navigator.pushNamed(context, '/onboarding/complete');
+                            OnboardingProvider.of(context).data.notificationsGranted = true;
+                            OnboardingProvider.of(context).goNext(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B6B),
@@ -103,7 +105,8 @@ class NotificationPermissionScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/onboarding/complete');
+                          OnboardingProvider.of(context).data.notificationsGranted = true;
+                          OnboardingProvider.of(context).goNext(context);
                         },
                         child: Text(
                           'Not now',
@@ -120,7 +123,7 @@ class NotificationPermissionScreen extends StatelessWidget {
             ],
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/complete'),
+            onSkip: () { OnboardingProvider.of(context).data.notificationsGranted = false; OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Notifications',
           ),
         ],

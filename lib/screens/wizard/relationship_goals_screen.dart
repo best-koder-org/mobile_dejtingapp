@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/dev_mode_banner.dart';
+import '../../providers/onboarding_provider.dart';
 
 /// Relationship Goals Screen (ONB-110)
 /// Card grid with emoji + label, single selection
@@ -38,7 +39,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
+            onPressed: () => OnboardingProvider.of(context).abort(context),
           ),
         ],
       ),
@@ -53,7 +54,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.46,
+                      value: OnboardingProvider.of(context).progress(context),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)),
                       minHeight: 4,
@@ -117,7 +118,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: _isValid ? () => Navigator.pushNamed(context, '/onboarding/orientation') : null,
+                      onPressed: _isValid ? () { OnboardingProvider.of(context).data.relationshipGoal = _selected; OnboardingProvider.of(context).goNext(context); } : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF6B6B),
                         foregroundColor: Colors.white,
@@ -133,7 +134,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
             ),
           ),
           DevModeSkipButton(
-            onSkip: () => Navigator.pushNamed(context, '/onboarding/orientation'),
+            onSkip: () { OnboardingProvider.of(context).data.relationshipGoal = _selected; OnboardingProvider.of(context).goNext(context); },
             label: 'Skip Goals',
           ),
         ],
