@@ -1,15 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/services/voice_prompt_service.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 
-/// Voice Prompt recording screen.
+/// Voice Prompt recording screen — Hinge-style direct flow.
+///
+/// Flow: tap mic → recording starts → tap stop → auto-uploads → done.
+/// No preview step. If user doesn't like it, they delete from profile
+/// and record again.
 ///
 /// Security: Records in-app only (no file import) to prevent deepfakes.
-/// Enforces 3-30 second duration limits client-side (validated again server-side).
+/// Backend runs async Whisper.net moderation after upload.
 class VoicePromptScreen extends StatefulWidget {
   const VoicePromptScreen({super.key});
 
@@ -22,15 +25,10 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
   final VoicePromptService _service = VoicePromptService();
 
   // State
-  _ScreenState _state = _ScreenState.idle;
+  _Phase _phase = _Phase.idle;
   int _secondsElapsed = 0;
   Timer? _timer;
-  String? _recordedPath;
-  bool _isUploading = false;
   String? _errorMessage;
-
-  // Playback
-  StreamSubscription<PlayerState>? _playerSub;
 
   // Animation for pulsing mic
   late AnimationController _pulseController;
@@ -51,7 +49,6 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
   @override
   void dispose() {
     _timer?.cancel();
-    _playerSub?.cancel();
     _pulseController.dispose();
     super.dispose();
   }
@@ -67,7 +64,7 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
       return;
     }
     setState(() {
-      _state = _ScreenState.recording;
+      _phase = _Phase.recording;
       _secondsElapsed = 0;
       _errorMessage = null;
     });
@@ -75,12 +72,13 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       setState(() => _secondsElapsed++);
       if (_secondsElapsed >= VoicePromptService.maxDurationSeconds) {
-        _stopRecording();
+        _stopAndUpload();
       }
     });
   }
 
-  Future<void> _stopRecording() async {
+  /// Stop recording and immediately upload — no preview step.
+  Future<void> _stopAndUpload() async {
     _timer?.cancel();
     _pulseController.stop();
     _pulseController.reset();
@@ -88,8 +86,9 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     if (_secondsElapsed < VoicePromptService.minDurationSeconds) {
       await _service.cancelRecording();
       setState(() {
-        _state = _ScreenState.idle;
-        _errorMessage = 'Too short — record at least ${VoicePromptService.minDurationSeconds} seconds';
+        _phase = _Phase.idle;
+        _errorMessage =
+            'Too short — record at least ${VoicePromptService.minDurationSeconds} seconds';
       });
       return;
     }
@@ -97,15 +96,26 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     final path = await _service.stopRecording();
     if (path == null) {
       setState(() {
-        _state = _ScreenState.idle;
+        _phase = _Phase.idle;
         _errorMessage = 'Recording failed. Please try again.';
       });
       return;
     }
-    setState(() {
-      _state = _ScreenState.preview;
-      _recordedPath = path;
-    });
+
+    // Go straight to uploading — no preview
+    setState(() => _phase = _Phase.uploading);
+
+    final url = await _service.uploadVoicePrompt(path);
+    if (!mounted) return;
+
+    if (url != null) {
+      Navigator.pop(context, url);
+    } else {
+      setState(() {
+        _phase = _Phase.idle;
+        _errorMessage = 'Upload failed. Please try again.';
+      });
+    }
   }
 
   Future<void> _cancelRecording() async {
@@ -114,56 +124,8 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     _pulseController.reset();
     await _service.cancelRecording();
     setState(() {
-      _state = _ScreenState.idle;
+      _phase = _Phase.idle;
       _secondsElapsed = 0;
-    });
-  }
-
-  // ──────────────── PREVIEW PLAYBACK ────────────────
-
-  Future<void> _playPreview() async {
-    if (_recordedPath == null) return;
-    await _service.playFromFile(_recordedPath!);
-    setState(() => _state = _ScreenState.playing);
-    _playerSub = _service.playerStateStream.listen((ps) {
-      if (ps.processingState == ProcessingState.completed) {
-        if (mounted) setState(() => _state = _ScreenState.preview);
-      }
-    });
-  }
-
-  Future<void> _stopPreview() async {
-    await _service.stopPlayback();
-    _playerSub?.cancel();
-    setState(() => _state = _ScreenState.preview);
-  }
-
-  // ──────────────── UPLOAD ────────────────
-
-  Future<void> _uploadAndSave() async {
-    if (_recordedPath == null) return;
-    setState(() => _isUploading = true);
-
-    final url = await _service.uploadVoicePrompt(_recordedPath!);
-    if (!mounted) return;
-
-    if (url != null) {
-      Navigator.pop(context, url);
-    } else {
-      setState(() {
-        _isUploading = false;
-        _errorMessage = 'Upload failed. Please try again.';
-      });
-    }
-  }
-
-  void _retake() {
-    _service.cancelRecording();
-    setState(() {
-      _state = _ScreenState.idle;
-      _secondsElapsed = 0;
-      _recordedPath = null;
-      _errorMessage = null;
     });
   }
 
@@ -192,7 +154,8 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
         ),
         title: Text(
           l10n.voicePromptTitle,
-          style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+              color: AppTheme.textPrimary, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
@@ -205,11 +168,11 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
 
               // Instruction text
               Text(
-                _state == _ScreenState.idle
-                    ? l10n.voicePromptInstruction
-                    : _state == _ScreenState.recording
+                _phase == _Phase.uploading
+                    ? 'Saving your voice prompt…'
+                    : _phase == _Phase.recording
                         ? l10n.voicePromptRecording
-                        : l10n.voicePromptReview,
+                        : l10n.voicePromptInstruction,
                 style: TextStyle(
                   fontSize: 18,
                   color: AppTheme.textSecondary,
@@ -219,13 +182,13 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
               ),
               const SizedBox(height: 40),
 
-              // Timer / waveform area
+              // Timer
               Text(
                 _formatTime(_secondsElapsed),
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w300,
-                  color: _state == _ScreenState.recording
+                  color: _phase == _Phase.recording
                       ? AppTheme.primaryColor
                       : AppTheme.textPrimary,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -233,13 +196,14 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
               ),
               const SizedBox(height: 8),
 
-              // Progress bar
-              if (_state == _ScreenState.recording)
+              // Progress bar (recording only)
+              if (_phase == _Phase.recording)
                 LinearProgressIndicator(
                   value: _secondsElapsed / VoicePromptService.maxDurationSeconds,
                   backgroundColor: Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    _secondsElapsed >= VoicePromptService.maxDurationSeconds - 5
+                    _secondsElapsed >=
+                            VoicePromptService.maxDurationSeconds - 5
                         ? Colors.orange
                         : AppTheme.primaryColor,
                   ),
@@ -255,13 +219,14 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _errorMessage!,
-                    style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+                    style:
+                        const TextStyle(color: Colors.redAccent, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                 ),
 
-              // Action buttons
-              _buildActions(),
+              // Action area
+              _buildAction(),
 
               const Spacer(flex: 2),
             ],
@@ -271,41 +236,38 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     );
   }
 
-  Widget _buildActions() {
-    switch (_state) {
-      case _ScreenState.idle:
+  Widget _buildAction() {
+    switch (_phase) {
+      case _Phase.idle:
         return _buildRecordButton();
-      case _ScreenState.recording:
-        return _buildRecordingActions();
-      case _ScreenState.preview:
-      case _ScreenState.playing:
-        return _buildPreviewActions();
+      case _Phase.recording:
+        return _buildRecordingControls();
+      case _Phase.uploading:
+        return _buildUploadingIndicator();
     }
   }
 
   Widget _buildRecordButton() {
     return Column(
       children: [
-        ScaleTransition(
-          scale: _pulseAnimation,
-          child: GestureDetector(
-            onTap: _startRecording,
-            child: Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.primaryColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 40),
+        GestureDetector(
+          onTap: _startRecording,
+          child: Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.primaryColor,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  spreadRadius: 4,
+                ),
+              ],
             ),
+            child:
+                const Icon(Icons.mic_rounded, color: Colors.white, size: 40),
           ),
         ),
         const SizedBox(height: 16),
@@ -317,7 +279,7 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     );
   }
 
-  Widget _buildRecordingActions() {
+  Widget _buildRecordingControls() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -335,11 +297,11 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
           ),
         ),
         const SizedBox(width: 32),
-        // Stop (pulsing)
+        // Stop & save (pulsing)
         ScaleTransition(
           scale: _pulseAnimation,
           child: GestureDetector(
-            onTap: _stopRecording,
+            onTap: _stopAndUpload,
             child: Container(
               width: 88,
               height: 88,
@@ -354,7 +316,8 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
                   ),
                 ],
               ),
-              child: const Icon(Icons.stop_rounded, color: Colors.white, size: 40),
+              child: const Icon(Icons.stop_rounded,
+                  color: Colors.white, size: 40),
             ),
           ),
         ),
@@ -362,79 +325,23 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     );
   }
 
-  Widget _buildPreviewActions() {
-    final isPlaying = _state == _ScreenState.playing;
+  Widget _buildUploadingIndicator() {
     return Column(
       children: [
-        // Play/Stop preview
-        GestureDetector(
-          onTap: isPlaying ? _stopPreview : _playPreview,
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryColor,
-            ),
-            child: Icon(
-              isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
-              color: Colors.white,
-              size: 36,
-            ),
-          ),
+        const SizedBox(
+          width: 48,
+          height: 48,
+          child: CircularProgressIndicator(strokeWidth: 3),
         ),
-        const SizedBox(height: 32),
-        // Save / Retake buttons
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _isUploading ? null : _retake,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: AppTheme.primaryColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(27),
-                  ),
-                ),
-                child: Text(
-                  'Re-record',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.primaryColor,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _isUploading ? null : _uploadAndSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(27),
-                  ),
-                ),
-                child: _isUploading
-                    ? const SizedBox(
-                        width: 20, height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2,
-                        ),
-                      )
-                    : const Text(
-                        'Save',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-              ),
-            ),
-          ],
+        const SizedBox(height: 16),
+        Text(
+          'Uploading…',
+          style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
         ),
       ],
     );
   }
 }
 
-enum _ScreenState { idle, recording, preview, playing }
+/// Simple 3-phase state machine: idle → recording → uploading → done
+enum _Phase { idle, recording, uploading }
