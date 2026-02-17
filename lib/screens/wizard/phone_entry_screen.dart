@@ -196,11 +196,39 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     return '$_selectedCountryCode$raw';
   }
 
+  /// Whether Firebase is available (only on Android/iOS).
+  bool get _isFirebaseAvailable =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+
   Future<void> _handleContinue() async {
     if (!_isValidPhone || _isSending) return;
 
     final fullPhone = _buildFullPhoneNumber();
     debugPrint('📱 Sending verification to: $fullPhone');
+
+    // Desktop (Linux/Windows/macOS): Firebase not available.
+    // In DevMode, skip straight to SMS code screen with fake verificationId.
+    if (!_isFirebaseAvailable) {
+      if (DevMode.enabled) {
+        debugPrint('🔧 DevMode on desktop: skipping Firebase, navigating to verify-code');
+        Navigator.pushNamed(
+          context,
+          '/onboarding/verify-code',
+          arguments: {
+            'verificationId': 'dev-mode-desktop-fake-id',
+            'phoneNumber': fullPhone,
+          },
+        );
+        return;
+      } else {
+        setState(() {
+          _errorMessage = 'Phone verification requires a mobile device (Android/iOS).';
+        });
+        return;
+      }
+    }
+
 
     setState(() {
       _isSending = true;

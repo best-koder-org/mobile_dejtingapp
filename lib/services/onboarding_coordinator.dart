@@ -6,7 +6,7 @@
 class OnboardingCoordinator {
   /// The ordered list of onboarding steps (routes).
   static const List<String> steps = [
-    '/onboarding/phone',
+    '/onboarding/phone-entry',
     '/onboarding/verify-code',
     '/onboarding/community-guidelines',
     '/onboarding/first-name',

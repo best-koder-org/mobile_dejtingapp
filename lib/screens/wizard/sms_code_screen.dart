@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
@@ -155,6 +156,17 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       _isVerifying = true;
       _errorMessage = null;
     });
+
+    // Desktop DevMode: Firebase not available — skip verification, go forward
+    if (DevMode.enabled &&
+        defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS) {
+      debugPrint('🔧 DevMode on desktop: skipping Firebase SMS verify');
+      if (mounted) {
+        OnboardingProvider.of(context).goNext(context);
+      }
+      return;
+    }
 
     try {
       // Verify OTP with Firebase

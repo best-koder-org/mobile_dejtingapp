@@ -288,7 +288,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/onboarding/phone');
+                        Navigator.pushReplacementNamed(context, '/onboarding/phone-entry');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,

@@ -122,7 +122,7 @@ class WelcomeScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pushNamed(context, '/onboarding/phone'),
+                          onPressed: () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                           icon: const Icon(Icons.phone, size: 20),
                           label: const Text('Sign in with phone number'),
                           style: ElevatedButton.styleFrom(
@@ -152,7 +152,7 @@ class WelcomeScreen extends StatelessWidget {
 
               // DevMode skip — jump straight into onboarding flow
               DevModeSkipButton(
-                onSkip: () => Navigator.pushNamed(context, '/onboarding/phone'),
+                onSkip: () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                 label: 'Skip to Onboarding',
               ),
             ],
