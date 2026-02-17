@@ -1,3 +1,4 @@
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
@@ -85,9 +86,10 @@ class NotificationPermissionScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 54,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Request notification permission
-                            OnboardingProvider.of(context).data.notificationsGranted = true;
+                          onPressed: () async {
+                            final status = await Permission.notification.request();
+                            if (!context.mounted) return;
+                            OnboardingProvider.of(context).data.notificationsGranted = status.isGranted;
                             OnboardingProvider.of(context).goNext(context);
                           },
                           style: ElevatedButton.styleFrom(

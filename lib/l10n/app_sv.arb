@@ -350,5 +350,7 @@
   "addUpToInterests": "Lägg till upp till {max} intressen att visa på din profil.",
   "verificationSubtitle": "Få en blå bock",
   "notificationsSubtitle": "Nya matchningar och meddelanden",
-  "getMoreSparks": "Skaffa fler Sparks"
+  "getMoreSparks": "Skaffa fler Sparks",
+  "matchFound": "Det är en match!",
+  "continueBtn": "Fortsätt"
 }

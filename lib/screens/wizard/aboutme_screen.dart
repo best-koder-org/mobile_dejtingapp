@@ -47,7 +47,6 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
   ];
 
   void _finish() {
-    // TODO: Save about-me data to profile
     final _d = OnboardingProvider.of(context).data; _d.communicationStyle = _communicationStyle; _d.loveLanguage = _loveLanguage; _d.education = _education; OnboardingProvider.of(context).goNext(context);
   }
 

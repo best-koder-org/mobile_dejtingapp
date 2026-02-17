@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   MatchCandidate? get _currentCandidate =>
       _currentIndex < _candidates.length ? _candidates[_currentIndex] : null;
 
-  void _skipProfile() {
+  void _advanceToNext() {
     if (_currentIndex < _candidates.length - 1) {
       setState(() => _currentIndex++);
       _scrollController.jumpTo(0);
@@ -78,17 +78,59 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _likeProfile({String? likedContent}) {
+  void _passProfile() {
+    final candidate = _currentCandidate;
+    if (candidate == null) return;
+
+    _advanceToNext();
+
+    // Send pass to backend (fire-and-forget)
+    SwipeService.swipe(
+      targetUserId: candidate.userId,
+      isLike: false,
+    );
+  }
+
+  void _showMatchDialog(MatchCandidate candidate) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('🎉'),
+        content: Text(
+          AppLocalizations.of(context)!.matchFound,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(AppLocalizations.of(context)!.continueBtn),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _likeProfile({String? likedContent}) async {
     final candidate = _currentCandidate;
     if (candidate == null) return;
 
     debugPrint(
-      '\u2764\uFE0F Liked profile ${candidate.userId}'
-      '${likedContent != null ? " (content: $likedContent)" : ""}',
+      '\u2764\uFE0F Liked profile \${candidate.userId}'
+      '\${likedContent != null ? " (content: \$likedContent)" : ""}',
     );
 
-    // TODO: Send like to backend via matchmakingApi.swipe()
-    _skipProfile();
+    // Fire swipe to backend (non-blocking — advance UI immediately)
+    _advanceToNext();
+
+    final result = await SwipeService.swipe(
+      targetUserId: candidate.userId,
+      isLike: true,
+    );
+
+    // Check if a mutual match occurred
+    if (result != null && result['isMatch'] == true && mounted) {
+      _showMatchDialog(candidate);
+    }
   }
 
   void _onLikeContent(String contentType, String contentValue) {
@@ -103,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           candidate: candidate,
           isMatched: false,
           onLike: () => _likeProfile(),
-          onSkip: _skipProfile,
+          onSkip: _passProfile,
         ),
       ),
     );
@@ -845,7 +887,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             color: AppTheme.textTertiary,
             bgColor: AppTheme.surfaceColor,
             size: 56, iconSize: 28,
-            onTap: _skipProfile,
+            onTap: _passProfile,
             label: AppLocalizations.of(context)!.skipAction,
           ),
           const SizedBox(width: 16),

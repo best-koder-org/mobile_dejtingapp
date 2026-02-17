@@ -1505,5 +1505,7 @@
   },
   "verificationSubtitle": "Get a blue checkmark",
   "notificationsSubtitle": "New matches and messages",
-  "getMoreSparks": "Get more Sparks"
+  "getMoreSparks": "Get more Sparks",
+  "matchFound": "It's a match!",
+  "continueBtn": "Continue"
 }

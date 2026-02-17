@@ -1,5 +1,6 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/api_services.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -288,9 +289,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text(AppLocalizations.of(context)!.cancelButton),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  // TODO: Implement logout
+                  await AppState().logout();
+                  if (!context.mounted) return;
                   Navigator.pushNamedAndRemoveUntil(
                     context,
                     '/login',

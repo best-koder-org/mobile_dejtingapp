@@ -2203,6 +2203,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get more Sparks'**
   String get getMoreSparks;
+
+  /// No description provided for @matchFound.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a match!'**
+  String get matchFound;
+
+  /// No description provided for @continueBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueBtn;
 }
 
 class _AppLocalizationsDelegate

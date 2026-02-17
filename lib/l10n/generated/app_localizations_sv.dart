@@ -1154,4 +1154,10 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get getMoreSparks => 'Skaffa fler Sparks';
+
+  @override
+  String get matchFound => 'Det är en match!';
+
+  @override
+  String get continueBtn => 'Fortsätt';
 }

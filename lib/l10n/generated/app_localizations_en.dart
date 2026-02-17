@@ -1149,4 +1149,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getMoreSparks => 'Get more Sparks';
+
+  @override
+  String get matchFound => 'It\'s a match!';
+
+  @override
+  String get continueBtn => 'Continue';
 }

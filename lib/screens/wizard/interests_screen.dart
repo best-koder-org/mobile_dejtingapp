@@ -82,7 +82,6 @@ class _InterestsScreenState extends State<InterestsScreen> {
   }
 
   void _continue() {
-    // TODO: Save interests to profile
     OnboardingProvider.of(context).data.interests = _selected.toList();
 
     OnboardingProvider.of(context).goNext(context);
