@@ -321,6 +321,7 @@ class AppState {
   static const _refreshTokenExpiryKey = 'refreshTokenExpiry';
   static const _userIdKey = 'userId';
   static const _userProfileKey = 'userProfile';
+  static const _onboardingCompleteKey = 'onboardingComplete';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -332,6 +333,7 @@ class AppState {
   DateTime? _refreshTokenExpiresAt;
   Map<String, dynamic>? _userProfile;
   bool _initialized = false;
+  bool _onboardingComplete = false;
 
   String? get userId => _userId;
   String? get authToken => _accessToken;
@@ -340,6 +342,7 @@ class AppState {
   DateTime? get accessTokenExpiresAt => _accessTokenExpiresAt;
   DateTime? get refreshTokenExpiresAt => _refreshTokenExpiresAt;
   bool get isInitialized => _initialized;
+  bool get isOnboardingComplete => _onboardingComplete;
 
   bool hasValidAuthSession(
       {Duration gracePeriod = const Duration(minutes: 1)}) {
@@ -348,6 +351,11 @@ class AppState {
     }
 
     return !_isAccessTokenExpired(gracePeriod: gracePeriod);
+  }
+
+  Future<void> setOnboardingComplete() async {
+    _onboardingComplete = true;
+    await _storage.write(key: _onboardingCompleteKey, value: 'true');
   }
 
   Future<void> initialize({bool forceRefresh = false}) async {
@@ -379,6 +387,9 @@ class AppState {
         }
       }
     }
+
+    _onboardingComplete =
+        (await _storage.read(key: _onboardingCompleteKey)) == 'true';
 
     _initialized = true;
   }

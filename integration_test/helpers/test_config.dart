@@ -85,15 +85,18 @@ class TestConfig {
   static const Duration apiTimeout = Duration(seconds: 30);
   static const Duration longApiTimeout = Duration(minutes: 2);
 
+  static int _userCounter = 0;
+
   // Test data generators
   static String generateTestEmail() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'test_$timestamp@example.com';
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    _userCounter++;
+    return 'test_${timestamp}_$_userCounter@example.com';
   }
 
   static String generateTestUsername() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'testuser_$timestamp';
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    return 'testuser_${timestamp}_$_userCounter';
   }
 }
 

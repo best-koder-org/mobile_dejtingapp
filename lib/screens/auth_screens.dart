@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../config/environment.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 
-import '../config/environment.dart';
 import '../services/auth_session_manager.dart';
+import '../services/api_service.dart';
 
 /// Login Screen — Phone-first, passwordless (Tinder-style).
 /// Primary: "Continue with Phone Number" → phone entry → SMS OTP → Firebase → Keycloak JWT
@@ -27,7 +29,31 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        Navigator.pushReplacementNamed(context, '/home');
+        // Check if user has a profile (completed onboarding before)
+        final appState = AppState();
+        try {
+          final token = appState.authToken;
+          final userId = appState.userId;
+          if (token != null && userId != null) {
+            final resp = await http.get(
+              Uri.parse('\${EnvironmentConfig.settings.gatewayUrl}/api/users/\$userId'),
+              headers: {'Authorization': 'Bearer \$token'},
+            );
+            if (resp.statusCode == 200) {
+              // Existing user with profile → skip onboarding
+              await appState.setOnboardingComplete();
+            }
+          }
+        } catch (_) {
+          // Network error — be lenient, assume new user needs onboarding
+        }
+
+        if (!mounted) return;
+        if (appState.isOnboardingComplete) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          Navigator.pushReplacementNamed(context, '/onboarding/phone-entry');
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

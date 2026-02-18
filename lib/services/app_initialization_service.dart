@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../services/api_service.dart';
 import '../services/messaging_service.dart';
+import '../services/matchmaking_realtime_service.dart';
 
 class AppInitializationService {
   static final AppInitializationService _instance =
@@ -12,6 +13,8 @@ class AppInitializationService {
   AppInitializationService._internal();
 
   final MessagingService _messagingService = MessagingService();
+  final MatchmakingRealtimeService _matchmakingRealtimeService =
+      MatchmakingRealtimeService();
   bool _isInitialized = false;
   bool _warnedMessagingUnavailable = false;
 
@@ -24,37 +27,54 @@ class AppInitializationService {
       final authToken = AppState().authToken;
 
       if (userId != null && authToken != null) {
+        // ── Messaging service ──────────────────────────────────────────
         final messagingAvailable = await _isMessagingServiceAvailable();
         if (messagingAvailable) {
           await _messagingService.initialize(userId, authToken);
-
-          print('App initialized successfully');
-          print('User ID: $userId');
-          print('Messaging service connected');
+          if (kDebugMode) {
+            print('✅ Messaging service connected (userId=$userId)');
+          }
         } else {
           if (!_warnedMessagingUnavailable) {
-            print('⚠️ Messaging service unavailable. Skipping initialization.');
+            if (kDebugMode) {
+              print('⚠️ Messaging service unavailable. Skipping initialization.');
+            }
             _warnedMessagingUnavailable = true;
           }
         }
+
+        // ── Matchmaking realtime service ───────────────────────────────
+        try {
+          await _matchmakingRealtimeService.initialize(authToken);
+          if (kDebugMode) {
+            print('✅ MatchmakingRealtimeService connected');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ MatchmakingRealtimeService init failed (non-fatal): $e');
+          }
+        }
       } else {
-        print('User not logged in, skipping messaging initialization');
+        if (kDebugMode) {
+          print('User not logged in, skipping service initialization');
+        }
       }
 
       _isInitialized = true;
     } catch (e) {
-      print('Error initializing app: $e');
-      // Don't prevent app from starting if messaging fails
+      if (kDebugMode) print('Error initializing app: $e');
+      // Don't prevent app from starting if services fail
       _isInitialized = true;
     }
   }
 
   MessagingService get messagingService => _messagingService;
+  MatchmakingRealtimeService get matchmakingRealtimeService =>
+      _matchmakingRealtimeService;
   bool get isInitialized => _isInitialized;
 
   void reset() {
     _isInitialized = false;
-    // Reset messaging service when user logs out
     _warnedMessagingUnavailable = false;
   }
 

@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import 'test_config.dart';
 
 /// Modular Safety API helpers
-/// Block/unblock operations - composable into different safety flows
+/// Block/unblock operations against safety-service
 
 /// Block a user
-/// Contract: POST /api/safety/block → 200
-Future<void> blockUser(TestUser user, int targetUserId) async {
+/// Contract: POST /api/safety/block → 201
+/// Backend expects: {blockedUserId: string (Keycloak UUID)}
+Future<void> blockUser(TestUser user, dynamic targetUserId) async {
   final response = await http.post(
     Uri.parse('${TestConfig.baseUrl}/api/safety/block'),
     headers: {
@@ -15,7 +16,7 @@ Future<void> blockUser(TestUser user, int targetUserId) async {
       ...user.authHeaders,
     },
     body: jsonEncode({
-      'blockedUserId': targetUserId,
+      'blockedUserId': targetUserId.toString(),
     }),
   ).timeout(TestConfig.apiTimeout);
 
@@ -25,10 +26,10 @@ Future<void> blockUser(TestUser user, int targetUserId) async {
 }
 
 /// Unblock a user
-/// Contract: DELETE /api/safety/block/{userId} → 200
-Future<void> unblockUser(TestUser user, int targetUserId) async {
+/// Contract: DELETE /api/safety/block/{blockedUserId} → 200/204
+Future<void> unblockUser(TestUser user, dynamic targetUserId) async {
   final response = await http.delete(
-    Uri.parse('${TestConfig.baseUrl}/api/safety/block/$targetUserId'),
+    Uri.parse('${TestConfig.baseUrl}/api/safety/block/${targetUserId.toString()}'),
     headers: user.authHeaders,
   ).timeout(TestConfig.apiTimeout);
 
@@ -38,10 +39,10 @@ Future<void> unblockUser(TestUser user, int targetUserId) async {
 }
 
 /// Get list of blocked users
-/// Contract: GET /api/safety/blocked → 200 with array
-Future<List<int>> getBlockedUsers(TestUser user) async {
+/// Contract: GET /api/safety/block → 200 with array of BlockedUserResponse
+Future<List<dynamic>> getBlockedUsers(TestUser user) async {
   final response = await http.get(
-    Uri.parse('${TestConfig.baseUrl}/api/safety/blocked'),
+    Uri.parse('${TestConfig.baseUrl}/api/safety/block'),
     headers: user.authHeaders,
   ).timeout(TestConfig.apiTimeout);
 
@@ -50,14 +51,17 @@ Future<List<int>> getBlockedUsers(TestUser user) async {
   }
 
   final data = jsonDecode(response.body);
-  return List<int>.from(data['blockedUserIds'] ?? data);
+  if (data is List) return data;
+  final inner = data['data'] ?? data['blockedUserIds'] ?? data;
+  if (inner is List) return inner;
+  return [];
 }
 
 /// Report a user (if implemented)
 /// Contract: POST /api/safety/report → 200
 Future<void> reportUser(
   TestUser user,
-  int targetUserId, {
+  dynamic targetUserId, {
   required String reason,
   String? details,
 }) async {
@@ -68,14 +72,13 @@ Future<void> reportUser(
       ...user.authHeaders,
     },
     body: jsonEncode({
-      'reportedUserId': targetUserId,
+      'reportedUserId': targetUserId.toString(),
       'reason': reason,
       if (details != null) 'details': details,
     }),
   ).timeout(TestConfig.apiTimeout);
 
   if (response.statusCode != 200 && response.statusCode != 201) {
-    // Reporting might not be implemented yet - that's OK
     if (response.statusCode == 404) return;
     throw Exception('Report user failed: ${response.statusCode}');
   }

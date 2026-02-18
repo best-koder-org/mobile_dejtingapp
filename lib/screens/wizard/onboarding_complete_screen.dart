@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../services/onboarding_api_service.dart';
+import '../../services/api_service.dart';
 
 /// Onboarding Complete Screen
 /// Submits wizard data to UserService, then celebrates and navigates to /home.
@@ -54,6 +55,9 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
     });
 
     if (error == null) {
+      // Mark onboarding as complete in persistent storage
+      final appState = AppState();
+      await appState.setOnboardingComplete();
       // Success — play celebration animation
       _controller.forward();
     }
