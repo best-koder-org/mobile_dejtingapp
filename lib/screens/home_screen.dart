@@ -103,12 +103,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (ctx) => AlertDialog(
         title: const Text('🎉'),
         content: Text(
-          AppLocalizations.of(context)!.matchFound,
+          AppLocalizations.of(context).matchFound,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context)!.continueBtn),
+            child: Text(AppLocalizations.of(context).continueBtn),
           ),
         ],
       ),
@@ -201,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Row(
         children: [
           Text(
-            AppLocalizations.of(context)!.discoverTitle,
+            AppLocalizations.of(context).discoverTitle,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           const CircularProgressIndicator(color: AppTheme.primaryColor),
           const SizedBox(height: 16),
-          Text(AppLocalizations.of(context)!.findingPeopleNearYou),
+          Text(AppLocalizations.of(context).findingPeopleNearYou),
         ],
       ),
     );
@@ -256,15 +256,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             const Icon(Icons.wifi_off_rounded, size: 48, color: AppTheme.textTertiary),
             const SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.somethingWentWrong, style: Theme.of(context).textTheme.titleLarge),
+            Text(AppLocalizations.of(context).somethingWentWrong, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.checkConnectionRetry,
+            Text(AppLocalizations.of(context).checkConnectionRetry,
               style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadCandidates,
               icon: const Icon(Icons.refresh_rounded),
-              label: Text(AppLocalizations.of(context)!.tryAgainButton),
+              label: Text(AppLocalizations.of(context).tryAgainButton),
             ),
           ],
         ),
@@ -288,17 +288,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: const Icon(Icons.explore_rounded, size: 48, color: AppTheme.primaryColor),
             ),
             const SizedBox(height: 24),
-            Text(AppLocalizations.of(context)!.seenEveryone,
+            Text(AppLocalizations.of(context).seenEveryone,
               style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.checkBackLater,
+            Text(AppLocalizations.of(context).checkBackLater,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center),
             const SizedBox(height: 32),
             OutlinedButton.icon(
               onPressed: _loadCandidates,
               icon: const Icon(Icons.refresh_rounded),
-              label: Text(AppLocalizations.of(context)!.refreshButton),
+              label: Text(AppLocalizations.of(context).refreshButton),
             ),
           ],
         ),
@@ -909,7 +909,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bgColor: AppTheme.surfaceColor,
             size: 56, iconSize: 28,
             onTap: _passProfile,
-            label: AppLocalizations.of(context)!.skipAction,
+            label: AppLocalizations.of(context).skipAction,
           ),
           const SizedBox(width: 16),
           _buildActionButton(
@@ -918,7 +918,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bgColor: AppTheme.primaryColor,
             size: 64, iconSize: 32,
             onTap: () => _likeProfile(),
-            label: AppLocalizations.of(context)!.likeButton,
+            label: AppLocalizations.of(context).likeButton,
             elevated: true,
           ),
         ],
@@ -1083,7 +1083,7 @@ class _LikeCommentSheetState extends State<_LikeCommentSheet> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: _hasText ? () => widget.onSend(_controller.text.trim()) : null,
-                  child: Text(AppLocalizations.of(context)!.sendWithComment),
+                  child: Text(AppLocalizations.of(context).sendWithComment),
                 ),
               ),
             ],

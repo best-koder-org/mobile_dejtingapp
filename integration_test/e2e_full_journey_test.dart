@@ -49,7 +49,7 @@ void main() {
     // ── Phase 1: Onboarding ──────────────────────────────────────────────
 
     test('1. Alice completes onboarding', () async {
-      final result = await completeOnboarding(
+      await completeOnboarding(
         alice,
         firstName: 'Alice',
         lastName: 'Testsson',
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('2. Bob completes onboarding', () async {
-      final result = await completeOnboarding(
+      await completeOnboarding(
         bob,
         firstName: 'Bob',
         lastName: 'Testberg',

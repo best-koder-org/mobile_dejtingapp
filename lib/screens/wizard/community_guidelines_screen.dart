@@ -47,12 +47,12 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                   SizedBox(height: 32),
 
                   Text(
-                    AppLocalizations.of(context)!.welcomeToDejTing,
+                    AppLocalizations.of(context).welcomeToDejTing,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: Colors.black, height: 1.2),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    AppLocalizations.of(context)!.followHouseRules,
+                    AppLocalizations.of(context).followHouseRules,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: Colors.black87),
                   ),
                   const SizedBox(height: 40),
@@ -61,13 +61,13 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          _buildRule(AppLocalizations.of(context)!.ruleBeYourself, AppLocalizations.of(context)!.ruleBeYourselfDesc),
+                          _buildRule(AppLocalizations.of(context).ruleBeYourself, AppLocalizations.of(context).ruleBeYourselfDesc),
                           const SizedBox(height: 28),
-                          _buildRule(AppLocalizations.of(context)!.ruleStaySafe, AppLocalizations.of(context)!.ruleStaySafeDesc),
+                          _buildRule(AppLocalizations.of(context).ruleStaySafe, AppLocalizations.of(context).ruleStaySafeDesc),
                           const SizedBox(height: 28),
-                          _buildRule(AppLocalizations.of(context)!.rulePlayItCool, AppLocalizations.of(context)!.rulePlayItCoolDesc),
+                          _buildRule(AppLocalizations.of(context).rulePlayItCool, AppLocalizations.of(context).rulePlayItCoolDesc),
                           const SizedBox(height: 28),
-                          _buildRule(AppLocalizations.of(context)!.ruleBeProactive, AppLocalizations.of(context)!.ruleBeProactiveDesc),
+                          _buildRule(AppLocalizations.of(context).ruleBeProactive, AppLocalizations.of(context).ruleBeProactiveDesc),
                         ],
                       ),
                     ),
@@ -89,7 +89,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
                           side: const BorderSide(color: Colors.black, width: 2),
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)!.iAgreeButton, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                      child: Text(AppLocalizations.of(context).iAgreeButton, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(height: 20),

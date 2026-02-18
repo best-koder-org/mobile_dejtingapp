@@ -25,14 +25,18 @@ class ProfileCompletionCalculator {
     // Essential fields (worth more points)
     if (firstName.isNotEmpty) completedFields++;
     if (lastName.isNotEmpty) completedFields++;
-    if (bio.isNotEmpty && bio.length >= 50)
+    if (bio.isNotEmpty && bio.length >= 50) {
       completedFields += 2; // Bio is worth 2 points
-    if (photoUrls.isNotEmpty)
+    }
+    if (photoUrls.isNotEmpty) {
       completedFields += 2; // At least one photo is worth 2 points
-    if (photoUrls.length >= 3)
+    }
+    if (photoUrls.length >= 3) {
       completedFields++; // Multiple photos get bonus point
-    if (interests.length >= 3)
+    }
+    if (interests.length >= 3) {
       completedFields += 2; // Interests are important for matching
+    }
 
     // Additional important fields
     if (city?.isNotEmpty == true) completedFields++;

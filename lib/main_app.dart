@@ -1,5 +1,4 @@
 import 'package:dejtingapp/theme/app_theme.dart';
-import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'screens/home_screen.dart';

@@ -54,9 +54,9 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(AppLocalizations.of(context)!.whatsYourFirstName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context).whatsYourFirstName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text(AppLocalizations.of(context)!.nameAppearOnProfile, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      Text(AppLocalizations.of(context).nameAppearOnProfile, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                       const SizedBox(height: 40),
                       TextField(
                         controller: _ctrl,
@@ -64,7 +64,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                         textCapitalization: TextCapitalization.words,
                         style: const TextStyle(fontSize: 24),
                         decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.firstNameHint,
+                          hintText: AppLocalizations.of(context).firstNameHint,
                           hintStyle: TextStyle(color: Colors.grey[400]),
                           border: const UnderlineInputBorder(),
                           focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFF6B6B), width: 2)),
@@ -80,7 +80,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                             backgroundColor: _isValid ? const Color(0xFFFF6B6B) : Colors.grey,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
                           ),
-                          child: Text(AppLocalizations.of(context)!.nextButton, style: TextStyle(fontSize: 18, color: Colors.white)),
+                          child: Text(AppLocalizations.of(context).nextButton, style: TextStyle(fontSize: 18, color: Colors.white)),
                         ),
                       ),
                     ],

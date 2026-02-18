@@ -55,12 +55,12 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
         context: context,
         barrierDismissible: false,
         builder: (_) => AlertDialog(
-          title: Text(AppLocalizations.of(context)!.ageRequirement),
-          content: Text(AppLocalizations.of(context)!.mustBe18),
+          title: Text(AppLocalizations.of(context).ageRequirement),
+          content: Text(AppLocalizations.of(context).mustBe18),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.goBackButton),
+              child: Text(AppLocalizations.of(context).goBackButton),
             ),
           ],
         ),
@@ -112,13 +112,13 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.yourBirthday,
+                        AppLocalizations.of(context).yourBirthday,
                         style: TextStyle(
                             fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        AppLocalizations.of(context)!.birthdayExplainer,
+                        AppLocalizations.of(context).birthdayExplainer,
                         style: TextStyle(
                             fontSize: 14, color: Colors.grey[600], height: 1.4),
                       ),
@@ -126,7 +126,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
 
                       // Month dropdown
                       _buildDropdown<int>(
-                        label: AppLocalizations.of(context)!.monthLabel,
+                        label: AppLocalizations.of(context).monthLabel,
                         value: _month,
                         items: List.generate(
                           12,
@@ -155,7 +155,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                         children: [
                           Expanded(
                             child: _buildDropdown<int>(
-                              label: AppLocalizations.of(context)!.dayLabel,
+                              label: AppLocalizations.of(context).dayLabel,
                               value: _day,
                               items: _dayOptions
                                   .map((d) => DropdownMenuItem(
@@ -169,7 +169,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: _buildDropdown<int>(
-                              label: AppLocalizations.of(context)!.yearLabel,
+                              label: AppLocalizations.of(context).yearLabel,
                               value: _year,
                               items: _yearOptions
                                   .map((y) => DropdownMenuItem(
@@ -206,7 +206,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                               const Icon(Icons.cake_outlined, size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                AppLocalizations.of(context)!.youAreNYearsOld(_calcAge(DateTime(_year!, _month!, _day!))),
+                                AppLocalizations.of(context).youAreNYearsOld(_calcAge(DateTime(_year!, _month!, _day!))),
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ],
@@ -228,7 +228,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(27)),
                           ),
-                          child: Text(AppLocalizations.of(context)!.nextButton,
+                          child: Text(AppLocalizations.of(context).nextButton,
                               style: TextStyle(
                                   fontSize: 18, color: Colors.white)),
                         ),

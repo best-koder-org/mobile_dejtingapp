@@ -149,7 +149,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
   Future<void> _verifyCode(String code) async {
     if (_verificationId == null) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.verificationSessionExpired);
+      setState(() => _errorMessage = AppLocalizations.of(context).verificationSessionExpired);
       return;
     }
 
@@ -180,7 +180,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
         if (mounted) {
           setState(() {
             _isVerifying = false;
-            _errorMessage = AppLocalizations.of(context)!.invalidCode;
+            _errorMessage = AppLocalizations.of(context).invalidCode;
           });
           _clearCode();
         }
@@ -193,7 +193,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       if (mounted) {
         setState(() {
           _isVerifying = false;
-          _errorMessage = AppLocalizations.of(context)!.verificationFailed;
+          _errorMessage = AppLocalizations.of(context).verificationFailed;
         });
         _clearCode();
       }
@@ -229,7 +229,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       } else {
         setState(() {
           _isVerifying = false;
-          _errorMessage = result.message ?? AppLocalizations.of(context)!.loginFailed;
+          _errorMessage = result.message ?? AppLocalizations.of(context).loginFailed;
         });
         _clearCode();
       }
@@ -242,7 +242,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       } else {
         setState(() {
           _isVerifying = false;
-          _errorMessage = AppLocalizations.of(context)!.couldNotCompleteLogin;
+          _errorMessage = AppLocalizations.of(context).couldNotCompleteLogin;
         });
         _clearCode();
       }
@@ -292,7 +292,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.codeResent(_maxResends - _resendCount)),
+        content: Text(AppLocalizations.of(context).codeResent(_maxResends - _resendCount)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -329,14 +329,14 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    AppLocalizations.of(context)!.enterVerificationCode,
+                    AppLocalizations.of(context).enterVerificationCode,
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     _phoneNumber != null
-                        ? AppLocalizations.of(context)!.codeSentToPhone(_phoneNumber!)
-                        : AppLocalizations.of(context)!.codeSentToPhoneFallback,
+                        ? AppLocalizations.of(context).codeSentToPhone(_phoneNumber!)
+                        : AppLocalizations.of(context).codeSentToPhoneFallback,
                     style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.4),
                   ),
                   const SizedBox(height: 16),
@@ -426,7 +426,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                         children: [
                           CircularProgressIndicator(color: _coral),
                           SizedBox(height: 12),
-                          Text(AppLocalizations.of(context)!.verifying),
+                          Text(AppLocalizations.of(context).verifying),
                         ],
                       ),
                     ),
@@ -438,14 +438,14 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                           ? TextButton(
                               onPressed: _resendCode,
                               child: Text(
-                                AppLocalizations.of(context)!.resendCode,
+                                AppLocalizations.of(context).resendCode,
                                 style: TextStyle(color: _coral, fontSize: 15, fontWeight: FontWeight.w600),
                               ),
                             )
                           : Text(
                               _resendCount >= _maxResends
-                                  ? AppLocalizations.of(context)!.maxResendReached
-                                  : AppLocalizations.of(context)!.resendCodeIn(_secondsRemaining),
+                                  ? AppLocalizations.of(context).maxResendReached
+                                  : AppLocalizations.of(context).resendCodeIn(_secondsRemaining),
                               style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                             ),
                     ),
@@ -462,7 +462,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            AppLocalizations.of(context)!.smsRatesInfo,
+                            AppLocalizations.of(context).smsRatesInfo,
                             style: TextStyle(fontSize: 12, color: Colors.grey[600], height: 1.3),
                           ),
                         ),

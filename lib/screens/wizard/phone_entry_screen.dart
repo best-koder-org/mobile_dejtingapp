@@ -143,7 +143,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(AppLocalizations.of(context)!.selectCountry,
+            Text(AppLocalizations.of(context).selectCountry,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildCountryOption('🇸🇪', 'Sweden', '+46'),
@@ -224,7 +224,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         return;
       } else {
         setState(() {
-          _errorMessage = AppLocalizations.of(context)!.phoneVerificationMobileOnly;
+          _errorMessage = AppLocalizations.of(context).phoneVerificationMobileOnly;
         });
         return;
       }
@@ -286,7 +286,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         setState(() {
           _isSending = false;
           _errorMessage =
-              AppLocalizations.of(context)!.failedToSendCode;
+              AppLocalizations.of(context).failedToSendCode;
         });
       }
     }
@@ -332,7 +332,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                   SizedBox(height: 32),
 
                   Text(
-                    AppLocalizations.of(context)!.onboardingPhoneTitle,
+                    AppLocalizations.of(context).onboardingPhoneTitle,
                     style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.phoneVerificationExplainer,
+                    AppLocalizations.of(context).phoneVerificationExplainer,
                     style: TextStyle(
                         fontSize: 16, color: Colors.black54, height: 1.5),
                   ),
@@ -413,7 +413,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                                 fontSize: 18, fontWeight: FontWeight.w500),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: AppLocalizations.of(context)!.phoneNumberHint,
+                              hintText: AppLocalizations.of(context).phoneNumberHint,
                               hintStyle: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.normal),
@@ -451,7 +451,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         icon: const Icon(Icons.sim_card,
                             size: 18, color: coralColor),
                         label: Text(
-                          AppLocalizations.of(context)!.useDifferentSim,
+                          AppLocalizations.of(context).useDifferentSim,
                           style: TextStyle(color: coralColor, fontSize: 14),
                         ),
                       ),
@@ -469,7 +469,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            AppLocalizations.of(context)!.continueInfoBox,
+                            AppLocalizations.of(context).continueInfoBox,
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[700],
@@ -505,7 +505,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                               child: CircularProgressIndicator(
                                   color: Colors.white, strokeWidth: 2.5),
                             )
-                          : Text(AppLocalizations.of(context)!.continueButton,
+                          : Text(AppLocalizations.of(context).continueButton,
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                     ),

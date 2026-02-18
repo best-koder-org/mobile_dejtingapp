@@ -138,7 +138,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
           TextButton(
             onPressed: _skip,
             child: Text(
-              AppLocalizations.of(context)!.skipButton,
+              AppLocalizations.of(context).skipButton,
               style: TextStyle(color: Colors.white70, fontSize: 15),
             ),
           ),
@@ -169,7 +169,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                       children: [
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.whatMakesYouYou,
+                          AppLocalizations.of(context).whatMakesYouYou,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -178,7 +178,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.authenticitySubtitle,
+                          AppLocalizations.of(context).authenticitySubtitle,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withAlpha(153),
@@ -244,8 +244,8 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                       ),
                       child: Text(
                         hasAnySelection
-                            ? AppLocalizations.of(context)!.letsGo
-                            : AppLocalizations.of(context)!.skipAndFinish,
+                            ? AppLocalizations.of(context).letsGo
+                            : AppLocalizations.of(context).skipAndFinish,
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),

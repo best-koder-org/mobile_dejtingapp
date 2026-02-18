@@ -148,7 +148,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
           TextButton(
             onPressed: _skip,
             child: Text(
-              AppLocalizations.of(context)!.skipButton,
+              AppLocalizations.of(context).skipButton,
               style: TextStyle(color: Colors.white70, fontSize: 15),
             ),
           ),
@@ -179,7 +179,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                       children: [
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.lifestyleHabits,
+                          AppLocalizations.of(context).lifestyleHabits,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -188,7 +188,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.lifestyleSubtitle,
+                          AppLocalizations.of(context).lifestyleSubtitle,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withAlpha(153),
@@ -252,7 +252,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        hasAnySelection ? AppLocalizations.of(context)!.continueButton : AppLocalizations.of(context)!.skipForNow,
+                        hasAnySelection ? AppLocalizations.of(context).continueButton : AppLocalizations.of(context).skipForNow,
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),

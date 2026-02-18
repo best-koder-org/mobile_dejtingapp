@@ -230,7 +230,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            Text(AppLocalizations.of(context)!.matchesTitle),
+            Text(AppLocalizations.of(context).matchesTitle),
             const Spacer(),
             _buildConnectionStatus(),
           ],
@@ -244,7 +244,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           // Uses theme TabBar unselected
           tabs: [
             Tab(
-              text: AppLocalizations.of(context)!.newMatches,
+              text: AppLocalizations.of(context).newMatches,
               icon: _matches.isNotEmpty
                   ? Badge(
                       backgroundColor: AppTheme.surfaceElevated,
@@ -255,7 +255,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                   : const Icon(Icons.favorite),
             ),
             Tab(
-              text: AppLocalizations.of(context)!.messagesTab,
+              text: AppLocalizations.of(context).messagesTab,
               icon: _conversations.where((c) => c.unreadCount > 0).isNotEmpty
                   ? Badge(
                       backgroundColor: AppTheme.surfaceElevated,
@@ -333,10 +333,10 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
             const Icon(Icons.favorite_border, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.noMatchesYet,
+              AppLocalizations.of(context).noMatchesYet,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text(AppLocalizations.of(context)!.keepSwiping),
+            Text(AppLocalizations.of(context).keepSwiping),
           ],
         ),
       );
@@ -350,7 +350,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.newMatches,
+              AppLocalizations.of(context).newMatches,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -404,7 +404,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
+                            profile?.firstName ?? AppLocalizations.of(context).unknownUser,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
@@ -456,7 +456,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ),
         ),
         title: Text(
-          profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
+          profile?.firstName ?? AppLocalizations.of(context).unknownUser,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
@@ -500,10 +500,10 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
             const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.noConversationsYet,
+              AppLocalizations.of(context).noConversationsYet,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text(AppLocalizations.of(context)!.startChattingMatches),
+            Text(AppLocalizations.of(context).startChattingMatches),
           ],
         ),
       );
@@ -580,7 +580,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ],
         ),
         title: Text(
-          profile?.firstName ?? AppLocalizations.of(context)!.unknownUser,
+          profile?.firstName ?? AppLocalizations.of(context).unknownUser,
           style: TextStyle(
             fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
           ),

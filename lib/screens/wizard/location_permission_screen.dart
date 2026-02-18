@@ -53,7 +53,7 @@ class LocationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        AppLocalizations.of(context)!.enableLocation,
+                        AppLocalizations.of(context).enableLocation,
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class LocationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        AppLocalizations.of(context)!.locationDescription,
+                        AppLocalizations.of(context).locationDescription,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -89,7 +89,7 @@ class LocationPermissionScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.enableLocationBtn,
+                            AppLocalizations.of(context).enableLocationBtn,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
@@ -101,7 +101,7 @@ class LocationPermissionScreen extends StatelessWidget {
                           OnboardingProvider.of(context).goNext(context);
                         },
                         child: Text(
-                          AppLocalizations.of(context)!.notNow,
+                          AppLocalizations.of(context).notNow,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[500],

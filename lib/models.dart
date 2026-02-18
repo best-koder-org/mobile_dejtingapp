@@ -73,6 +73,7 @@ class UserProfile {
   final String? smoking;
   final String? workout;
   final List<String> languages;
+  final String? voicePromptUrl;
 
   UserProfile({
     this.id,
@@ -103,6 +104,7 @@ class UserProfile {
     this.smoking,
     this.workout,
     this.languages = const [],
+    this.voicePromptUrl,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -160,6 +162,7 @@ class UserProfile {
       languages: languagesList is List
           ? languagesList.map((e) => e.toString()).toList()
           : const [],
+      voicePromptUrl: json['voicePromptUrl'] ?? json['VoicePromptUrl'],
     );
   }
 

@@ -12,7 +12,7 @@ void main() {
 }
 
 class WidgetbookApp extends StatelessWidget {
-  const WidgetbookApp({Key? key}) : super(key: key);
+  const WidgetbookApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +131,7 @@ class _ColorSwatch extends StatelessWidget {
             children: [
               Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                '#${color.value.toRadixString(16).substring(2).toUpperCase()}',
+                '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],

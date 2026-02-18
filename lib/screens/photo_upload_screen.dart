@@ -120,7 +120,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.authRequiredDetail),
+        content: Text(AppLocalizations.of(context).authRequiredDetail),
         backgroundColor: Colors.red,
       ),
     );
@@ -350,18 +350,18 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     return showDialog<ImageSource>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.selectPhotoSource),
+        title: Text(AppLocalizations.of(context).selectPhotoSource),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: Text(AppLocalizations.of(context)!.camera),
+              title: Text(AppLocalizations.of(context).camera),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: Text(AppLocalizations.of(context)!.gallery),
+              title: Text(AppLocalizations.of(context).gallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -559,17 +559,17 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.deletePhotoTitle),
-            content: Text(AppLocalizations.of(context)!.deletePhotoConfirmation),
+            title: Text(AppLocalizations.of(context).deletePhotoTitle),
+            content: Text(AppLocalizations.of(context).deletePhotoConfirmation),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: Text(AppLocalizations.of(context)!.cancelButton),
+                child: Text(AppLocalizations.of(context).cancelButton),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: Text(AppLocalizations.of(context)!.deleteButton),
+                child: Text(AppLocalizations.of(context).deleteButton),
               ),
             ],
           ),
@@ -598,7 +598,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.addPhotos),
+        title: Text(AppLocalizations.of(context).addPhotos),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -770,7 +770,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                         Icon(Icons.star, color: Colors.white, size: 12),
                         SizedBox(width: 2),
                         Text(
-                          AppLocalizations.of(context)!.primaryLabel,
+                          AppLocalizations.of(context).primaryLabel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -810,7 +810,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            index == 0 ? AppLocalizations.of(context)!.primaryPhoto : AppLocalizations.of(context)!.photoNumber(index + 1),
+            index == 0 ? AppLocalizations.of(context).primaryPhoto : AppLocalizations.of(context).photoNumber(index + 1),
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 12,
@@ -819,7 +819,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           ),
           if (index < minPhotos)
             Text(
-              AppLocalizations.of(context)!.requiredLabel,
+              AppLocalizations.of(context).requiredLabel,
               style: TextStyle(
                 color: Colors.orange.shade600,
                 fontSize: 10,
@@ -1007,7 +1007,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: Text(AppLocalizations.of(context)!.replacePhoto),
+              title: Text(AppLocalizations.of(context).replacePhoto),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(index);
@@ -1016,7 +1016,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             if (index != 0) // Don't allow deleting primary photo easily
               ListTile(
                 leading: const Icon(Icons.star),
-                title: Text(AppLocalizations.of(context)!.setAsPrimary),
+                title: Text(AppLocalizations.of(context).setAsPrimary),
                 onTap: () {
                   Navigator.pop(context);
                   _setPrimaryPhoto(index);
@@ -1024,7 +1024,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(AppLocalizations.of(context)!.deletePhoto,
+              title: Text(AppLocalizations.of(context).deletePhoto,
                   style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
@@ -1033,7 +1033,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.cancel),
-              title: Text(AppLocalizations.of(context)!.cancelButton),
+              title: Text(AppLocalizations.of(context).cancelButton),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -1117,7 +1117,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               Icon(Icons.lightbulb, color: Colors.blue.shade600, size: 20),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.photoTips,
+                AppLocalizations.of(context).photoTips,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

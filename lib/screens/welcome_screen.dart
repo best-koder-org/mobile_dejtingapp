@@ -50,7 +50,7 @@ class WelcomeScreen extends StatelessWidget {
                       SizedBox(height: 16),
 
                       Text(
-                        AppLocalizations.of(context)!.createAccount,
+                        AppLocalizations.of(context).createAccount,
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
@@ -65,14 +65,14 @@ class WelcomeScreen extends StatelessWidget {
                             WidgetSpan(
                               child: GestureDetector(
                                 onTap: () => _openUrl('https://dejtingapp.com/terms'),
-                                child: Text(AppLocalizations.of(context)!.termsLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
+                                child: Text(AppLocalizations.of(context).termsLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
                               ),
                             ),
                             const TextSpan(text: '. Learn how we process your data in our '),
                             WidgetSpan(
                               child: GestureDetector(
                                 onTap: () => _openUrl('https://dejtingapp.com/privacy'),
-                                child: Text(AppLocalizations.of(context)!.privacyPolicyLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
+                                child: Text(AppLocalizations.of(context).privacyPolicyLink, style: const TextStyle(fontSize: 12, color: coralColor, decoration: TextDecoration.underline)),
                               ),
                             ),
                             const TextSpan(text: '.'),
@@ -88,7 +88,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showComingSoon(context, 'Apple Sign-In'),
                           icon: const Icon(Icons.apple, size: 24),
-                          label: Text(AppLocalizations.of(context)!.continueWithApple),
+                          label: Text(AppLocalizations.of(context).continueWithApple),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
@@ -108,7 +108,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _showComingSoon(context, 'Google Sign-In'),
                           icon: const Icon(Icons.g_mobiledata, size: 24),
-                          label: Text(AppLocalizations.of(context)!.continueWithGoogle),
+                          label: Text(AppLocalizations.of(context).continueWithGoogle),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: googleBlue,
                             foregroundColor: Colors.white,
@@ -125,7 +125,7 @@ class WelcomeScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                           icon: const Icon(Icons.phone, size: 20),
-                          label: Text(AppLocalizations.of(context)!.signInWithPhone),
+                          label: Text(AppLocalizations.of(context).signInWithPhone),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey[900],
                             foregroundColor: Colors.white,
@@ -141,7 +141,7 @@ class WelcomeScreen extends StatelessWidget {
                       TextButton(
                         onPressed: () => _showComingSoon(context, 'Password Recovery'),
                         child: Text(
-                          AppLocalizations.of(context)!.troubleLoggingIn,
+                          AppLocalizations.of(context).troubleLoggingIn,
                           style: TextStyle(color: coralColor, fontSize: 14, decoration: TextDecoration.underline),
                         ),
                       ),
@@ -165,7 +165,7 @@ class WelcomeScreen extends StatelessWidget {
 
   void _showComingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.featureComingSoon(feature)), backgroundColor: coralColor),
+      SnackBar(content: Text(AppLocalizations.of(context).featureComingSoon(feature)), backgroundColor: coralColor),
     );
   }
 

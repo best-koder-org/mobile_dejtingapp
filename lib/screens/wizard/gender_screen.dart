@@ -44,7 +44,7 @@ class _GenderScreenState extends State<GenderScreen> {
               ),
               SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.selectGenderSheet,
+                AppLocalizations.of(context).selectGenderSheet,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -111,7 +111,7 @@ class _GenderScreenState extends State<GenderScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.whatsYourGender,
+                        AppLocalizations.of(context).whatsYourGender,
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 40),
@@ -178,7 +178,7 @@ class _GenderScreenState extends State<GenderScreen> {
                                   (_selected != null &&
                                           !_quickOptions.contains(_selected))
                                       ? _selected!
-                                      : AppLocalizations.of(context)!.moreOptions,
+                                      : AppLocalizations.of(context).moreOptions,
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: (_selected != null &&
@@ -205,7 +205,7 @@ class _GenderScreenState extends State<GenderScreen> {
                           ),
                           Expanded(
                             child: Text(
-                              AppLocalizations.of(context)!.showGenderOnProfile,
+                              AppLocalizations.of(context).showGenderOnProfile,
                               style: TextStyle(fontSize: 14),
                             ),
                           ),
@@ -228,7 +228,7 @@ class _GenderScreenState extends State<GenderScreen> {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.nextButton,
+                            AppLocalizations.of(context).nextButton,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),

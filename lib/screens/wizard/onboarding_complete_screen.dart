@@ -102,7 +102,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
           CircularProgressIndicator(color: Color(0xFFFF6B6B)),
           SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.settingUpProfile,
+            AppLocalizations.of(context).settingUpProfile,
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
         ],
@@ -119,7 +119,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
           const Icon(Icons.error_outline, size: 64, color: Colors.orange),
           SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.somethingWentWrong,
+            AppLocalizations.of(context).somethingWentWrong,
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -148,7 +148,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(27)),
               ),
-              child: Text(AppLocalizations.of(context)!.tryAgainButton,
+              child: Text(AppLocalizations.of(context).tryAgainButton,
                   style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
           ),
@@ -159,7 +159,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
               Navigator.pushNamedAndRemoveUntil(
                   context, '/home', (route) => false);
             },
-            child: Text(AppLocalizations.of(context)!.skipForNow,
+            child: Text(AppLocalizations.of(context).skipForNow,
                 style: TextStyle(color: Colors.grey)),
           ),
         ],
@@ -193,7 +193,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
             child: Column(
               children: [
                 Text(
-                  AppLocalizations.of(context)!.youreAllSet,
+                  AppLocalizations.of(context).youreAllSet,
                   style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                 ),
                 SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context)!.profileReadySubtitle,
+                  AppLocalizations.of(context).profileReadySubtitle,
                   style:
                       TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
                   textAlign: TextAlign.center,
@@ -226,7 +226,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(27)),
                 ),
-                child: Text(AppLocalizations.of(context)!.startExploring,
+                child: Text(AppLocalizations.of(context).startExploring,
                     style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ),

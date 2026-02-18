@@ -139,7 +139,7 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.scaffoldLight,
       appBar: AppBar(

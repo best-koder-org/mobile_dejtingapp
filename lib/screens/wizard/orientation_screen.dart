@@ -111,7 +111,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      AppLocalizations.of(context)!.whatsYourOrientation,
+                      AppLocalizations.of(context).whatsYourOrientation,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -126,7 +126,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      AppLocalizations.of(context)!.selectOrientations,
+                      AppLocalizations.of(context).selectOrientations,
                       style: TextStyle(
                           fontSize: 14, color: Colors.grey[400]),
                     ),
@@ -221,7 +221,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          AppLocalizations.of(context)!.showOrientationOnProfile,
+                          AppLocalizations.of(context).showOrientationOnProfile,
                           style: TextStyle(
                               fontSize: 14, color: Colors.grey[400]),
                         ),
@@ -247,7 +247,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(26)),
                       ),
-                      child: Text(AppLocalizations.of(context)!.nextButton,
+                      child: Text(AppLocalizations.of(context).nextButton,
                           style: TextStyle(fontSize: 18)),
                     ),
                   ),

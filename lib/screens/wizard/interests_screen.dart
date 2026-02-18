@@ -108,7 +108,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
           TextButton(
             onPressed: _skip,
             child: Text(
-              AppLocalizations.of(context)!.skipButton,
+              AppLocalizations.of(context).skipButton,
               style: TextStyle(color: Colors.white70, fontSize: 15),
             ),
           ),
@@ -139,7 +139,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                       children: [
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.whatAreYouInto,
+                          AppLocalizations.of(context).whatAreYouInto,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -148,7 +148,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          AppLocalizations.of(context)!.addUpToInterests(_maxInterests),
+                          AppLocalizations.of(context).addUpToInterests(_maxInterests),
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withAlpha(153),
@@ -278,7 +278,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        _selected.isNotEmpty ? AppLocalizations.of(context)!.continueButton : AppLocalizations.of(context)!.skipForNow,
+                        _selected.isNotEmpty ? AppLocalizations.of(context).continueButton : AppLocalizations.of(context).skipForNow,
                         style: const TextStyle(
                             fontSize: 17, fontWeight: FontWeight.w600),
                       ),

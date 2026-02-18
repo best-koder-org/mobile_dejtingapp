@@ -134,8 +134,8 @@ class EnvironmentInfo extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: EnvironmentConfig.isDevelopment
-            ? Colors.blue.withOpacity(0.8)
-            : Colors.red.withOpacity(0.8),
+            ? Colors.blue.withValues(alpha: 0.8)
+            : Colors.red.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

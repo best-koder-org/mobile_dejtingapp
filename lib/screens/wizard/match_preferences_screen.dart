@@ -55,7 +55,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.showMe,
+                        AppLocalizations.of(context).showMe,
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 40),
@@ -109,7 +109,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.nextButton,
+                            AppLocalizations.of(context).nextButton,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),

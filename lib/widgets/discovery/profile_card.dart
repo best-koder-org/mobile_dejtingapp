@@ -29,7 +29,7 @@ class ProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -95,8 +95,8 @@ class ProfileCard extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               Colors.transparent,
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.8),
             ],
             stops: const [0.5, 0.75, 1.0],
           ),
@@ -144,7 +144,7 @@ class ProfileCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 15,
-              color: Colors.white.withOpacity(0.95),
+              color: Colors.white.withValues(alpha: 0.95),
               height: 1.4,
               shadows: const [
                 Shadow(
@@ -173,7 +173,7 @@ class ProfileCard extends StatelessWidget {
         _buildActionButton(
           icon: Icons.close,
           color: Colors.white,
-          backgroundColor: Colors.white.withOpacity(0.9),
+          backgroundColor: Colors.white.withValues(alpha: 0.9),
           onTap: onPass,
         ),
         
@@ -218,7 +218,7 @@ class ProfileCard extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: backgroundColor.withOpacity(0.4),
+              color: backgroundColor.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -249,7 +249,7 @@ class ProfileCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF9333EA).withOpacity(0.4),
+              color: const Color(0xFF9333EA).withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

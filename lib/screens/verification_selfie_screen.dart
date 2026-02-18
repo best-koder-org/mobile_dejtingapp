@@ -93,7 +93,7 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.verifyIdentityTitle),
+        title: Text(AppLocalizations.of(context).verifyIdentityTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -135,14 +135,14 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 32),
           Text(
-            AppLocalizations.of(context)!.takeSelfieToVerify,
+            AppLocalizations.of(context).takeSelfieToVerify,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.selfieVerifyDescription,
+            AppLocalizations.of(context).selfieVerifyDescription,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.grey.shade600,
@@ -150,10 +150,10 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 24),
           // Tips
-          _buildTip(Icons.light_mode, AppLocalizations.of(context)!.selfieTip1),
-          _buildTip(Icons.face_retouching_natural, AppLocalizations.of(context)!.selfieTip2),
+          _buildTip(Icons.light_mode, AppLocalizations.of(context).selfieTip1),
+          _buildTip(Icons.face_retouching_natural, AppLocalizations.of(context).selfieTip2),
           _buildTip(Icons.no_accounts,
-              AppLocalizations.of(context)!.selfieTip3),
+              AppLocalizations.of(context).selfieTip3),
           const SizedBox(height: 16),
           if (attemptsLeft < 3)
             Text(
@@ -167,7 +167,7 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
             child: FilledButton.icon(
               onPressed: attemptsLeft > 0 ? _takeSelfie : null,
               icon: const Icon(Icons.camera_alt),
-              label: Text(AppLocalizations.of(context)!.takeSelfie),
+              label: Text(AppLocalizations.of(context).takeSelfie),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -214,14 +214,14 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.lookingGood,
+            AppLocalizations.of(context).lookingGood,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.selfiePreviewDescription,
+            AppLocalizations.of(context).selfiePreviewDescription,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade600),
           ),
@@ -231,7 +231,7 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text(AppLocalizations.of(context)!.verifyingIdentity),
+                Text(AppLocalizations.of(context).verifyingIdentity),
               ],
             )
           else ...[
@@ -245,13 +245,13 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(AppLocalizations.of(context)!.submitForVerification),
+                child: Text(AppLocalizations.of(context).submitForVerification),
               ),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: _retake,
-              child: Text(AppLocalizations.of(context)!.retakePhoto),
+              child: Text(AppLocalizations.of(context).retakePhoto),
             ),
           ],
         ],
@@ -298,10 +298,10 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           const SizedBox(height: 24),
           Text(
             isSuccess
-                ? AppLocalizations.of(context)!.verified
+                ? AppLocalizations.of(context).verified
                 : isPending
-                    ? AppLocalizations.of(context)!.underReview
-                    : AppLocalizations.of(context)!.verificationFailedResult,
+                    ? AppLocalizations.of(context).underReview
+                    : AppLocalizations.of(context).verificationFailedResult,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: isSuccess
@@ -366,21 +366,21 @@ class _VerificationSelfieScreenState extends State<VerificationSelfieScreen> {
           const VerificationBadge(isVerified: true, size: 64, showLabel: true),
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.alreadyVerified,
+            AppLocalizations.of(context).alreadyVerified,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.alreadyVerifiedDescription,
+            AppLocalizations.of(context).alreadyVerifiedDescription,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.goBackButton),
+            child: Text(AppLocalizations.of(context).goBackButton),
           ),
         ],
       ),

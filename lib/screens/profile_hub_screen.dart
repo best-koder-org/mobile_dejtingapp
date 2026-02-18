@@ -138,9 +138,9 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               child: TabBar(
                 controller: _tabController,
                 tabs: [
-                  Tab(text: AppLocalizations.of(context)!.getMore),
-                  Tab(text: AppLocalizations.of(context)!.safety),
-                  Tab(text: AppLocalizations.of(context)!.myDejTing),
+                  Tab(text: AppLocalizations.of(context).getMore),
+                  Tab(text: AppLocalizations.of(context).safety),
+                  Tab(text: AppLocalizations.of(context).myDejTing),
                 ],
               ),
             ),
@@ -260,7 +260,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
       children: [
         // ── DejTing Plus promo ──
         _buildPromoCard(
-          title: AppLocalizations.of(context)!.dejTingPlus,
+          title: AppLocalizations.of(context).dejTingPlus,
           subtitle: 'Unlimited Sparks, weekly Spotlight,\nand see who likes you first.',
           gradientColors: [AppTheme.secondaryColor, AppTheme.primaryColor],
           buttonText: _isPlusSubscriber ? 'Manage' : 'Upgrade',
@@ -275,7 +275,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           iconColor: AppTheme.warningColor,
           badgeCount: _spotlightMinutes > 0 ? _spotlightMinutes : null,
           badgeLabel: _spotlightMinutes > 0 ? '${_spotlightMinutes}m' : null,
-          title: AppLocalizations.of(context)!.spotlight,
+          title: AppLocalizations.of(context).spotlight,
           subtitle: 'Jump to the front — get seen by 10× more people for 30 min.',
           onTap: () => _showSpotlightSheet(),
         ),
@@ -287,7 +287,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           icon: Icons.bolt,
           iconColor: AppTheme.tealAccent,
           badgeCount: _sparksRemaining,
-          title: AppLocalizations.of(context)!.sparks,
+          title: AppLocalizations.of(context).sparks,
           subtitle: 'Send a Spark with a message — 3× more likely to match.',
           onTap: () => _showSparksSheet(),
         ),
@@ -298,7 +298,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         _buildFeatureCard(
           icon: Icons.stars,
           iconColor: ProfileCompletionCalculator.getCompletionColor(_profileCompletion),
-          title: AppLocalizations.of(context)!.profileStrength,
+          title: AppLocalizations.of(context).profileStrength,
           subtitle: ProfileCompletionCalculator.getMatchQualityBonus(_profileCompletion),
           trailing: _buildCompletionIndicator(),
           onTap: () => Navigator.pushNamed(context, '/profile').then(
@@ -322,7 +322,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           icon: Icons.verified_user,
           iconColor: AppTheme.secondaryColor,
           isChecked: _isVerified,
-          title: AppLocalizations.of(context)!.selfieVerification,
+          title: AppLocalizations.of(context).selfieVerification,
           subtitle: _isVerified ? "You're verified ✓" : 'Verify your identity',
           onTap: () async {
             final result = await Navigator.push<bool>(
@@ -340,7 +340,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           icon: Icons.chat_bubble_outline,
           iconColor: AppTheme.secondaryColor,
           isChecked: true,
-          title: AppLocalizations.of(context)!.messageFilter,
+          title: AppLocalizations.of(context).messageFilter,
           subtitle: 'Hiding messages with disrespectful language.',
           onTap: () => _showComingSoon('Message filter settings'),
         ),
@@ -352,7 +352,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           icon: Icons.block,
           iconColor: AppTheme.secondaryColor,
           isChecked: true,
-          title: AppLocalizations.of(context)!.blockList,
+          title: AppLocalizations.of(context).blockList,
           subtitle: '$_blockedCount contact${_blockedCount == 1 ? '' : 's'} blocked.',
           onTap: () => _showBlockListSheet(),
         ),
@@ -361,7 +361,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 
         // Safety resources header
         Text(
-          AppLocalizations.of(context)!.safetyResources,
+          AppLocalizations.of(context).safetyResources,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -374,7 +374,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             Expanded(
               child: _buildResourceButton(
                 icon: Icons.phone_in_talk,
-                label: AppLocalizations.of(context)!.crisisHotlines,
+                label: AppLocalizations.of(context).crisisHotlines,
                 onTap: () => _launchUrl('https://www.iasp.info/resources/Crisis_Centres/'),
               ),
             ),
@@ -382,7 +382,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             Expanded(
               child: _buildResourceButton(
                 icon: Icons.shield_outlined,
-                label: AppLocalizations.of(context)!.safetyTips,
+                label: AppLocalizations.of(context).safetyTips,
                 onTap: () => _launchUrl('https://www.staysafe.org/dating-safety-tips/'),
               ),
             ),
@@ -421,7 +421,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.freshStart,
+                AppLocalizations.of(context).freshStart,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -442,7 +442,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                   foregroundColor: AppTheme.textPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 ),
-                child: Text(AppLocalizations.of(context)!.editProfile),
+                child: Text(AppLocalizations.of(context).editProfile),
               ),
             ],
           ),
@@ -454,7 +454,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         _buildFeatureCard(
           icon: Icons.mic_rounded,
           iconColor: AppTheme.primaryColor,
-          title: AppLocalizations.of(context)!.voicePromptTitle,
+          title: AppLocalizations.of(context).voicePromptTitle,
           subtitle: 'Record a voice intro for your profile',
           onTap: () async {
             final result = await Navigator.push<String>(
@@ -475,7 +475,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         _buildFeatureCard(
           icon: Icons.lightbulb_outline,
           iconColor: AppTheme.warningColor,
-          title: AppLocalizations.of(context)!.datingTips,
+          title: AppLocalizations.of(context).datingTips,
           subtitle: 'Expert-backed advice for better dates',
           onTap: () => _showComingSoon('Dating tips'),
         ),
@@ -486,7 +486,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         _buildFeatureCard(
           icon: Icons.help_outline,
           iconColor: AppTheme.textSecondary,
-          title: AppLocalizations.of(context)!.helpCentre,
+          title: AppLocalizations.of(context).helpCentre,
           subtitle: 'FAQs, safety and account support',
           onTap: () => _showComingSoon('Help centre'),
         ),
@@ -497,7 +497,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
         _buildFeatureCard(
           icon: Icons.settings,
           iconColor: AppTheme.textSecondary,
-          title: AppLocalizations.of(context)!.settingsTitle,
+          title: AppLocalizations.of(context).settingsTitle,
           subtitle: 'Discovery, notifications, privacy',
           onTap: () {
             Navigator.push(
@@ -514,7 +514,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           child: TextButton(
             onPressed: _showLogoutDialog,
             style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
-            child: Text(AppLocalizations.of(context)!.logoutButton, style: const TextStyle(fontSize: 16)),
+            child: Text(AppLocalizations.of(context).logoutButton, style: const TextStyle(fontSize: 16)),
           ),
         ),
 
@@ -613,7 +613,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(AppLocalizations.of(context)!.getMoreSparks),
+                  child: Text(AppLocalizations.of(context).getMoreSparks),
                 ),
               ),
             const SizedBox(height: 24),
@@ -873,14 +873,14 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               const _SheetHandle(),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(AppLocalizations.of(context)!.blockList, style: Theme.of(context).textTheme.titleLarge),
+                child: Text(AppLocalizations.of(context).blockList, style: Theme.of(context).textTheme.titleLarge),
               ),
               const Divider(height: 1),
               Expanded(
                 child: blocked.isEmpty
                     ? Center(
                         child: Text(
-                          AppLocalizations.of(context)!.noBlockedContacts,
+                          AppLocalizations.of(context).noBlockedContacts,
                           style: TextStyle(color: AppTheme.textTertiary),
                         ),
                       )
@@ -905,7 +905,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                                   }
                                 }
                               },
-                              child: Text(AppLocalizations.of(context)!.unblockButton),
+                              child: Text(AppLocalizations.of(context).unblockButton),
                             ),
                           );
                         },
@@ -1172,12 +1172,12 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.logoutButton),
-        content: Text(AppLocalizations.of(context)!.logoutConfirmation),
+        title: Text(AppLocalizations.of(context).logoutButton),
+        content: Text(AppLocalizations.of(context).logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancelButton),
+            child: Text(AppLocalizations.of(context).cancelButton),
           ),
           TextButton(
             onPressed: () {
@@ -1185,7 +1185,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
-            child: Text(AppLocalizations.of(context)!.logoutButton),
+            child: Text(AppLocalizations.of(context).logoutButton),
           ),
         ],
       ),

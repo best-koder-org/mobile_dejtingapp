@@ -53,7 +53,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        AppLocalizations.of(context)!.enableNotifications,
+                        AppLocalizations.of(context).enableNotifications,
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        AppLocalizations.of(context)!.neverMissAMatch,
+                        AppLocalizations.of(context).neverMissAMatch,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -73,7 +73,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        AppLocalizations.of(context)!.notificationDescription,
+                        AppLocalizations.of(context).notificationDescription,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -99,7 +99,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.enableNotificationsBtn,
+                            AppLocalizations.of(context).enableNotificationsBtn,
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
@@ -111,7 +111,7 @@ class NotificationPermissionScreen extends StatelessWidget {
                           OnboardingProvider.of(context).goNext(context);
                         },
                         child: Text(
-                          AppLocalizations.of(context)!.notNow,
+                          AppLocalizations.of(context).notNow,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[500],
