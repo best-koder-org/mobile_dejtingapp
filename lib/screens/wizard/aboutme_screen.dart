@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// About Me Screen — Communication style, Love language, Education
@@ -74,7 +73,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.black87,
                 ),
               ),
             ),
@@ -93,19 +92,19 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? _coral : Colors.white.withAlpha(25),
+                  color: isSelected ? _coral : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
                         ? _coral
-                        : Colors.white.withAlpha(51),
+                        : Colors.grey[300]!,
                     width: 1.5,
                   ),
                 ),
                 child: Text(
                   option,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.white70,
+                    color: isSelected ? Colors.white : Colors.black87,
                     fontWeight:
                         isSelected ? FontWeight.w600 : FontWeight.normal,
                     fontSize: 14,
@@ -126,12 +125,12 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
         _education != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -139,7 +138,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
             onPressed: _skip,
             child: Text(
               AppLocalizations.of(context).skipButton,
-              style: TextStyle(color: Colors.white70, fontSize: 15),
+              style: TextStyle(color: Colors.grey[600], fontSize: 15),
             ),
           ),
         ],
@@ -155,7 +154,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: OnboardingProvider.of(context).progress(context),
-                      backgroundColor: Colors.white.withAlpha(51),
+                      backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,
                     ),
@@ -173,7 +172,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -181,7 +180,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                           AppLocalizations.of(context).authenticitySubtitle,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white.withAlpha(153),
+                            color: Colors.grey[600],
                             height: 1.4,
                           ),
                         ),
@@ -254,10 +253,6 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
                 ),
               ],
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: _skip,
-            label: 'Skip About Me',
           ),
         ],
       ),

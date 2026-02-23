@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// Relationship Goals Screen (ONB-110)
@@ -38,6 +37,10 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
+          TextButton(
+            onPressed: () { OnboardingProvider.of(context).goNext(context); },
+            child: Text(AppLocalizations.of(context).skipButton, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
+          ),
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
             onPressed: () => OnboardingProvider.of(context).abort(context),
@@ -64,7 +67,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                   const SizedBox(height: 32),
                   Text(
                     AppLocalizations.of(context).whatAreYouLookingFor,
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 24),
                   Expanded(
@@ -133,10 +136,6 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
                 ],
               ),
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: () { OnboardingProvider.of(context).data.relationshipGoal = _selected; OnboardingProvider.of(context).goNext(context); },
-            label: 'Skip Goals',
           ),
         ],
       ),

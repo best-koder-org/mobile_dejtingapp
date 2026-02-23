@@ -1,7 +1,6 @@
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// Notification Permission Screen (T026 gap)
@@ -21,6 +20,10 @@ class NotificationPermissionScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          TextButton(
+            onPressed: () { OnboardingProvider.of(context).data.notificationsGranted = false; OnboardingProvider.of(context).goNext(context); },
+            child: Text(AppLocalizations.of(context).skipButton, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
+          ),
           IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
             onPressed: () => OnboardingProvider.of(context).abort(context),
@@ -123,10 +126,6 @@ class NotificationPermissionScreen extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          DevModeSkipButton(
-            onSkip: () { OnboardingProvider.of(context).data.notificationsGranted = false; OnboardingProvider.of(context).goNext(context); },
-            label: 'Skip Notifications',
           ),
         ],
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// Interests Screen — "What are you into?"
@@ -96,12 +95,12 @@ class _InterestsScreenState extends State<InterestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -109,7 +108,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
             onPressed: _skip,
             child: Text(
               AppLocalizations.of(context).skipButton,
-              style: TextStyle(color: Colors.white70, fontSize: 15),
+              style: TextStyle(color: Colors.grey[600], fontSize: 15),
             ),
           ),
         ],
@@ -125,7 +124,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: OnboardingProvider.of(context).progress(context),
-                      backgroundColor: Colors.white.withAlpha(51),
+                      backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,
                     ),
@@ -143,7 +142,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -151,7 +150,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                           AppLocalizations.of(context).addUpToInterests(_maxInterests),
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white.withAlpha(153),
+                            color: Colors.grey[600],
                             height: 1.4,
                           ),
                         ),
@@ -163,7 +162,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                             fontWeight: FontWeight.w600,
                             color: _selected.length >= _maxInterests
                                 ? _coral
-                                : Colors.white70,
+                                : Colors.grey[600],
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -190,7 +189,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                        color: Colors.black87,
                                       ),
                                     ),
                                   ],
@@ -217,15 +216,15 @@ class _InterestsScreenState extends State<InterestsScreen> {
                                         decoration: BoxDecoration(
                                           color: isSelected
                                               ? _coral
-                                              : Colors.white.withAlpha(25),
+                                              : Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
                                             color: isSelected
                                                 ? _coral
                                                 : isFull
-                                                    ? Colors.white.withAlpha(20)
-                                                    : Colors.white
+                                                    ? Colors.grey[200]!
+                                                    : Colors.grey[300]!
                                                         .withAlpha(51),
                                             width: 1.5,
                                           ),
@@ -236,8 +235,8 @@ class _InterestsScreenState extends State<InterestsScreen> {
                                             color: isSelected
                                                 ? Colors.white
                                                 : isFull
-                                                    ? Colors.white30
-                                                    : Colors.white70,
+                                                    ? Colors.grey[400]!
+                                                    : Colors.black87,
                                             fontWeight: isSelected
                                                 ? FontWeight.w600
                                                 : FontWeight.normal,
@@ -287,10 +286,6 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 ),
               ],
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: _skip,
-            label: 'Skip Interests',
           ),
         ],
       ),

@@ -138,6 +138,6 @@ class DatingApp extends StatelessWidget {
     }
     
     // Otherwise show login screen (with pre-filled demo credentials in dev mode)
-    return '/login';
+    return '/welcome';
   }
 }

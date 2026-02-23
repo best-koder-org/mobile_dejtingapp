@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../services/auth_session_manager.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// SMS Verification Code Entry Screen
@@ -330,7 +329,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                   const SizedBox(height: 32),
                   Text(
                     AppLocalizations.of(context).enterVerificationCode,
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -384,7 +383,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                             keyboardType: TextInputType.number,
                             maxLength: 1,
                             enabled: !_isVerifying,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                             decoration: InputDecoration(
                               counterText: '',
                               border: OutlineInputBorder(
@@ -426,7 +425,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                         children: [
                           CircularProgressIndicator(color: _coral),
                           SizedBox(height: 12),
-                          Text(AppLocalizations.of(context).verifying),
+                          Text(AppLocalizations.of(context).verifying, style: const TextStyle(color: Colors.black)),
                         ],
                       ),
                     ),
@@ -472,10 +471,6 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                 ],
               ),
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: () => OnboardingProvider.of(context).goNext(context),
-            label: 'Skip SMS',
           ),
         ],
       ),

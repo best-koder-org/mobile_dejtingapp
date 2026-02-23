@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// Lifestyle Habits Screen — Smoking, Exercise, Pets
@@ -82,7 +81,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.black87,
                 ),
               ),
             ),
@@ -103,19 +102,19 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? _coral
-                      : Colors.white.withAlpha(25),
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
                         ? _coral
-                        : Colors.white.withAlpha(51),
+                        : Colors.grey[300]!,
                     width: 1.5,
                   ),
                 ),
                 child: Text(
                   option,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.white70,
+                    color: isSelected ? Colors.white : Colors.black87,
                     fontWeight: isSelected
                         ? FontWeight.w600
                         : FontWeight.normal,
@@ -136,12 +135,12 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
         _smoking != null || _exercise != null || _pets != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -149,7 +148,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
             onPressed: _skip,
             child: Text(
               AppLocalizations.of(context).skipButton,
-              style: TextStyle(color: Colors.white70, fontSize: 15),
+              style: TextStyle(color: Colors.grey[600], fontSize: 15),
             ),
           ),
         ],
@@ -165,7 +164,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: OnboardingProvider.of(context).progress(context),
-                      backgroundColor: Colors.white.withAlpha(51),
+                      backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(_coral),
                       minHeight: 4,
                     ),
@@ -183,7 +182,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -191,7 +190,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                           AppLocalizations.of(context).lifestyleSubtitle,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white.withAlpha(153),
+                            color: Colors.grey[600],
                             height: 1.4,
                           ),
                         ),
@@ -261,10 +260,6 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
                 ),
               ],
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: _skip,
-            label: 'Skip Lifestyle',
           ),
         ],
       ),

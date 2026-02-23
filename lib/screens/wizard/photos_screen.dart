@@ -192,7 +192,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
                     children: [
                       Text(
                         AppLocalizations.of(context).addPhotos,
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       const SizedBox(height: 8),
                       Text(

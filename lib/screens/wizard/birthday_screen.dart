@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 class BirthdayScreen extends StatefulWidget {
@@ -207,7 +206,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 AppLocalizations.of(context).youAreNYearsOld(_calcAge(DateTime(_year!, _month!, _day!))),
-                                style: const TextStyle(fontSize: 14),
+                                style: const TextStyle(fontSize: 14, color: Colors.black),
                               ),
                             ],
                           ),
@@ -238,10 +237,6 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
                 ),
               ),
             ],
-          ),
-          DevModeSkipButton(
-            onSkip: () { OnboardingProvider.of(context).data.dateOfBirth = DateTime(_year!, _month!, _day!); OnboardingProvider.of(context).goNext(context); },
-            label: 'Skip Birthday',
           ),
         ],
       ),

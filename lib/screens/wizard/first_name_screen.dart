@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 class FirstNameScreen extends StatefulWidget {
@@ -54,7 +53,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(AppLocalizations.of(context).whatsYourFirstName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context).whatsYourFirstName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black)),
                       const SizedBox(height: 8),
                       Text(AppLocalizations.of(context).nameAppearOnProfile, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                       const SizedBox(height: 40),
@@ -62,7 +61,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                         controller: _ctrl,
                         autofocus: true,
                         textCapitalization: TextCapitalization.words,
-                        style: const TextStyle(fontSize: 24),
+                        style: const TextStyle(fontSize: 24, color: Colors.black),
                         decoration: InputDecoration(
                           hintText: AppLocalizations.of(context).firstNameHint,
                           hintStyle: TextStyle(color: Colors.grey[400]),
@@ -88,10 +87,6 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
                 ),
               ),
             ],
-          ),
-          DevModeSkipButton(
-            onSkip: () { OnboardingProvider.of(context).data.firstName = _ctrl.text.trim(); OnboardingProvider.of(context).goNext(context); },
-            label: 'Skip Name',
           ),
         ],
       ),

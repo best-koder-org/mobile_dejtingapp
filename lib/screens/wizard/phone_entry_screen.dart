@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:smart_auth/smart_auth.dart';
 import '../../config/dev_mode.dart';
 import '../../services/firebase_phone_auth_service.dart';
-import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
 
 /// Phone Number Entry Screen
@@ -144,7 +143,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(AppLocalizations.of(context).selectCountry,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
             const SizedBox(height: 16),
             _buildCountryOption('🇸🇪', 'Sweden', '+46'),
             _buildCountryOption('🇺🇸', 'United States', '+1'),
@@ -514,10 +513,6 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                 ],
               ),
             ),
-          ),
-          DevModeSkipButton(
-            onSkip: () => OnboardingProvider.of(context).goNext(context),
-            label: 'Skip Phone',
           ),
         ],
       ),

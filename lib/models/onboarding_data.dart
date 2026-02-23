@@ -98,6 +98,40 @@ class OnboardingData {
         'photoUrls': photoUrls,
       };
 
+  /// Maps to UserService WizardStepIdentityDto (PATCH step/4).
+  /// Orientation list → comma-separated string; relationshipGoal as-is.
+  Map<String, dynamic> toIdentityPayload() => {
+        'sexualOrientation': orientation.isNotEmpty ? orientation.join(', ') : null,
+        'relationshipType': relationshipGoal,
+      };
+
+  /// Maps to UserService WizardStepAboutMeDto (PATCH step/5).
+  /// Aggregates interests, lifestyle choices, and work/education fields.
+  Map<String, dynamic> toAboutMePayload() => {
+        'interests': interests,
+        'smokingStatus': lifestyle['smoking'],
+        'drinkingStatus': lifestyle['drinking'],
+        'wantsChildren': lifestyle['children']?.isNotEmpty == true
+            ? lifestyle['children']!.toLowerCase().contains('want')
+            : null,
+        'occupation': jobTitle,
+        'company': company,
+        'education': education,
+        'school': school,
+      };
+
+  /// Whether step 4 (identity) has any data worth submitting.
+  bool get hasIdentityData => orientation.isNotEmpty || relationshipGoal != null;
+
+  /// Whether step 5 (about me) has any data worth submitting.
+  bool get hasAboutMeData =>
+      interests.isNotEmpty ||
+      lifestyle.isNotEmpty ||
+      jobTitle != null ||
+      company != null ||
+      education != null ||
+      school != null;
+
   @override
   String toString() =>
       'OnboardingData(name=$firstName, dob=$dateOfBirth, gender=$gender, '
