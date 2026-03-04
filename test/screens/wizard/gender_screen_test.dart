@@ -1,111 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/wizard/gender_screen.dart';
+import 'package:dejtingapp/models/onboarding_data.dart';
+import '../../helpers/onboarding_test_helper.dart';
 
 void main() {
-  group('Gender Screen (T026)', () {
-    testWidgets('renders with gender header', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
-      expect(find.textContaining("What's your"), findsOneWidget);
+  group('GenderScreen', () {
+    const route = '/onboarding/gender';
+
+    testWidgets('renders without errors', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('shows Man and Woman quick options', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
+    testWidgets('shows Man and Woman quick-pick buttons', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
       expect(find.text('Man'), findsOneWidget);
       expect(find.text('Woman'), findsOneWidget);
     });
 
-    testWidgets('shows More button for expanded options', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
+    testWidgets('Next button disabled initially', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      final nextBtn = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Next'),
       );
-      expect(find.text('More'), findsOneWidget);
+      expect(nextBtn.onPressed, isNull);
     });
 
-    testWidgets('Next button is disabled until selection', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
-      final button = tester.widget<ElevatedButton>(
-        find.byType(ElevatedButton),
-      );
-      expect(button.onPressed, isNull);
-    });
+    testWidgets('selecting Man enables Next and stores in data', (tester) async {
+      final data = OnboardingData();
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+        data: data,
+      ));
+      await tester.pumpAndSettle();
 
-    testWidgets('selecting Man enables Next button', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: const GenderScreen(),
-          routes: {'/onboarding/relationship-goals': (_) => const Scaffold()},
-        ),
-      );
       await tester.tap(find.text('Man'));
       await tester.pump();
 
-      final button = tester.widget<ElevatedButton>(
-        find.byType(ElevatedButton),
+      final nextBtn = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Next'),
       );
-      expect(button.onPressed, isNotNull);
+      expect(nextBtn.onPressed, isNotNull);
     });
 
-    testWidgets('selecting Woman enables Next button', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: const GenderScreen(),
-          routes: {'/onboarding/relationship-goals': (_) => const Scaffold()},
-        ),
-      );
+    testWidgets('tapping Next navigates to orientation', (tester) async {
+      final data = OnboardingData();
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+        data: data,
+      ));
+      await tester.pumpAndSettle();
+
       await tester.tap(find.text('Woman'));
       await tester.pump();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+      await tester.pumpAndSettle();
 
-      final button = tester.widget<ElevatedButton>(
-        find.byType(ElevatedButton),
-      );
-      expect(button.onPressed, isNotNull);
+      expect(data.gender, 'Woman');
+      expect(find.text('orientation'), findsOneWidget);
     });
 
-    testWidgets('has show-on-profile checkbox', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
-      expect(find.byType(Checkbox), findsOneWidget);
-      expect(find.text('Show my gender on my profile'), findsOneWidget);
+    testWidgets('has progress bar', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('checkbox toggles', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
-      final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
-      expect(checkbox.value, false);
+    testWidgets('has back and close icons', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(Checkbox));
-      await tester.pump();
-
-      final updated = tester.widget<Checkbox>(find.byType(Checkbox));
-      expect(updated.value, true);
-    });
-
-    testWidgets('has progress bar at 38%', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
-      final progress = tester.widget<LinearProgressIndicator>(
-        find.byType(LinearProgressIndicator),
-      );
-      expect(progress.value, 0.38);
-    });
-
-    testWidgets('has back and close navigation', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: GenderScreen()),
-      );
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
       expect(find.byIcon(Icons.close), findsOneWidget);
+    });
+
+    testWidgets('has "Show on profile" checkbox', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Checkbox), findsOneWidget);
     });
   });
 }

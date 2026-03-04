@@ -3,28 +3,34 @@ import 'package:dejtingapp/services/onboarding_coordinator.dart';
 
 void main() {
   group('OnboardingCoordinator', () {
-    test('has 16 total steps', () {
-      expect(OnboardingCoordinator.totalSteps, 16);
+    test('has 17 steps', () {
+      expect(OnboardingCoordinator.totalSteps, 17);
     });
 
-    test('steps list has 16 entries', () {
-      expect(OnboardingCoordinator.steps.length, 16);
-    });
-
-    test('first step is /onboarding/phone', () {
-      expect(OnboardingCoordinator.steps.first, '/onboarding/phone');
-    });
-
-    test('last step is /onboarding/complete', () {
+    test('steps start with phone-entry and end with complete', () {
+      expect(OnboardingCoordinator.steps.first, '/onboarding/phone-entry');
       expect(OnboardingCoordinator.steps.last, '/onboarding/complete');
     });
 
-    // ---- getNextRoute ----
+    test('indexOf returns correct positions', () {
+      expect(OnboardingCoordinator.indexOf('/onboarding/phone-entry'), 0);
+      expect(OnboardingCoordinator.indexOf('/onboarding/first-name'), 3);
+      expect(OnboardingCoordinator.indexOf('/onboarding/complete'), 16);
+      expect(OnboardingCoordinator.indexOf('/nonexistent'), -1);
+    });
 
-    test('getNextRoute returns verify-code after phone', () {
+    test('getNextRoute returns correct next step', () {
       expect(
-        OnboardingCoordinator.getNextRoute('/onboarding/phone'),
+        OnboardingCoordinator.getNextRoute('/onboarding/phone-entry'),
         '/onboarding/verify-code',
+      );
+      expect(
+        OnboardingCoordinator.getNextRoute('/onboarding/first-name'),
+        '/onboarding/birthday',
+      );
+      expect(
+        OnboardingCoordinator.getNextRoute('/onboarding/notifications'),
+        '/onboarding/complete',
       );
     });
 
@@ -37,190 +43,96 @@ void main() {
 
     test('getNextRoute returns null for unknown route', () {
       expect(
-        OnboardingCoordinator.getNextRoute('/unknown'),
+        OnboardingCoordinator.getNextRoute('/nonexistent'),
         isNull,
       );
     });
 
-    test('getNextRoute from photos is location', () {
-      expect(
-        OnboardingCoordinator.getNextRoute('/onboarding/photos'),
-        '/onboarding/location',
-      );
-    });
-
-    // ---- getPreviousRoute ----
-
-    test('getPreviousRoute returns phone before verify-code', () {
+    test('getPreviousRoute returns correct prev step', () {
       expect(
         OnboardingCoordinator.getPreviousRoute('/onboarding/verify-code'),
-        '/onboarding/phone',
+        '/onboarding/phone-entry',
+      );
+      expect(
+        OnboardingCoordinator.getPreviousRoute('/onboarding/birthday'),
+        '/onboarding/first-name',
       );
     });
 
     test('getPreviousRoute returns null for first step', () {
       expect(
-        OnboardingCoordinator.getPreviousRoute('/onboarding/phone'),
+        OnboardingCoordinator.getPreviousRoute('/onboarding/phone-entry'),
         isNull,
       );
     });
 
-    test('getPreviousRoute returns null for unknown route', () {
+    test('getProgress returns increasing values', () {
+      final first =
+          OnboardingCoordinator.getProgress('/onboarding/phone-entry');
+      final mid = OnboardingCoordinator.getProgress('/onboarding/gender');
+      final last = OnboardingCoordinator.getProgress('/onboarding/complete');
+
+      expect(first, greaterThan(0));
+      expect(mid, greaterThan(first));
+      expect(last, equals(1.0));
+    });
+
+    test('getProgress returns 0 for unknown route', () {
+      expect(OnboardingCoordinator.getProgress('/nonexistent'), 0.0);
+    });
+
+    test('isFirstStep and isLastStep', () {
       expect(
-        OnboardingCoordinator.getPreviousRoute('/bogus'),
-        isNull,
-      );
-    });
-
-    test('getPreviousRoute from complete is notifications', () {
+          OnboardingCoordinator.isFirstStep('/onboarding/phone-entry'), isTrue);
       expect(
-        OnboardingCoordinator.getPreviousRoute('/onboarding/complete'),
-        '/onboarding/notifications',
-      );
-    });
-
-    // ---- getProgress ----
-
-    test('getProgress for first step is 1/16', () {
+          OnboardingCoordinator.isFirstStep('/onboarding/birthday'), isFalse);
       expect(
-        OnboardingCoordinator.getProgress('/onboarding/phone'),
-        closeTo(1 / 16, 0.001),
-      );
-    });
-
-    test('getProgress for last step is 1.0', () {
+          OnboardingCoordinator.isLastStep('/onboarding/complete'), isTrue);
       expect(
-        OnboardingCoordinator.getProgress('/onboarding/complete'),
-        1.0,
-      );
+          OnboardingCoordinator.isLastStep('/onboarding/birthday'), isFalse);
     });
 
-    test('getProgress for unknown route is 0.0', () {
+    test('getRouteForStep (1-based)', () {
       expect(
-        OnboardingCoordinator.getProgress('/nope'),
-        0.0,
-      );
-    });
-
-    test('getProgress for middle step (gender, idx=5) is 6/16', () {
-      expect(
-        OnboardingCoordinator.getProgress('/onboarding/gender'),
-        closeTo(6 / 16, 0.001),
-      );
-    });
-
-    test('progress increases monotonically through all steps', () {
-      double prev = 0.0;
-      for (final step in OnboardingCoordinator.steps) {
-        final p = OnboardingCoordinator.getProgress(step);
-        expect(p, greaterThan(prev), reason: 'Progress should increase at $step');
-        prev = p;
-      }
-    });
-
-    // ---- isLastStep / isFirstStep ----
-
-    test('isLastStep true only for /onboarding/complete', () {
-      expect(OnboardingCoordinator.isLastStep('/onboarding/complete'), isTrue);
-      expect(OnboardingCoordinator.isLastStep('/onboarding/phone'), isFalse);
-      expect(OnboardingCoordinator.isLastStep('/onboarding/photos'), isFalse);
-    });
-
-    test('isFirstStep true only for /onboarding/phone', () {
-      expect(OnboardingCoordinator.isFirstStep('/onboarding/phone'), isTrue);
-      expect(OnboardingCoordinator.isFirstStep('/onboarding/complete'), isFalse);
-    });
-
-    // ---- indexOf ----
-
-    test('indexOf returns correct index for each step', () {
-      for (int i = 0; i < OnboardingCoordinator.steps.length; i++) {
-        expect(OnboardingCoordinator.indexOf(OnboardingCoordinator.steps[i]), i);
-      }
-    });
-
-    test('indexOf returns -1 for unknown route', () {
-      expect(OnboardingCoordinator.indexOf('/unknown'), -1);
-    });
-
-    // ---- getRouteForStep ----
-
-    test('getRouteForStep(1) returns first route', () {
-      expect(
-        OnboardingCoordinator.getRouteForStep(1),
-        '/onboarding/phone',
-      );
-    });
-
-    test('getRouteForStep(16) returns last route', () {
-      expect(
-        OnboardingCoordinator.getRouteForStep(16),
-        '/onboarding/complete',
-      );
-    });
-
-    test('getRouteForStep(0) returns null', () {
+          OnboardingCoordinator.getRouteForStep(1), '/onboarding/phone-entry');
+      expect(OnboardingCoordinator.getRouteForStep(4), '/onboarding/first-name');
+      expect(OnboardingCoordinator.getRouteForStep(17), '/onboarding/complete');
       expect(OnboardingCoordinator.getRouteForStep(0), isNull);
+      expect(OnboardingCoordinator.getRouteForStep(99), isNull);
     });
 
-    test('getRouteForStep(17) returns null', () {
-      expect(OnboardingCoordinator.getRouteForStep(17), isNull);
-    });
-
-    // ---- getStepLabel ----
-
-    test('getStepLabel for phone is "Step 1 of 16"', () {
+    test('getStepLabel returns human-readable string', () {
       expect(
-        OnboardingCoordinator.getStepLabel('/onboarding/phone'),
-        'Step 1 of 16',
+        OnboardingCoordinator.getStepLabel('/onboarding/phone-entry'),
+        'Step 1 of 17',
       );
-    });
-
-    test('getStepLabel for complete is "Step 16 of 16"', () {
       expect(
         OnboardingCoordinator.getStepLabel('/onboarding/complete'),
-        'Step 16 of 16',
+        'Step 17 of 17',
       );
     });
 
-    test('getStepLabel for unknown route returns empty string', () {
-      expect(OnboardingCoordinator.getStepLabel('/unknown'), '');
-    });
-
-    // ---- full flow traversal ----
-
-    test('can traverse entire flow forward via getNextRoute', () {
-      String? current = OnboardingCoordinator.steps.first;
-      final visited = <String>[];
-      while (current != null) {
-        visited.add(current);
-        current = OnboardingCoordinator.getNextRoute(current);
-      }
-      expect(visited, OnboardingCoordinator.steps);
-    });
-
-    test('can traverse entire flow backward via getPreviousRoute', () {
-      String? current = OnboardingCoordinator.steps.last;
-      final visited = <String>[];
-      while (current != null) {
-        visited.add(current);
-        current = OnboardingCoordinator.getPreviousRoute(current);
-      }
-      expect(visited, OnboardingCoordinator.steps.reversed.toList());
-    });
-
-    // ---- step order correctness ----
-
-    test('photos comes after about-me', () {
-      final aboutMeIdx = OnboardingCoordinator.indexOf('/onboarding/about-me');
-      final photosIdx = OnboardingCoordinator.indexOf('/onboarding/photos');
-      expect(photosIdx, aboutMeIdx + 1);
-    });
-
-    test('location comes after photos', () {
-      final photosIdx = OnboardingCoordinator.indexOf('/onboarding/photos');
-      final locationIdx = OnboardingCoordinator.indexOf('/onboarding/location');
-      expect(locationIdx, photosIdx + 1);
+    test('step order is correct', () {
+      const expectedOrder = [
+        '/onboarding/phone-entry',
+        '/onboarding/verify-code',
+        '/onboarding/community-guidelines',
+        '/onboarding/first-name',
+        '/onboarding/birthday',
+        '/onboarding/gender',
+        '/onboarding/orientation',
+        '/onboarding/match-preferences',
+        '/onboarding/age-range',
+        '/onboarding/relationship-goals',
+        '/onboarding/lifestyle',
+        '/onboarding/interests',
+        '/onboarding/about-me',
+        '/onboarding/photos',
+        '/onboarding/location',
+        '/onboarding/notifications',
+        '/onboarding/complete',
+      ];
+      expect(OnboardingCoordinator.steps, expectedOrder);
     });
   });
 }

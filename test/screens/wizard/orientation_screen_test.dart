@@ -1,30 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/wizard/orientation_screen.dart';
+import 'package:dejtingapp/models/onboarding_data.dart';
+import '../../helpers/onboarding_test_helper.dart';
 
 void main() {
-  group('Sexual Orientation Screen (ONB-090)', () {
+  group('OrientationScreen', () {
+    const route = '/onboarding/orientation';
+
     testWidgets('renders without errors', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: OrientationScreen()),
-      );
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+      ));
       await tester.pumpAndSettle();
-      expect(find.byType(OrientationScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('has a Next button', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: OrientationScreen()),
-      );
-      expect(find.text('Next'), findsOneWidget);
+    testWidgets('shows orientation options', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Straight', skipOffstage: false), findsOneWidget);
+      expect(find.text('Gay', skipOffstage: false), findsOneWidget);
+      expect(find.text('Bisexual', skipOffstage: false), findsOneWidget);
     });
 
-    testWidgets('Next button is initially disabled', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: OrientationScreen()),
-      );
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(button.onPressed, isNull);
+    testWidgets('selecting Straight stores in data and navigates',
+        (tester) async {
+      final data = OnboardingData();
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+        data: data,
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Straight'));
+      await tester.pumpAndSettle();
+
+      // Tap Next (use l10n key fallback — find the ElevatedButton)
+      final nextBtns = find.byType(ElevatedButton);
+      await tester.tap(nextBtns.last);
+      await tester.pumpAndSettle();
+
+      expect(data.orientation, contains('Straight'));
+      expect(find.text('match-preferences'), findsOneWidget);
+    });
+
+    testWidgets('has progress bar', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('has "Show on profile" checkbox', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Checkbox), findsOneWidget);
     });
   });
 }
