@@ -45,6 +45,7 @@ Future<void> main() async {
   } else {
     debugPrint('⚠️ Firebase skipped on \${defaultTargetPlatform.name} (not supported)');
   }
+  await EnvironmentConfig.detectEmulator();
   EnvSwitcher.useDevelopment();
 
   if (kDebugMode) {

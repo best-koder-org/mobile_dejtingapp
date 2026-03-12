@@ -347,12 +347,14 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    isSignIn ? l10n.signInWithPhoneDescription : l10n.phoneVerificationExplainer,
-                    style: TextStyle(
-                        fontSize: 16, color: AppTheme.textSecondary, height: 1.5),
-                  ),
+                  if (isSignIn) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.signInWithPhoneDescription,
+                      style: TextStyle(
+                          fontSize: 16, color: AppTheme.textSecondary, height: 1.5),
+                    ),
+                  ],
                   const SizedBox(height: 32),
 
                   // DevMode banner

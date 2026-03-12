@@ -2449,6 +2449,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This name is not allowed. Please choose another.'**
   String get nameNotAllowed;
+
+  /// Title for offensive message warning bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get messageWarningTitle;
+
+  /// Body text for offensive message warning
+  ///
+  /// In en, this message translates to:
+  /// **'This message may be hurtful. Would you like to edit it?'**
+  String get messageWarningBody;
+
+  /// Button to go back and edit the message
+  ///
+  /// In en, this message translates to:
+  /// **'Edit message'**
+  String get messageWarningEdit;
+
+  /// Button to send the flagged message despite warning
+  ///
+  /// In en, this message translates to:
+  /// **'Send anyway'**
+  String get messageWarningSendAnyway;
 }
 
 class _AppLocalizationsDelegate

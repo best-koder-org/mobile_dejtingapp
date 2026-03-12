@@ -32,7 +32,8 @@ class EnvironmentConfig {
   }
 
   // Development environment (your main workspace)
-  static final _developmentSettings = EnvironmentSettings(
+  // MUST be a getter (not static final) so _getBaseUrl runs AFTER detectEmulator()
+  static EnvironmentSettings get _developmentSettings => EnvironmentSettings(
     name: 'Development',
     userServiceUrl: _getBaseUrl(8082),
     matchmakingServiceUrl: _getBaseUrl(8083),
@@ -52,7 +53,7 @@ class EnvironmentConfig {
   );
 
   // Production environment (future)
-  static final _productionSettings = EnvironmentSettings(
+  static EnvironmentSettings get _productionSettings => EnvironmentSettings(
     name: 'Production',
     userServiceUrl: 'https://api.yourdatingapp.com/users',
     matchmakingServiceUrl: 'https://api.yourdatingapp.com/matchmaking',
@@ -72,15 +73,49 @@ class EnvironmentConfig {
     databaseName: 'dating_app_prod',
   );
 
+  /// LAN IP of the dev machine — used when running on a real Android device.
+  /// The emulator uses 10.0.2.2 (virtual router), but a physical phone needs
+  /// the machine's actual network address. Update this when your IP changes.
+  static const String _devMachineLanIp = '10.91.170.78';
+
+  /// Whether the app is running on an Android emulator vs a real device.
+  /// Set once at startup by [detectEmulator].
+  static bool _isRunningOnEmulator = true; // safe default for dev
+  static bool get isEmulator => _isRunningOnEmulator;
+
   static String _getBaseUrl(int port) {
     if (kIsWeb) {
       return 'http://localhost:$port';
     }
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:$port';
+      // 10.0.2.2 is the emulator's alias for the host machine.
+      // Real devices must use the host's LAN IP instead.
+      return _isRunningOnEmulator
+          ? 'http://10.0.2.2:$port'
+          : 'http://$_devMachineLanIp:$port';
     }
     return 'http://localhost:$port';
   }
+
+  /// Call once from main() before any network requests.
+  static Future<void> detectEmulator() async {
+    if (!Platform.isAndroid) {
+      _isRunningOnEmulator = false;
+      return;
+    }
+    try {
+      final result = await Process.run('getprop', ['ro.build.fingerprint']);
+      final fingerprint = (result.stdout as String).trim();
+      _isRunningOnEmulator = fingerprint.contains('generic') ||
+          fingerprint.contains('emulator') ||
+          fingerprint.contains('sdk_gphone') ||
+          fingerprint.contains('vbox');
+      debugPrint('📱 Device: ${_isRunningOnEmulator ? "EMULATOR" : "REAL DEVICE → $_devMachineLanIp"}');
+    } catch (_) {
+      _isRunningOnEmulator = true;
+    }
+  }
+
 }
 
 class EnvironmentSettings {

@@ -67,13 +67,35 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
     });
   }
 
-  /// Auto-fill the test SMS code in DevMode
+  /// Auto-fill the test SMS code in DevMode.
+  /// - Desktop: fill + auto-submit (no Firebase available)
+  /// - Emulator: fill + auto-submit (Firebase test mode, no real SMS)
+  /// - Real phone: do NOT fill fake code — Firebase sends a real SMS
+  ///   with a different code. Show a "Skip" button instead.
   void _autoFillTestCode() {
+    if (_autoVerified || _hasNavigated) return;
+
+    final isDesktop =
+        defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS;
+    final isRealMobileDevice = !isDesktop && !EnvironmentConfig.isEmulator;
+
+    if (isRealMobileDevice) {
+      // Real phone: don't fill fake code, let user type real SMS code
+      // or use the DevMode skip button
+      debugPrint('🔧 DevMode on real device: NOT filling fake code — waiting for real SMS or skip');
+      _focusNodes[0].requestFocus();
+      return;
+    }
+
+    // Desktop or Emulator: fill fake code
     final testCode = DevMode.fakeSmsCode; // "123456"
     for (int i = 0; i < _codeLength && i < testCode.length; i++) {
       _controllers[i].text = testCode[i];
     }
     setState(() {});
+
+    // Auto-submit after brief delay
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted && !_autoVerified && !_hasNavigated) {
         final code = _controllers.map((c) => c.text).join();
@@ -96,7 +118,9 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
 
     // If auto-verified (Android), skip OTP entry — exchange token immediately
     if (_autoVerified && _firebaseIdToken != null) {
+      debugPrint('🔐 Auto-verified — skipping OTP entry');
       _completeLogin(_firebaseIdToken!);
+      return; // Don't let DevMode auto-fill interfere
     }
   }
 
@@ -409,7 +433,9 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Test mode: code ${DevMode.fakeSmsCode} auto-filled',
+                              EnvironmentConfig.isEmulator
+                                  ? 'Test mode: code \${DevMode.fakeSmsCode} auto-filled'
+                                  : 'Test mode: enter real SMS code or tap Skip below',
                               style: TextStyle(fontSize: 13, color: AppTheme.successColor, fontWeight: FontWeight.w500),
                             ),
                           ),
@@ -513,6 +539,48 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                                   : l10n.resendCodeIn(_secondsRemaining),
                               style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                             ),
+                    ),
+                  ],
+
+                  // DevMode: skip verification on real device
+                  if (DevMode.enabled && !_isVerifying && !EnvironmentConfig.isEmulator) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          debugPrint('🔧 DevMode: skipping SMS verification');
+                          _handlePostAuth();
+                        },
+                        icon: const Icon(Icons.skip_next, size: 18),
+                        label: const Text(
+                          'Skip verification (DevMode)',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.successColor,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // DevMode: skip verification on real device
+                  if (DevMode.enabled && !_isVerifying && !EnvironmentConfig.isEmulator) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          debugPrint('🔧 DevMode: skipping SMS verification');
+                          _handlePostAuth();
+                        },
+                        icon: const Icon(Icons.skip_next, size: 18),
+                        label: const Text(
+                          'Skip verification (DevMode)',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.successColor,
+                        ),
+                      ),
                     ),
                   ],
 

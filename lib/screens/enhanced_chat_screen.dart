@@ -4,6 +4,7 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
 import '../models.dart';
 import '../services/messaging_service.dart';
+import '../utils/profanity_filter.dart';
 import 'profile_detail_screen.dart';
 
 class EnhancedChatScreen extends StatefulWidget {
@@ -206,8 +207,123 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     if (_messageController.text.trim().isEmpty || _isSending) return;
 
     final content = _messageController.text.trim();
-    final otherUserId = widget.match.otherUserProfile?.userId;
 
+    // Client-side profanity check — Hinge-style "Are you sure?" nudge
+    if (ProfanityFilter.isOffensive(content)) {
+      _showMessageWarning(content);
+      return;
+    }
+
+    await _doSendMessage(content);
+  }
+
+  /// Shows a bottom sheet warning when a message is flagged as potentially
+  /// hurtful. User can edit or send anyway.
+  void _showMessageWarning(String content) {
+    final l10n = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.textTertiary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Warning icon
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.messageWarningTitle,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.messageWarningBody,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Edit button (primary action)
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.messageWarningEdit,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Send anyway (secondary / de-emphasized)
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _doSendMessage(content, userOverrodeWarning: true);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.textTertiary,
+                  ),
+                  child: Text(
+                    l10n.messageWarningSendAnyway,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Actually sends the message to the backend.
+  Future<void> _doSendMessage(String content, {bool userOverrodeWarning = false}) async {
+    final otherUserId = widget.match.otherUserProfile?.userId;
     if (otherUserId == null) return;
 
     setState(() {
@@ -215,6 +331,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     });
 
     try {
+      // TODO: pass userOverrodeWarning metadata to server for trust scoring
+      // when SafetyService is wired up (Phase 002)
       final result = await _messagingService.sendMessage(
         otherUserId,
         content,

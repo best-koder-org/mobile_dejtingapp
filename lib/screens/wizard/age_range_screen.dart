@@ -120,6 +120,7 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
                       thumbColor: AppTheme.primaryColor,
                       overlayColor: AppTheme.primaryColor.withAlpha(40),
                       trackHeight: 4,
+                      showValueIndicator: ShowValueIndicator.never,
                       rangeThumbShape: const RoundRangeSliderThumbShape(
                         enabledThumbRadius: 14,
                         elevation: 4,
@@ -130,7 +131,6 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
                       min: _minAllowed,
                       max: _maxAllowed,
                       divisions: (_maxAllowed - _minAllowed).round(),
-                      labels: RangeLabels('$startAge', '$endAge'),
                       onChanged: (values) {
                         setState(() => _range = values);
                       },

@@ -1619,4 +1619,13 @@
   "@nameNotAllowed": {
     "description": "Error shown when user enters an offensive or blocked name"
   }
+,
+  "messageWarningTitle": "Are you sure?",
+  "@messageWarningTitle": { "description": "Title for offensive message warning bottom sheet" },
+  "messageWarningBody": "This message may be hurtful. Would you like to edit it?",
+  "@messageWarningBody": { "description": "Body text for offensive message warning" },
+  "messageWarningEdit": "Edit message",
+  "@messageWarningEdit": { "description": "Button to go back and edit the message" },
+  "messageWarningSendAnyway": "Send anyway",
+  "@messageWarningSendAnyway": { "description": "Button to send the flagged message despite warning" }
 }

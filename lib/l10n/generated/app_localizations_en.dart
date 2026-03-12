@@ -1280,4 +1280,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nameNotAllowed =>
       'This name is not allowed. Please choose another.';
+
+  @override
+  String get messageWarningTitle => 'Are you sure?';
+
+  @override
+  String get messageWarningBody =>
+      'This message may be hurtful. Would you like to edit it?';
+
+  @override
+  String get messageWarningEdit => 'Edit message';
+
+  @override
+  String get messageWarningSendAnyway => 'Send anyway';
 }
