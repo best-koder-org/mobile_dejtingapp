@@ -13,7 +13,6 @@ class AboutMeScreen extends StatefulWidget {
 }
 
 class _AboutMeScreenState extends State<AboutMeScreen> {
-  static const Color _coral = AppTheme.primaryColor;
 
   // Single-select per section
   String? _communicationStyle;
@@ -47,11 +46,11 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
   ];
 
   void _finish() {
-    final _d = OnboardingProvider.of(context).data; _d.communicationStyle = _communicationStyle; _d.loveLanguage = _loveLanguage; _d.education = _education; OnboardingProvider.of(context).goNext(context);
+    final d = OnboardingProvider.of(context).data; d.communicationStyle = _communicationStyle; d.loveLanguage = _loveLanguage; d.education = _education; OnboardingProvider.of(context).goNext(context);
   }
 
   void _skip() {
-    final _d = OnboardingProvider.of(context).data; _d.communicationStyle = _communicationStyle; _d.loveLanguage = _loveLanguage; _d.education = _education; OnboardingProvider.of(context).goNext(context);
+    final d = OnboardingProvider.of(context).data; d.communicationStyle = _communicationStyle; d.loveLanguage = _loveLanguage; d.education = _education; OnboardingProvider.of(context).goNext(context);
   }
 
   Widget _buildSection({

@@ -57,7 +57,7 @@ class MatchmakingRealtimeService {
   Future<void> initialize(String authToken) async {
     _authToken = authToken;
     await _connectToHub();
-    if (kDebugMode) print('✅ MatchmakingRealtimeService initialized');
+    if (kDebugMode) debugPrint('✅ MatchmakingRealtimeService initialized');
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -94,26 +94,26 @@ class MatchmakingRealtimeService {
 
       // ── Connection lifecycle ────────────────────────────────────────
       _hubConnection!.onclose(({Exception? error}) {
-        if (kDebugMode) print('MatchmakingHub closed: $error');
+        if (kDebugMode) debugPrint('MatchmakingHub closed: $error');
         _isConnected = false;
         _setStatus('Disconnected');
         _scheduleReconnect();
       });
 
       _hubConnection!.onreconnecting(({Exception? error}) {
-        if (kDebugMode) print('MatchmakingHub reconnecting: $error');
+        if (kDebugMode) debugPrint('MatchmakingHub reconnecting: $error');
         _setStatus('Reconnecting…');
       });
 
       _hubConnection!.onreconnected(({String? connectionId}) {
-        if (kDebugMode) print('MatchmakingHub reconnected: $connectionId');
+        if (kDebugMode) debugPrint('MatchmakingHub reconnected: $connectionId');
         _onConnected();
       });
 
       await _hubConnection!.start();
       _onConnected();
     } catch (e) {
-      if (kDebugMode) print('❌ MatchmakingHub connect failed: $e');
+      if (kDebugMode) debugPrint('❌ MatchmakingHub connect failed: $e');
       _isConnected = false;
       _setStatus('Connection failed');
       _scheduleReconnect();
@@ -184,7 +184,7 @@ class MatchmakingRealtimeService {
             'with=${notification.matchedWithUserId}');
       }
     } catch (e) {
-      if (kDebugMode) print('❌ _onMatchCreated parse error: $e');
+      if (kDebugMode) debugPrint('❌ _onMatchCreated parse error: $e');
     }
   }
 
@@ -196,7 +196,7 @@ class MatchmakingRealtimeService {
 
   void _onHubError(List<Object?>? parameters) {
     final error = parameters?.firstOrNull?.toString() ?? 'Unknown';
-    if (kDebugMode) print('❌ MatchmakingHub error: $error');
+    if (kDebugMode) debugPrint('❌ MatchmakingHub error: $error');
     _setStatus('Error: $error');
   }
 
@@ -219,7 +219,7 @@ class MatchmakingRealtimeService {
     } catch (_) {}
     _isConnected = false;
     _setStatus('Disconnected');
-    if (kDebugMode) print('👋 MatchmakingRealtimeService disconnected');
+    if (kDebugMode) debugPrint('👋 MatchmakingRealtimeService disconnected');
   }
 
   void dispose() {

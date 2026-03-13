@@ -120,7 +120,7 @@ class SwipeCacheService {
         _pendingSwipes =
             list.map((e) => PendingSwipe.fromJson(e as Map<String, dynamic>)).toList();
       } catch (e) {
-        if (kDebugMode) print('⚠️ Failed to load pending swipes: $e');
+        if (kDebugMode) debugPrint('⚠️ Failed to load pending swipes: $e');
         _pendingSwipes = [];
       }
     }
@@ -133,7 +133,7 @@ class SwipeCacheService {
         _cachedCandidates =
             list.map((e) => MatchCandidate.fromJson(e as Map<String, dynamic>)).toList();
       } catch (e) {
-        if (kDebugMode) print('⚠️ Failed to load cached candidates: $e');
+        if (kDebugMode) debugPrint('⚠️ Failed to load cached candidates: $e');
         _cachedCandidates = [];
       }
     }
@@ -213,7 +213,7 @@ class SwipeCacheService {
     if (_candidatesCachedAt != null) {
       final age = DateTime.now().difference(_candidatesCachedAt!);
       if (age.inMinutes > _candidateCacheTtlMinutes) {
-        if (kDebugMode) print('Candidate cache expired (${age.inMinutes}min)');
+        if (kDebugMode) debugPrint('Candidate cache expired (${age.inMinutes}min)');
         return [];
       }
     }
@@ -272,7 +272,7 @@ class SwipeCacheService {
         );
       }
     } catch (e) {
-      if (kDebugMode) print('Swipe send failed, queueing: $e');
+      if (kDebugMode) debugPrint('Swipe send failed, queueing: $e');
     }
 
     // Failed to send — queue for later
@@ -292,7 +292,7 @@ class SwipeCacheService {
     // Check for duplicate (same target user)
     final existing = _pendingSwipes.any((s) => s.targetUserId == targetUserId);
     if (existing) {
-      if (kDebugMode) print('Swipe already queued for $targetUserId');
+      if (kDebugMode) debugPrint('Swipe already queued for $targetUserId');
       return SwipeCacheResult(queued: true);
     }
 
@@ -426,7 +426,7 @@ class SwipeCacheService {
   /// Call when network connectivity is restored (e.g. from a connectivity
   /// change listener). Triggers an immediate drain attempt.
   Future<void> onConnectivityRestored() async {
-    if (kDebugMode) print('Connectivity restored — draining swipe queue');
+    if (kDebugMode) debugPrint('Connectivity restored — draining swipe queue');
     await drainQueue();
   }
 

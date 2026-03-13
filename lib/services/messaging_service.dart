@@ -172,25 +172,25 @@ class MessagingService {
 
       // --- Connection lifecycle ---
       _hubConnection!.onclose(({Exception? error}) {
-        if (kDebugMode) print('SignalR closed: $error');
+        if (kDebugMode) debugPrint('SignalR closed: $error');
         _setConnectionState(ConnectionState.disconnected);
         _scheduleReconnect();
       });
 
       _hubConnection!.onreconnecting(({Exception? error}) {
-        if (kDebugMode) print('SignalR reconnecting: $error');
+        if (kDebugMode) debugPrint('SignalR reconnecting: $error');
         _setConnectionState(ConnectionState.reconnecting);
       });
 
       _hubConnection!.onreconnected(({String? connectionId}) {
-        if (kDebugMode) print('SignalR reconnected: $connectionId');
+        if (kDebugMode) debugPrint('SignalR reconnected: $connectionId');
         _onConnected();
       });
 
       await _hubConnection!.start();
       _onConnected();
     } catch (e) {
-      if (kDebugMode) print('❌ SignalR connect failed: $e');
+      if (kDebugMode) debugPrint('❌ SignalR connect failed: $e');
       _setConnectionState(ConnectionState.disconnected);
       _scheduleReconnect();
     }
@@ -311,9 +311,9 @@ class MessagingService {
         _messageController.add(message);
       }
 
-      if (kDebugMode) print('📨 Received: ${message.content}');
+      if (kDebugMode) debugPrint('📨 Received: ${message.content}');
     } catch (e) {
-      if (kDebugMode) print('❌ _onReceiveMessage error: $e');
+      if (kDebugMode) debugPrint('❌ _onReceiveMessage error: $e');
     }
   }
 
@@ -341,9 +341,9 @@ class MessagingService {
         _conversationCache[convId]!.add(message);
       }
 
-      if (kDebugMode) print('✅ Confirmed: ${message.id}');
+      if (kDebugMode) debugPrint('✅ Confirmed: ${message.id}');
     } catch (e) {
-      if (kDebugMode) print('❌ _onMessageSent error: $e');
+      if (kDebugMode) debugPrint('❌ _onMessageSent error: $e');
     }
   }
 
@@ -359,9 +359,9 @@ class MessagingService {
           break;
         }
       }
-      if (kDebugMode) print('👁️ MessageRead: $messageId');
+      if (kDebugMode) debugPrint('👁️ MessageRead: $messageId');
     } catch (e) {
-      if (kDebugMode) print('❌ _onMessageRead error: $e');
+      if (kDebugMode) debugPrint('❌ _onMessageRead error: $e');
     }
   }
 
@@ -374,7 +374,7 @@ class MessagingService {
         debugPrint('⌨️ TypingChanged: userId=${data['userId']} isTyping=${data['isTyping']}');
       }
     } catch (e) {
-      if (kDebugMode) print('❌ _onTypingChanged error: $e');
+      if (kDebugMode) debugPrint('❌ _onTypingChanged error: $e');
     }
   }
 
@@ -382,7 +382,7 @@ class MessagingService {
     if (parameters == null || parameters.isEmpty) return;
     final error = parameters[0]?.toString() ?? 'Unknown error';
     _connectionStatusController.add('Error: $error');
-    if (kDebugMode) print('❌ Hub error: $error');
+    if (kDebugMode) debugPrint('❌ Hub error: $error');
   }
 
   // =========================================================================
@@ -397,7 +397,7 @@ class MessagingService {
     MessageType type = MessageType.text,
   }) async {
     if (_currentUserId == null || _authToken == null) {
-      if (kDebugMode) print('❌ sendMessage: not authenticated');
+      if (kDebugMode) debugPrint('❌ sendMessage: not authenticated');
       return null;
     }
 
@@ -424,10 +424,10 @@ class MessagingService {
       try {
         await _hubConnection!
             .invoke('SendMessage', args: [receiverId, content, type.index]);
-        if (kDebugMode) print('📤 Sent via SignalR: $content');
+        if (kDebugMode) debugPrint('📤 Sent via SignalR: $content');
         return optimistic;
       } catch (e) {
-        if (kDebugMode) print('⚠️ SignalR send failed, trying REST: $e');
+        if (kDebugMode) debugPrint('⚠️ SignalR send failed, trying REST: $e');
       }
     }
 
@@ -454,11 +454,11 @@ class MessagingService {
         final idx =
             _conversationCache[convId]!.indexWhere((m) => m.id == localId);
         if (idx != -1) _conversationCache[convId]![idx] = confirmed;
-        if (kDebugMode) print('📤 Sent via REST: $content');
+        if (kDebugMode) debugPrint('📤 Sent via REST: $content');
         return confirmed;
       }
     } catch (e) {
-      if (kDebugMode) print('⚠️ REST send failed, queuing offline: $e');
+      if (kDebugMode) debugPrint('⚠️ REST send failed, queuing offline: $e');
     }
 
     // Both failed — queue for later
@@ -571,7 +571,7 @@ class MessagingService {
         }
       }
     } catch (e) {
-      if (kDebugMode) print('⚠️ Failed to load pending queue: $e');
+      if (kDebugMode) debugPrint('⚠️ Failed to load pending queue: $e');
       _pendingQueue = [];
     }
   }
@@ -582,7 +582,7 @@ class MessagingService {
       final raw = json.encode(_pendingQueue.map((p) => p.toJson()).toList());
       await prefs.setString(_pendingQueueKey, raw);
     } catch (e) {
-      if (kDebugMode) print('⚠️ Failed to save pending queue: $e');
+      if (kDebugMode) debugPrint('⚠️ Failed to save pending queue: $e');
     }
   }
 
@@ -623,11 +623,11 @@ class MessagingService {
 
         return messages;
       } else {
-        if (kDebugMode) print('❌ getConversation: ${response.statusCode}');
+        if (kDebugMode) debugPrint('❌ getConversation: ${response.statusCode}');
         return _getCachedOrEmpty(otherUserId);
       }
     } catch (e) {
-      if (kDebugMode) print('❌ getConversation error: $e');
+      if (kDebugMode) debugPrint('❌ getConversation error: $e');
       return _getCachedOrEmpty(otherUserId);
     }
   }
@@ -686,11 +686,11 @@ class MessagingService {
   /// Send typing indicator to the other user.
   /// [matchId] is the conversation/match identifier.
   Future<void> sendTyping(String matchId, bool isTyping) async {
-    if (!this.isConnected || _hubConnection == null) return;
+    if (!isConnected || _hubConnection == null) return;
     try {
       await _hubConnection!.invoke('Typing', args: [matchId, isTyping]);
     } catch (e) {
-      if (kDebugMode) print('⚠️ sendTyping error: $e');
+      if (kDebugMode) debugPrint('⚠️ sendTyping error: $e');
     }
   }
 
@@ -727,7 +727,7 @@ class MessagingService {
         },
       );
     } catch (e) {
-      if (kDebugMode) print('❌ markAsRead error: $e');
+      if (kDebugMode) debugPrint('❌ markAsRead error: $e');
     }
   }
 
@@ -784,7 +784,7 @@ class MessagingService {
     _reconnectAttempt = 0;
     _usePollingFallback = false;
 
-    if (kDebugMode) print('👋 MessagingService disconnected');
+    if (kDebugMode) debugPrint('👋 MessagingService disconnected');
   }
 
   /// Dispose all streams and timers. Call on app shutdown.

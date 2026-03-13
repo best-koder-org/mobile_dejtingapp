@@ -562,28 +562,6 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                       ),
                     ),
                   ],
-
-                  // DevMode: skip verification on real device
-                  if (DevMode.enabled && !_isVerifying && !EnvironmentConfig.isEmulator) ...[
-                    const SizedBox(height: 16),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          debugPrint('🔧 DevMode: skipping SMS verification');
-                          _handlePostAuth();
-                        },
-                        icon: const Icon(Icons.skip_next, size: 18),
-                        label: const Text(
-                          'Skip verification (DevMode)',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppTheme.successColor,
-                        ),
-                      ),
-                    ),
-                  ],
-
                   const Spacer(),
 
                   // "Go back" button for sign-in mode when account not found

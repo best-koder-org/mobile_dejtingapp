@@ -14,7 +14,6 @@ class InterestsScreen extends StatefulWidget {
 }
 
 class _InterestsScreenState extends State<InterestsScreen> {
-  static const Color _coral = AppTheme.primaryColor;
   static const int _maxInterests = 10;
 
   final Set<String> _selected = {};

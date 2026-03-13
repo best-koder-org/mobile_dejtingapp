@@ -13,7 +13,6 @@ class LifestyleScreen extends StatefulWidget {
 }
 
 class _LifestyleScreenState extends State<LifestyleScreen> {
-  static const Color _coral = AppTheme.primaryColor;
 
   // Selected values (null = not answered)
   String? _smoking;
@@ -51,13 +50,13 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
   ];
 
   void _continue() {
-    final _d = OnboardingProvider.of(context).data; final _m = <String, String>{}; if (_smoking != null) _m['smoking'] = _smoking!; if (_exercise != null) _m['exercise'] = _exercise!; if (_pets != null) _m['pets'] = _pets!; _d.lifestyle = _m;
+    final d = OnboardingProvider.of(context).data; final m = <String, String>{}; if (_smoking != null) m['smoking'] = _smoking!; if (_exercise != null) m['exercise'] = _exercise!; if (_pets != null) m['pets'] = _pets!; d.lifestyle = m;
 
     OnboardingProvider.of(context).goNext(context);
   }
 
   void _skip() {
-    final _d = OnboardingProvider.of(context).data; final _m = <String, String>{}; if (_smoking != null) _m['smoking'] = _smoking!; if (_exercise != null) _m['exercise'] = _exercise!; if (_pets != null) _m['pets'] = _pets!; _d.lifestyle = _m;
+    final d = OnboardingProvider.of(context).data; final m = <String, String>{}; if (_smoking != null) m['smoking'] = _smoking!; if (_exercise != null) m['exercise'] = _exercise!; if (_pets != null) m['pets'] = _pets!; d.lifestyle = m;
 
     OnboardingProvider.of(context).goNext(context);
   }

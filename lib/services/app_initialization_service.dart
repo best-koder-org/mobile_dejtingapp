@@ -62,7 +62,7 @@ class AppInitializationService {
 
       _isInitialized = true;
     } catch (e) {
-      if (kDebugMode) print('Error initializing app: $e');
+      if (kDebugMode) debugPrint('Error initializing app: $e');
       // Don't prevent app from starting if services fail
       _isInitialized = true;
     }
