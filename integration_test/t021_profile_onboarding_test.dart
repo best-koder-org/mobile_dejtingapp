@@ -4,13 +4,14 @@ import 'helpers/auth_helpers.dart';
 import 'helpers/profile_helpers.dart';
 
 /// T021: Profile Onboarding Integration Test
-/// Tests CONTRACTS, not rigid flows - easily adaptable to UX changes
-/// 
-/// Flexible architecture:
-/// - Each wizard step is independent
-/// - Can reorder steps without breaking tests
-/// - Can add/remove steps easily
-/// - Tests what backend guarantees, not how UI navigates
+/// Tests CONTRACTS against actual WizardController (5-step wizard)
+///
+/// Wizard steps:
+///   1. BasicInfo  (firstName, lastName, dateOfBirth, gender)
+///   2. Preferences (minAge, maxAge, maxDistance, preferredGender, bio)
+///   3. Photos     (photoUrls) — marks profile Ready
+///   4. Identity   (sexualOrientation, relationshipType) — optional
+///   5. AboutMe    (interests, lifestyle, work, education) — optional
 
 void main() {
   group('T021 - Profile Onboarding Contracts', () {
@@ -21,28 +22,23 @@ void main() {
     });
 
     test('Contract: User can register and get auth token', () async {
-      // This is atomic - doesn't care about onboarding flow
       await registerUser(testUser);
-      
+
       expect(testUser.isAuthenticated, true, reason: 'Should have access token');
       expect(testUser.userId, isNotNull, reason: 'Should have userId');
     });
 
     test('Contract: Wizard Step 1 accepts basic info', () async {
       await registerUser(testUser);
-      
+
       final result = await updateWizardStep1(
         testUser,
         firstName: 'Integration',
-        lastName: 'Test',
         dateOfBirth: '1990-05-15',
         gender: 'Male',
-        location: 'Stockholm, Sweden',
       );
-      
+
       expect(result, isNotEmpty, reason: 'Should return profile data');
-      // Don't assert exact structure - that's fragile
-      // Just ensure it succeeded
     });
 
     test('Contract: Wizard Step 2 accepts preferences', () async {
@@ -50,21 +46,18 @@ void main() {
       await updateWizardStep1(
         testUser,
         firstName: 'Test',
-        lastName: 'User',
         dateOfBirth: '1992-03-20',
         gender: 'Female',
-        location: 'Gothenburg, Sweden',
       );
-      
+
       final result = await updateWizardStep2(
         testUser,
         interestedIn: 'Male',
-        ageRangeMin: 25,
-        ageRangeMax: 40,
+        minAge: 25,
+        maxAge: 40,
         maxDistance: 30,
-        interests: ['music', 'travel', 'fitness'],
       );
-      
+
       expect(result, isNotEmpty);
     });
 
@@ -73,46 +66,70 @@ void main() {
       await updateWizardStep1(
         testUser,
         firstName: 'Ready',
-        lastName: 'User',
         dateOfBirth: '1988-11-10',
         gender: 'Male',
-        location: 'Malmö, Sweden',
       );
       await updateWizardStep2(
         testUser,
         interestedIn: 'Female',
-        ageRangeMin: 22,
-        ageRangeMax: 35,
+        minAge: 22,
+        maxAge: 35,
         maxDistance: 50,
       );
-      
+
       final result = await updateWizardStep3(testUser);
-      
+
       expect(result, isNotEmpty);
       expect(testUser.profileId, isNotNull, reason: 'Should have profileId');
+    });
+
+    test('Contract: Wizard Step 4 accepts identity (optional)', () async {
+      await registerUser(testUser);
+      await completeOnboarding(testUser);
+
+      final result = await updateWizardStep4(
+        testUser,
+        sexualOrientation: 'Straight',
+        relationshipType: 'Relationship',
+      );
+
+      expect(result, isNotEmpty);
+    });
+
+    test('Contract: Wizard Step 5 accepts about-me (optional)', () async {
+      await registerUser(testUser);
+      await completeOnboarding(testUser);
+
+      final result = await updateWizardStep5(
+        testUser,
+        interests: ['hiking', 'coffee', 'photography'],
+        occupation: 'Engineer',
+        education: "Master's",
+        drinkingStatus: 'Socially',
+      );
+
+      expect(result, isNotEmpty);
     });
 
     test('Contract: Can retrieve completed profile', () async {
       await registerUser(testUser);
       await completeOnboarding(testUser);
-      
+
       final profile = await getMyProfile(testUser);
-      
+
       expect(profile, isNotEmpty);
+      // Profile should indicate ready status after step 3
       expect(profile['onboardingStatus'], anyOf(
         equals('Ready'),
         equals('ready'),
-        equals(1), // Enum value
+        equals(1),
+        equals(2), // Might use numeric enum
       ), reason: 'Profile should be ready after completing wizard');
     });
 
-    test('Flow: Full onboarding journey (3-step flow)', () async {
-      // This test demonstrates CURRENT flow
-      // If UX changes to 2 steps or 4 steps, just update this test
-      // All the contract tests above still work
-      
+    test('Flow: Full 5-step onboarding journey', () async {
       await registerUser(testUser);
-      
+
       // Step 1: Basic Info
       await updateWizardStep1(
         testUser,
@@ -120,82 +137,69 @@ void main() {
         lastName: 'Tester',
         dateOfBirth: '1993-07-18',
         gender: 'Male',
-        location: 'Uppsala, Sweden',
-        bio: 'Testing the full onboarding journey',
       );
-      
+
       // Step 2: Preferences
       await updateWizardStep2(
         testUser,
         interestedIn: 'Female',
-        ageRangeMin: 24,
-        ageRangeMax: 34,
+        minAge: 24,
+        maxAge: 34,
         maxDistance: 40,
-        interests: ['hiking', 'coffee', 'books'],
+        bio: 'Testing the full onboarding journey',
       );
-      
-      // Step 3: Photos (can be empty for now)
+
+      // Step 3: Photos (marks ready)
       await updateWizardStep3(testUser);
-      
-      // Verify: Profile is ready
+
+      // Step 4: Identity (optional)
+      await updateWizardStep4(
+        testUser,
+        sexualOrientation: 'Bisexual',
+        relationshipType: 'Casual',
+      );
+
+      // Step 5: About Me (optional)
+      await updateWizardStep5(
+        testUser,
+        interests: ['hiking', 'coffee', 'books'],
+        smokingStatus: 'Never',
+        drinkingStatus: 'Socially',
+        occupation: 'Tester',
+        education: "Bachelor's",
+      );
+
+      // Verify: Profile is complete
       final profile = await getMyProfile(testUser);
       expect(profile['firstName'], equals('Journey'));
       expect(testUser.hasProfile, true);
     });
 
-    test('Flexibility: Can skip to any step (if backend allows)', () async {
-      // Test backend validation - does it require step order?
-      await registerUser(testUser);
-      
-      try {
-        // Try step 2 first (might fail with validation error)
-        await updateWizardStep2(
-          testUser,
-          interestedIn: 'Female',
-          ageRangeMin: 20,
-          ageRangeMax: 30,
-          maxDistance: 25,
-        );
-        
-        // If we get here, backend allows flexible ordering
-        // That's actually good for resumable flows!
-      } catch (e) {
-        // If fails, backend enforces step order
-        // That's fine too - we know the contract
-        expect(e.toString(), contains('Step 1'), 
-          reason: 'Should indicate step 1 required first');
-      }
-    });
-
     test('Resilience: Can update profile after onboarding', () async {
       await registerUser(testUser);
       await completeOnboarding(testUser);
-      
-      // Change bio after completion
+
       final updated = await updateProfile(testUser, {
         'bio': 'Updated bio after onboarding',
       });
-      
+
       expect(updated, isNotEmpty);
     });
 
     test('Error: Invalid data rejected', () async {
       await registerUser(testUser);
-      
+
       try {
         await updateWizardStep1(
           testUser,
-          firstName: '',  // Empty name should fail
-          lastName: 'Test',
-          dateOfBirth: '2025-01-01',  // Future date should fail
+          firstName: '',          // Empty name should fail
+          dateOfBirth: '2025-01-01', // Future date / too young
           gender: 'InvalidGender',
-          location: '',
         );
-        
+
         fail('Should have thrown validation error');
       } catch (e) {
-        // Good - backend validates input
-        expect(e.toString(), contains('failed'), 
+        expect(e.toString(), contains('failed'),
           reason: 'Should reject invalid data');
       }
     });

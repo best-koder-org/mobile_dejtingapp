@@ -300,7 +300,7 @@ void main() {
       }
     });
 
-    testWidgets('T031.3: Performs like swipe and handles potential match',
+    testWidgets('T031.7: Handles rapid successive swipes gracefully',
         (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();

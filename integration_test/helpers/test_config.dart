@@ -1,11 +1,10 @@
-
 /// Test configuration with environment-based overrides
 /// Use --dart-define to customize URLs for different environments
 class TestConfig {
   // Base gateway URL (YARP)
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://localhost:8080',
+    defaultValue: 'http://127.0.0.1:8080',
   );
 
   // Keycloak configuration
@@ -25,7 +24,7 @@ class TestConfig {
   );
 
   static const String keycloakAdminUser = String.fromEnvironment(
-    'KEY CLOAK_ADMIN',
+    'KEYCLOAK_ADMIN',
     defaultValue: 'admin',
   );
 
@@ -34,35 +33,40 @@ class TestConfig {
     defaultValue: 'admin',
   );
 
-  // Service-specific URLs (for debugging YARP routing issues)
+  // Service-specific URLs (for direct-to-service debugging)
   static const String yarpUrl = String.fromEnvironment(
     'YARP_URL',
-    defaultValue: 'http://localhost:8080',
+    defaultValue: 'http://127.0.0.1:8080',
   );
 
   static const String userServiceUrl = String.fromEnvironment(
     'USER_SERVICE_URL',
-    defaultValue: 'http://localhost:8082',
+    defaultValue: 'http://127.0.0.1:8082',
   );
 
   static const String matchingServiceUrl = String.fromEnvironment(
     'MATCHING_SERVICE_URL',
-    defaultValue: 'http://localhost:8083',
+    defaultValue: 'http://127.0.0.1:8083',
   );
 
   static const String swipeServiceUrl = String.fromEnvironment(
     'SWIPE_SERVICE_URL',
-    defaultValue: 'http://localhost:8087',
+    defaultValue: 'http://127.0.0.1:8087',
   );
 
   static const String photoServiceUrl = String.fromEnvironment(
     'PHOTO_SERVICE_URL',
-    defaultValue: 'http://localhost:8085',
+    defaultValue: 'http://127.0.0.1:8085',
   );
 
   static const String messagingServiceUrl = String.fromEnvironment(
     'MESSAGING_SERVICE_URL',
-    defaultValue: 'http://localhost:8086',
+    defaultValue: 'http://127.0.0.1:8086',
+  );
+
+  static const String safetyServiceUrl = String.fromEnvironment(
+    'SAFETY_SERVICE_URL',
+    defaultValue: 'http://127.0.0.1:8088',
   );
 
   // Feature flags
@@ -100,16 +104,16 @@ class TestConfig {
   }
 }
 
-/// Mutable test user object that tracks auth state across helpers
+/// Mutable test user object tracking auth state across helpers
 class TestUser {
   String email;
   String password;
   String username;
-  
-  String? userId;           // Keycloak user ID
+
+  String? userId;           // Keycloak user ID (UUID)
   String? accessToken;      // JWT token
   String? refreshToken;     // Refresh token
-  int? profileId;          // UserService profile ID
+  int? profileId;           // UserService profile ID (int)
 
   TestUser({
     required this.email,
@@ -125,7 +129,7 @@ class TestUser {
   factory TestUser.random() {
     return TestUser(
       email: TestConfig.generateTestEmail(),
-      password: 'Test123!@#',  // Fixed password for all test users
+      password: 'Test123!@#',
       username: TestConfig.generateTestUsername(),
     );
   }

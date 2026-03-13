@@ -27,7 +27,7 @@ void main() {
     try {
       final result = await sendMessage(
         user1,
-        user2.profileId!,
+        user2.userId!,
         text: 'Debug message',
       );
       print('✅ sendMessage succeeded! Result: $result');
