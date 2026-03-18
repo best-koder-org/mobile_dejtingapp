@@ -1,0 +1,10 @@
+{
+  "name": "DatingApp Flutter",
+  "image": "ghcr.io/aspect-build/flutter-linux-devcontainer:3.32",
+  "postCreateCommand": "flutter pub get",
+  "customizations": {
+    "vscode": {
+      "extensions": ["Dart-Code.flutter", "GitHub.copilot"]
+    }
+  }
+}
