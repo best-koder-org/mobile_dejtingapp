@@ -1337,4 +1337,17 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get consentProviderPhone => 'Telefon';
+
+  @override
+  String blockedCount(int count) {
+    return intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      one: '1 kontakt blockerad.',
+      other: '$count kontakter blockerade.',
+    );
+  }
+
+  @override
+  String get voicePromptSubtitle => 'Spela in en röstintro till din profil';
 }

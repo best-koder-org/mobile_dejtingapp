@@ -353,7 +353,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           iconColor: AppTheme.secondaryColor,
           isChecked: true,
           title: AppLocalizations.of(context).blockList,
-          subtitle: '$_blockedCount contact${_blockedCount == 1 ? '' : 's'} blocked.',
+          subtitle: AppLocalizations.of(context).blockedCount(_blockedCount),
           onTap: () => _showBlockListSheet(),
         ),
 
@@ -455,7 +455,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           icon: Icons.mic_rounded,
           iconColor: AppTheme.primaryColor,
           title: AppLocalizations.of(context).voicePromptTitle,
-          subtitle: 'Record a voice intro for your profile',
+          subtitle: AppLocalizations.of(context).voicePromptSubtitle,
           onTap: () async {
             final result = await Navigator.push<String>(
               context,

@@ -2545,6 +2545,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Phone'**
   String get consentProviderPhone;
+
+  /// Subtitle showing how many contacts are blocked
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 contact blocked.} other{{count} contacts blocked.}}'**
+  String blockedCount(int count);
+
+  /// Subtitle for the voice prompt feature card on the profile hub screen
+  ///
+  /// In en, this message translates to:
+  /// **'Record a voice intro for your profile'**
+  String get voicePromptSubtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -1657,5 +1657,14 @@
   "consentTerms": "Terms",
   "@consentTerms": { "description": "Footer terms link on the consent screen" },
   "consentProviderPhone": "Phone",
-  "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" }
+  "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" },
+  "blockedCount": "{count, plural, =1{1 contact blocked.} other{{count} contacts blocked.}}",
+  "@blockedCount": {
+    "description": "Subtitle showing how many contacts are blocked",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "voicePromptSubtitle": "Record a voice intro for your profile",
+  "@voicePromptSubtitle": { "description": "Subtitle for the voice prompt feature card on the profile hub screen" }
 }

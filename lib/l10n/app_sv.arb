@@ -550,5 +550,14 @@
   "consentTerms": "Villkor",
   "@consentTerms": { "description": "Villkorslänk i sidfoten på godkännandeskärmen" },
   "consentProviderPhone": "Telefon",
-  "@consentProviderPhone": { "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen" }
+  "@consentProviderPhone": { "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen" },
+  "blockedCount": "{count, plural, =1{1 kontakt blockerad.} other{{count} kontakter blockerade.}}",
+  "@blockedCount": {
+    "description": "Undertext som visar hur många kontakter som är blockerade",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "voicePromptSubtitle": "Spela in en röstintro till din profil",
+  "@voicePromptSubtitle": { "description": "Undertext för röstprompt-funktionskortet på profilhubskärmen" }
 }
