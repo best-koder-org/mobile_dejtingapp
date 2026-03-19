@@ -29,6 +29,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final VoicePromptService _voiceService = VoicePromptService();
   late AnimationController _fadeController;
 
+  // Discovery filter state
+  double _maxDistance = 50.0;
+  RangeValues _ageRange = const RangeValues(18, 35);
+  bool _showMeInDiscovery = true;
+
   @override
   void initState() {
     super.initState();
@@ -215,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.tune_rounded, size: 22),
-            onPressed: () {},
+            onPressed: _showDiscoveryFilters,
             style: IconButton.styleFrom(
               backgroundColor: AppTheme.primarySubtle,
               foregroundColor: AppTheme.primaryColor,
@@ -223,6 +228,143 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDiscoveryFilters() {
+    // Local copies so changes only apply on Done
+    double tempMaxDistance = _maxDistance;
+    RangeValues tempAgeRange = _ageRange;
+    bool tempShowMe = _showMeInDiscovery;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setSheetState) {
+            final loc = AppLocalizations.of(context);
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dividerColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Title
+                  Text(
+                    loc.sectionDiscovery,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Max distance
+                  Text(
+                    loc.maxDistance(tempMaxDistance.round()),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  Slider(
+                    value: tempMaxDistance,
+                    min: 1,
+                    max: 100,
+                    divisions: 99,
+                    activeColor: AppTheme.primaryColor,
+                    onChanged: (value) {
+                      setSheetState(() => tempMaxDistance = value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  // Age range
+                  Text(
+                    loc.ageRangeLabel(
+                      tempAgeRange.start.round(),
+                      tempAgeRange.end.round(),
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  RangeSlider(
+                    values: tempAgeRange,
+                    min: 18,
+                    max: 80,
+                    divisions: 62,
+                    activeColor: AppTheme.primaryColor,
+                    onChanged: (values) {
+                      setSheetState(() => tempAgeRange = values);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  // Show me toggle
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.visibility, color: AppTheme.primaryColor),
+                    title: Text(
+                      loc.showMeOnDejTing,
+                      style: const TextStyle(color: AppTheme.textPrimary),
+                    ),
+                    subtitle: Text(
+                      loc.pauseAccountSubtitle,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
+                    value: tempShowMe,
+                    activeColor: AppTheme.primaryColor,
+                    onChanged: (value) {
+                      setSheetState(() => tempShowMe = value);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // Done button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _maxDistance = tempMaxDistance;
+                          _ageRange = tempAgeRange;
+                          _showMeInDiscovery = tempShowMe;
+                        });
+                        Navigator.pop(sheetContext);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: AppTheme.textPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        ),
+                      ),
+                      child: Text(loc.doneButton),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

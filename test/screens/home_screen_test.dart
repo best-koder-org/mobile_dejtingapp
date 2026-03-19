@@ -34,5 +34,49 @@ void main() {
       final hasContent = find.byType(Scaffold).evaluate().isNotEmpty;
       expect(hasContent, isTrue);
     });
+
+    testWidgets('filter icon button is present', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const HomeScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byIcon(Icons.tune_rounded), findsOneWidget);
+    });
+
+    testWidgets('tapping filter icon opens discovery filter bottom sheet',
+        (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const HomeScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.tap(find.byIcon(Icons.tune_rounded));
+      await tester.pumpAndSettle();
+
+      // Bottom sheet should show discovery settings title
+      expect(find.text('Discovery Settings'), findsOneWidget);
+      // Distance and age range sliders should be present
+      expect(find.byType(Slider), findsOneWidget);
+      expect(find.byType(RangeSlider), findsOneWidget);
+      // Done button should be present
+      expect(find.text('Done'), findsOneWidget);
+    });
+
+    testWidgets('discovery filter bottom sheet closes on Done', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const HomeScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.tap(find.byIcon(Icons.tune_rounded));
+      await tester.pumpAndSettle();
+
+      // Tap Done button
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+
+      // Bottom sheet should be dismissed
+      expect(find.text('Discovery Settings'), findsNothing);
+    });
   });
 }
