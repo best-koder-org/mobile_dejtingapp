@@ -79,5 +79,12 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
       await tester.pump(const Duration(seconds: 61));
     });
+
+    testWidgets('wraps content in SingleChildScrollView to prevent keyboard overflow', (tester) async {
+      await tester.pumpWidget(buildSubject());
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      await tester.pump(const Duration(seconds: 61));
+    });
   });
 }

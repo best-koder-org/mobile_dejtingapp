@@ -388,9 +388,11 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   // Progress bar — only in onboarding mode
                   if (onboarding != null) ...[
                     ClipRRect(
@@ -563,7 +565,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
                       ),
                     ),
                   ],
-                  const Spacer(),
+                  const SizedBox(height: 24),
 
                   // "Go back" button for sign-in mode when account not found
                   if (_isSignInMode && _errorMessage != null)
@@ -604,6 +606,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );
