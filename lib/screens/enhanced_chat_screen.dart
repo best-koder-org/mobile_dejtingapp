@@ -39,7 +39,6 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   Timer? _typingDebounce;
   Timer? _typingTimeout;
   bool _iAmTyping = false;
-  bool _isRecordingVoice = false;
   bool _hasText = false;
 
   @override
@@ -773,7 +772,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                   else
                     VoiceChatRecorder(
                       onSend: _handleVoiceSend,
-                      onCancel: () => setState(() => _isRecordingVoice = false),
+                      onCancel: () {},
                     ),
                 ],
               ),
@@ -787,7 +786,6 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   Future<void> _handleVoiceSend(String filePath, double durationSeconds) async {
     final otherUserId = widget.match.otherUserProfile?.userId;
     if (otherUserId == null) return;
-    setState(() => _isRecordingVoice = false);
     await _messagingService.sendVoiceMessage(
       otherUserId,
       filePath,
