@@ -123,3 +123,11 @@ chat_conversation:
     - {type: tap, target: "Type a message..."}
     - {type: type, value: "Hello!"}
     - {type: screenshot, name: "chat-input-active"}
+matches_new:
+  actions:
+    - {type: screenshot, name: "matches-new"}
+    - {type: tap, target: "Messages"}
+
+matches_messages:
+  actions:
+    - {type: screenshot, name: "matches-messages"}

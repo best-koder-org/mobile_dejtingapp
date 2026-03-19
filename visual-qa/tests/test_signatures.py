@@ -247,6 +247,24 @@ class TestFixtureMatches(unittest.TestCase):
         self.assertAlmostEqual(result.confidence, 1.0)
 
 
+class TestFixtureMatchesNew(unittest.TestCase):
+    def test_detects_matches_new(self):
+        result = detect_screen(_load("matches_new.xml"))
+        self.assertIsNotNone(result)
+        self.assertEqual(result.screen, "matches_new")
+        self.assertEqual(result.category, "main")
+        self.assertAlmostEqual(result.confidence, 1.0)
+
+
+class TestFixtureMatchesMessages(unittest.TestCase):
+    def test_detects_matches_messages(self):
+        result = detect_screen(_load("matches_messages.xml"))
+        self.assertIsNotNone(result)
+        self.assertEqual(result.screen, "matches_messages")
+        self.assertEqual(result.category, "main")
+        self.assertAlmostEqual(result.confidence, 1.0)
+
+
 class TestFixtureChat(unittest.TestCase):
     def test_detects_chat(self):
         result = detect_screen(_load("chat.xml"))
@@ -417,8 +435,8 @@ class TestScreenSignaturesDict(unittest.TestCase):
             with self.subTest(screen=name):
                 self.assertIn(spec["category"], self.VALID_CATEGORIES)
 
-    def test_at_least_22_screens(self):
-        self.assertGreaterEqual(len(SCREEN_SIGNATURES), 22)
+    def test_at_least_24_screens(self):
+        self.assertGreaterEqual(len(SCREEN_SIGNATURES), 24)
 
     def test_screen_names_are_lowercase_underscore(self):
         import re

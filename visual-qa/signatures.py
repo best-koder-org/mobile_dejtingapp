@@ -127,6 +127,16 @@ SCREEN_SIGNATURES: dict[str, dict] = {
         "required": ["Matches", "Messages"],
         "category": "main",
     },
+    "matches_new": {
+        # New Matches tab active with empty state (no real matches yet)
+        "required": ["New Matches", "No matches yet", "Keep swiping"],
+        "category": "main",
+    },
+    "matches_messages": {
+        # Messages tab active with empty state (no conversations yet)
+        "required": ["Messages", "No conversations yet", "Start chatting"],
+        "category": "main",
+    },
     "chat": {
         "required": ["Type a message..."],
         "category": "main",
