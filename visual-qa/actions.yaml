@@ -1,0 +1,99 @@
+# actions.yaml — per-screen action config for DatingApp onboarding automation
+#
+# Each entry maps a screen name (as returned by Layer 1 signatures.py) to a list
+# of actions to execute. Supported action types:
+#   tap        — tap element whose content-desc or text contains `target`
+#   skip       — tap the first element containing "Skip"
+#   type       — type `value` via adb input text
+#   screenshot — capture a screenshot saved as `name`.png
+
+welcome:
+  actions:
+    - {type: tap, target: "I'm ready to match"}
+
+phone_entry:
+  actions:
+    - {type: type, value: "5551234567"}
+    - {type: tap, target: "Continue"}
+
+sms_code:
+  actions:
+    - {type: type, value: "123456"}
+
+first_name:
+  actions:
+    - {type: type, value: "TestUser"}
+    - {type: tap, target: "Next"}
+
+birthday:
+  actions:
+    - {type: tap, target: "Next"}
+
+gender:
+  actions:
+    - {type: tap, target: "Man"}
+    - {type: tap, target: "Next"}
+
+orientation:
+  actions:
+    - {type: skip}
+
+relationship_goals:
+  actions:
+    - {type: tap, target: "Next"}
+
+about_me:
+  actions:
+    - {type: tap, target: "Next"}
+
+interests:
+  actions:
+    - {type: tap, target: "Next"}
+
+lifestyle:
+  actions:
+    - {type: tap, target: "Next"}
+
+match_preferences:
+  actions:
+    - {type: tap, target: "Next"}
+
+age_range:
+  actions:
+    - {type: tap, target: "Next"}
+
+photos:
+  actions:
+    - {type: tap, target: "Skip Photos"}
+
+verification_selfie:
+  actions:
+    - {type: tap, target: "Skip"}
+
+voice_prompt:
+  actions:
+    - {type: tap, target: "Skip"}
+
+location_permission:
+  actions:
+    - {type: tap, target: "Skip Location"}
+
+notification_permission:
+  actions:
+    - {type: tap, target: "Not now"}
+
+community_guidelines:
+  actions:
+    - {type: tap, target: "Got it"}
+
+onboarding_complete:
+  actions:
+    - {type: tap, target: "Next"}
+
+account_consent:
+  actions:
+    - {type: tap, target: "Continue"}
+
+discover:
+  actions:
+    - {type: screenshot, name: "discover-empty"}
