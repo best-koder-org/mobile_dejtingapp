@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="screen:discover" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <!-- Discover header -->
+      <node index="0" text="Discover" resource-id="" class="android.view.View" content-desc="Discover" clickable="false" enabled="true" bounds="[20,60][400,110]" />
+      <!-- Filter icon button (tooltip becomes content-desc) -->
+      <node index="1" text="Discovery Filters" resource-id="" class="android.widget.Button" content-desc="Discovery Filters" clickable="true" enabled="true" bounds="[900,50][1060,130]" />
+      <!-- Action buttons (behind modal scrim, still in accessibility tree) -->
+      <node index="2" text="Skip" resource-id="" class="android.widget.Button" content-desc="Skip" clickable="false" enabled="true" bounds="[160,1700][500,1820]" />
+      <node index="3" text="Like" resource-id="" class="android.widget.Button" content-desc="Like" clickable="false" enabled="true" bounds="[580,1700][920,1820]" />
+    </node>
+    <!-- Discovery settings bottom sheet -->
+    <node index="1" text="" resource-id="" class="android.view.View" content-desc="sheet:discovery-settings" clickable="false" enabled="true" bounds="[0,800][1080,2400]">
+      <node index="0" text="Discovery Settings" resource-id="" class="android.view.View" content-desc="Discovery Settings" clickable="false" enabled="true" bounds="[24,840][800,890]" />
+      <node index="1" text="Show me on DejTing" resource-id="" class="android.view.View" content-desc="Show me on DejTing" clickable="false" enabled="true" bounds="[24,1200][900,1260]" />
+      <node index="2" text="Done" resource-id="" class="android.widget.Button" content-desc="Done" clickable="true" enabled="true" bounds="[24,1400][1056,1470]" />
+    </node>
+  </node>
+</hierarchy>

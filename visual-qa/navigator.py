@@ -219,12 +219,16 @@ def run_navigation_loop(completed_screens=None):
     or until it exceeds the retry limit on a single screen (calls
     :func:`report_stuck`).
 
+    Actions are executed for the completed screen before the loop exits, so
+    that terminal screens (e.g. ``discover_explore``) can still capture
+    screenshots before breaking.
+
     Args:
         completed_screens: Set of screen names that signal completion.
-            Defaults to ``{"discover"}``.
+            Defaults to ``{"discover_explore"}``.
     """
     if completed_screens is None:
-        completed_screens = {"discover"}
+        completed_screens = {"discover_explore"}
 
     screen_actions = load_actions()
     previous_screen = None
@@ -233,11 +237,6 @@ def run_navigation_loop(completed_screens=None):
     while True:
         screen = detect_screen()
         current = screen.name if hasattr(screen, "name") else str(screen)
-
-        if current in completed_screens:
-            logger.info("Reached completed screen %r — navigation done", current)
-            take_screenshot(f"{current}-final")
-            break
 
         if current == previous_screen:
             retries += 1
@@ -250,6 +249,11 @@ def run_navigation_loop(completed_screens=None):
             advance_screen(current, screen_actions)
         else:
             logger.warning("No actions for screen %r, waiting for transition…", current)
+
+        if current in completed_screens:
+            logger.info("Reached completed screen %r — navigation done", current)
+            take_screenshot(f"{current}-final")
+            break
 
         previous_screen = current
         time.sleep(1.0)  # wait for screen transition

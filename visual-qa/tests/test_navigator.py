@@ -190,7 +190,16 @@ _SCREEN_ACTIONS = {
         ]
     },
     "discover": {
-        "actions": [{"type": "screenshot", "name": "discover-empty"}]
+        "actions": [
+            {"type": "screenshot", "name": "discover-main"},
+            {"type": "tap", "target": "Discovery Filters"},
+        ]
+    },
+    "discover_explore": {
+        "actions": [
+            {"type": "screenshot", "name": "discover-filter-open"},
+            {"type": "tap", "target": "Done"},
+        ]
     },
 }
 
@@ -217,8 +226,8 @@ class TestAdvanceScreen(unittest.TestCase):
     @patch("navigator.tap_by_text", return_value=True)
     def test_screenshot_action(self, mock_tap, mock_screenshot, mock_sleep):
         navigator.advance_screen("discover", _SCREEN_ACTIONS)
-        mock_screenshot.assert_called_once_with("discover-empty")
-        mock_tap.assert_not_called()
+        mock_screenshot.assert_called_once_with("discover-main")
+        mock_tap.assert_called_once_with("Discovery Filters")
 
     @patch("navigator.time.sleep")
     @patch("navigator._run_adb")
@@ -248,12 +257,12 @@ class TestRunNavigationLoop(unittest.TestCase):
     @patch("navigator.advance_screen")
     @patch("navigator.load_actions", return_value=_SCREEN_ACTIONS)
     @patch("navigator.detect_screen")
-    def test_exits_immediately_on_completed_screen(
+    def test_runs_terminal_screen_actions_before_exit(
         self, mock_detect, mock_load, mock_advance, mock_screenshot, mock_sleep
     ):
         mock_detect.return_value = self._make_screen("discover")
         navigator.run_navigation_loop(completed_screens={"discover"})
-        mock_advance.assert_not_called()
+        mock_advance.assert_called_once_with("discover", _SCREEN_ACTIONS)
 
     @patch("navigator.time.sleep")
     @patch("navigator.take_screenshot")
@@ -266,11 +275,12 @@ class TestRunNavigationLoop(unittest.TestCase):
         sequence = iter(["gender", "orientation", "photos", "discover"])
         mock_detect.side_effect = lambda: self._make_screen(next(sequence, "discover"))
         navigator.run_navigation_loop(completed_screens={"discover"})
-        # gender, orientation, photos were advanced; discover triggered exit
-        self.assertEqual(mock_advance.call_count, 3)
+        # gender, orientation, photos, and discover are all advanced
+        self.assertEqual(mock_advance.call_count, 4)
         mock_advance.assert_any_call("gender", _SCREEN_ACTIONS)
         mock_advance.assert_any_call("orientation", _SCREEN_ACTIONS)
         mock_advance.assert_any_call("photos", _SCREEN_ACTIONS)
+        mock_advance.assert_any_call("discover", _SCREEN_ACTIONS)
 
     @patch("navigator.time.sleep")
     @patch("navigator.report_stuck")
@@ -299,8 +309,26 @@ class TestRunNavigationLoop(unittest.TestCase):
         mock_detect.side_effect = lambda: self._make_screen(next(sequence, "discover"))
         navigator.run_navigation_loop(completed_screens={"discover"})
         # Should not have called report_stuck (only 1 retry < 3 limit)
-        # and should have advanced gender twice + orientation once
-        self.assertEqual(mock_advance.call_count, 3)
+        # gender twice + orientation + discover (terminal, actions run before exit)
+        self.assertEqual(mock_advance.call_count, 4)
+        mock_advance.assert_any_call("discover", _SCREEN_ACTIONS)
+
+    @patch("navigator.time.sleep")
+    @patch("navigator.take_screenshot")
+    @patch("navigator.advance_screen")
+    @patch("navigator.load_actions", return_value=_SCREEN_ACTIONS)
+    @patch("navigator.detect_screen")
+    def test_discover_explore_flow(
+        self, mock_detect, mock_load, mock_advance, mock_screenshot, mock_sleep
+    ):
+        """discover actions run, then discover_explore is reached and exits."""
+        sequence = iter(["discover", "discover_explore"])
+        mock_detect.side_effect = lambda: self._make_screen(next(sequence, "discover_explore"))
+        navigator.run_navigation_loop(completed_screens={"discover_explore"})
+        # Both discover and discover_explore should have their actions executed
+        self.assertEqual(mock_advance.call_count, 2)
+        mock_advance.assert_any_call("discover", _SCREEN_ACTIONS)
+        mock_advance.assert_any_call("discover_explore", _SCREEN_ACTIONS)
 
 
 # ---------------------------------------------------------------------------
@@ -330,6 +358,29 @@ class TestLoadActions(unittest.TestCase):
         self.assertTrue(
             any(a.get("type") == "screenshot" for a in discover_actions),
             "Expected a 'screenshot' action in discover screen config",
+        )
+
+    def test_discover_explore_present(self):
+        actions = navigator.load_actions()
+        self.assertIn("discover_explore", actions)
+
+    def test_discover_explore_has_screenshot(self):
+        actions = navigator.load_actions()
+        explore_actions = actions["discover_explore"]["actions"]
+        self.assertTrue(
+            any(a.get("type") == "screenshot" for a in explore_actions),
+            "Expected a 'screenshot' action in discover_explore screen config",
+        )
+
+    def test_discover_has_tap_discovery_filters(self):
+        actions = navigator.load_actions()
+        discover_actions = actions["discover"]["actions"]
+        self.assertTrue(
+            any(
+                a.get("type") == "tap" and a.get("target") == "Discovery Filters"
+                for a in discover_actions
+            ),
+            "Expected a 'tap Discovery Filters' action in discover screen config",
         )
 
     def test_orientation_has_skip(self):

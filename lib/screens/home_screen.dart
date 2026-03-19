@@ -222,6 +222,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           const SizedBox(width: 8),
           IconButton(
+            tooltip: 'Discovery Filters',
             icon: const Icon(Icons.tune_rounded, size: 22),
             onPressed: _showDiscoveryFilters,
             style: IconButton.styleFrom(
@@ -251,7 +252,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setSheetState) {
             final loc = AppLocalizations.of(context);
-            return Padding(
+            return Semantics(
+              label: 'sheet:discovery-settings',
+              explicitChildNodes: true,
+              child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -363,6 +367,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ],
+              ),
               ),
             );
           },

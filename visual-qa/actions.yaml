@@ -131,3 +131,10 @@ matches_new:
 matches_messages:
   actions:
     - {type: screenshot, name: "matches-messages"}
+    - {type: screenshot, name: "discover-main"}
+    - {type: tap, target: "Discovery Filters"}
+
+discover_explore:
+  actions:
+    - {type: screenshot, name: "discover-filter-open"}
+    - {type: tap, target: "Done"}
