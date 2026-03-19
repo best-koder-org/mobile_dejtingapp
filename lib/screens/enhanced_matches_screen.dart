@@ -287,6 +287,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                 ],
               ),
       ),
+      ),
     );
   }
 

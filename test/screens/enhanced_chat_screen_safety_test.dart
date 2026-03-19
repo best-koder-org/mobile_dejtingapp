@@ -140,15 +140,22 @@ void main() {
 
       // Navigate into the chat screen.
       await tester.tap(find.byKey(const Key('open-chat')));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-      // Chat screen should now be on screen.
-      expect(find.bySemanticsLabel('screen:chat'), findsOneWidget);
+      // Chat screen should now be on screen — use byWidgetPredicate for reliability.
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Semantics && (w as Semantics).properties.label == 'screen:chat',
+        ),
+        findsOneWidget,
+      );
 
       // Tap the system back button to pop the route.
       final NavigatorState navigator = tester.state(find.byType(Navigator));
       navigator.pop();
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Chat screen is gone; the base route button is visible again.
       expect(find.bySemanticsLabel('screen:chat'), findsNothing);

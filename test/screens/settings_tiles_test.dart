@@ -69,6 +69,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Show me on DejTing'), 100);
       expect(find.text('Show me on DejTing'), findsOneWidget);
     });
 
@@ -77,6 +78,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Notifications'), 100);
       expect(find.text('Notifications'), findsOneWidget);
     });
 
@@ -85,6 +87,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Push Notifications'), 100);
       expect(find.text('Push Notifications'), findsOneWidget);
     });
 
@@ -93,6 +96,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Profile Display'), 100);
       expect(find.text('Profile Display'), findsOneWidget);
     });
 
@@ -101,6 +105,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Show Age'), 100);
       expect(find.text('Show Age'), findsOneWidget);
     });
 
@@ -109,6 +114,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Show Distance'), 100);
       expect(find.text('Show Distance'), findsOneWidget);
     });
 
@@ -207,11 +213,11 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
-      final toggle = find.byType(SwitchListTile).first;
+      await tester.scrollUntilVisible(find.text('Show me on DejTing'), 100);
+      final toggle = find.widgetWithText(SwitchListTile, 'Show me on DejTing');
       expect(toggle, findsOneWidget);
       await tester.tap(toggle);
       await tester.pumpAndSettle();
-      // No crash expected
     });
 
     testWidgets('Push Notifications toggle is tappable', (tester) async {
@@ -219,6 +225,7 @@ void main() {
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Push Notifications'), 100);
       final toggle = find.widgetWithText(SwitchListTile, 'Push Notifications');
       expect(toggle, findsOneWidget);
       await tester.tap(toggle);

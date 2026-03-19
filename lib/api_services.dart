@@ -132,7 +132,7 @@ class MatchmakingApiService {
   }) async {
     return await SwipeService.swipe(
       targetUserId: targetUserId,
-      isLike: isLike,
+      direction: isLike ? SwipeDirection.like : SwipeDirection.pass,
       idempotencyKey: idempotencyKey,
     );
   }

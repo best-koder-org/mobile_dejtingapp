@@ -24,9 +24,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      // Use pump() instead of pumpAndSettle() — indeterminate CircularProgressIndicator
+      // keeps pumpAndSettle from ever completing.
+      await tester.pump(); // start sheet animation
+      await tester.pump(const Duration(milliseconds: 500)); // let it finish
 
-      // The Semantics label used by visual-qa signatures for discover_explore.
       expect(
         find.bySemanticsLabel('sheet:discovery-settings'),
         findsOneWidget,
@@ -40,9 +42,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      // Title, sliders, visibility toggle, and done button must all be present.
       expect(find.text('Discovery Settings'), findsOneWidget);
       expect(find.byType(Slider), findsOneWidget);
       expect(find.byType(RangeSlider), findsOneWidget);
@@ -57,10 +59,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('Discovery Settings'), findsNothing);
       expect(
@@ -78,12 +82,19 @@ void main() {
 
       // Open and close the filter sheet.
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+      // Pump multiple frames to let sheet fully dismiss
+      for (int i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       // The main discover screen semantics label must still be present.
-      expect(find.bySemanticsLabel('screen:discover'), findsOneWidget);
+      final discoverySemantics = find.byWidgetPredicate(
+        (w) => w is Semantics && (w as Semantics).properties.label == 'screen:discover',
+      );
+      expect(discoverySemantics, findsOneWidget);
     });
   });
 }

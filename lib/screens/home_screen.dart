@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Send pass to backend (fire-and-forget)
     SwipeService.swipe(
       targetUserId: candidate.userId,
-      isLike: false,
+      direction: SwipeDirection.pass,
     );
   }
 
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     final result = await SwipeService.swipe(
       targetUserId: candidate.userId,
-      isLike: true,
+      direction: SwipeDirection.like,
     );
 
     // Check if a mutual match occurred
