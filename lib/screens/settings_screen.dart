@@ -287,15 +287,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder:
           (context) => AlertDialog(
             title: Text(AppLocalizations.of(context).aboutApp),
-            content: const Column(
+            content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Version: 1.0.0'),
-                SizedBox(height: 8),
-                Text('Find your perfect match with our AI-powered dating app.'),
-                SizedBox(height: 16),
-                Text('Made with ❤️ by the DatingApp Team'),
+                Text(AppLocalizations.of(context).versionNumber),
+                const SizedBox(height: 8),
+                Text(AppLocalizations.of(context).aboutAppDescription),
+                const SizedBox(height: 16),
+                Text(AppLocalizations.of(context).madeByTeam),
               ],
             ),
             actions: [

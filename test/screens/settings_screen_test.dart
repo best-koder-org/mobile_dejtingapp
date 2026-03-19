@@ -79,6 +79,25 @@ void main() {
       expect(find.text('Logout'), findsOneWidget);
     });
 
+    testWidgets('about dialog shows localized version and description strings',
+        (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('About'));
+      await tester.pumpAndSettle();
+      expect(find.text('Version: 1.0.0'), findsOneWidget);
+      expect(
+        find.text('Find your perfect match with our AI-powered dating app.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Made with ❤️ by the DatingApp Team'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('tapping Verification navigates to VerificationSelfieScreen',
         (tester) async {
       await tester.pumpWidget(
