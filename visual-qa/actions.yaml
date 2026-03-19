@@ -97,3 +97,23 @@ account_consent:
 discover:
   actions:
     - {type: screenshot, name: "discover-empty"}
+
+profile_hub:
+  actions:
+    - {type: screenshot, name: "profile-hub"}
+    - {type: tap, target: "My DejTing"}
+    - {type: screenshot, name: "profile-hub-my-dejting"}
+    - {type: tap, target: "Settings"}
+    - {type: screenshot, name: "settings-top"}
+    - {type: scroll, direction: "down", amount: 800}
+    - {type: screenshot, name: "settings-bottom"}
+
+settings:
+  actions:
+    - {type: screenshot, name: "settings-top"}
+    - {type: scroll, direction: "down", amount: 800}
+    - {type: screenshot, name: "settings-bottom"}
+
+settings_full:
+  actions:
+    - {type: screenshot, name: "settings-full"}

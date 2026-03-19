@@ -132,11 +132,15 @@ SCREEN_SIGNATURES: dict[str, dict] = {
         "category": "main",
     },
     "profile_hub": {
-        "required": ["Get Verified", "Safety"],
+        "required": ["Get more", "Safety", "DejTing Plus"],
         "category": "main",
     },
     "settings": {
         "required": ["Settings", "Logout"],
+        "category": "main",
+    },
+    "settings_full": {
+        "required": ["Support & About", "Help & Support", "Rate Us"],
         "category": "main",
     },
     "verification_selfie": {

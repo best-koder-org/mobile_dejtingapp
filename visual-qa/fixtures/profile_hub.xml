@@ -4,16 +4,19 @@
     <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
       <!-- Profile header -->
       <node index="0" text="Profile" resource-id="" class="android.view.View" content-desc="Profile" clickable="false" enabled="true" bounds="[60,120][300,180]" />
-      <node index="1" text="Edit profile" resource-id="" class="android.widget.Button" content-desc="Edit profile" clickable="true" enabled="true" bounds="[60,500][400,560]" />
-      <!-- Action buttons -->
-      <node index="2" text="Get Verified" resource-id="" class="android.widget.Button" content-desc="Get Verified" clickable="true" enabled="true" bounds="[60,700][1020,780]" />
-      <node index="3" text="Safety" resource-id="" class="android.view.View" content-desc="Safety" clickable="false" enabled="true" bounds="[60,820][1020,870]" />
-      <node index="4" text="Crisis Hotlines" resource-id="" class="android.widget.Button" content-desc="Crisis Hotlines" clickable="true" enabled="true" bounds="[60,900][1020,960]" />
-      <node index="5" text="Safety Tips" resource-id="" class="android.widget.Button" content-desc="Safety Tips" clickable="true" enabled="true" bounds="[60,980][1020,1040]" />
+      <!-- Tab bar -->
+      <node index="1" text="Get more" resource-id="" class="android.view.View" content-desc="Get more" clickable="true" enabled="true" bounds="[0,260][360,330]" />
+      <node index="2" text="Safety" resource-id="" class="android.view.View" content-desc="Safety" clickable="true" enabled="true" bounds="[360,260][720,330]" />
+      <node index="3" text="My DejTing" resource-id="" class="android.view.View" content-desc="My DejTing" clickable="true" enabled="true" bounds="[720,260][1080,330]" />
+      <!-- Get More tab content -->
+      <node index="4" text="DejTing Plus" resource-id="" class="android.view.View" content-desc="DejTing Plus" clickable="false" enabled="true" bounds="[60,380][1020,420]" />
+      <node index="5" text="Spotlight" resource-id="" class="android.view.View" content-desc="Spotlight" clickable="false" enabled="true" bounds="[60,500][1020,540]" />
+      <node index="6" text="Sparks" resource-id="" class="android.view.View" content-desc="Sparks" clickable="false" enabled="true" bounds="[60,600][1020,640]" />
+      <node index="7" text="Profile Strength" resource-id="" class="android.view.View" content-desc="Profile Strength" clickable="false" enabled="true" bounds="[60,700][1020,740]" />
       <!-- Bottom navigation -->
-      <node index="6" text="Discover" resource-id="" class="android.view.View" content-desc="Discover" clickable="true" enabled="true" bounds="[0,2240][360,2400]" />
-      <node index="7" text="Matches" resource-id="" class="android.view.View" content-desc="Matches" clickable="true" enabled="true" bounds="[360,2240][720,2400]" />
-      <node index="8" text="Profile" resource-id="" class="android.view.View" content-desc="Profile" clickable="true" enabled="true" bounds="[720,2240][1080,2400]" />
+      <node index="8" text="Discover" resource-id="" class="android.view.View" content-desc="Discover" clickable="true" enabled="true" bounds="[0,2240][360,2400]" />
+      <node index="9" text="Matches" resource-id="" class="android.view.View" content-desc="Matches" clickable="true" enabled="true" bounds="[360,2240][720,2400]" />
+      <node index="10" text="Profile" resource-id="" class="android.view.View" content-desc="Profile" clickable="true" enabled="true" bounds="[720,2240][1080,2400]" />
     </node>
   </node>
 </hierarchy>
