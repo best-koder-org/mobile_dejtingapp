@@ -6,6 +6,7 @@ import 'package:dejtingapp/screens/privacy_settings_screen.dart';
 import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -237,9 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.star, color: AppTheme.primaryColor),
             title: Text(AppLocalizations.of(context).rateUs),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // TODO: Rate app
-            },
+            onTap: _rateApp,
           ),
 
           const SizedBox(height: 32),
@@ -265,6 +264,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _rateApp() async {
+    final uri = Uri.parse(
+      'https://play.google.com/store/apps/details?id=com.dejting.app',
+    );
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).couldNotOpenStore),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).couldNotOpenStore),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildSectionHeader(String title) {

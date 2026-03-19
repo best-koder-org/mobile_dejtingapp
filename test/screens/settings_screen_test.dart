@@ -108,5 +108,34 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(VerificationSelfieScreen), findsOneWidget);
     });
+
+    testWidgets('shows Rate Us tile with star icon', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Rate Us'), 100);
+      expect(find.text('Rate Us'), findsOneWidget);
+      expect(find.byIcon(Icons.star), findsOneWidget);
+    });
+
+    testWidgets('tapping Rate Us tile triggers _rateApp and shows snackbar fallback',
+        (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Rate Us'), 100);
+      await tester.tap(find.text('Rate Us'));
+      // Allow async _rateApp to complete (url_launcher fails in test env)
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      // In test environment url_launcher cannot open the store, so the
+      // snackbar fallback message should be shown.
+      expect(
+        find.text('Could not open the store page. Please try again later.'),
+        findsOneWidget,
+      );
+    });
   });
 }

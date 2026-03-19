@@ -1704,5 +1704,7 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "couldNotOpenStore": "Could not open the store page. Please try again later.",
+  "@couldNotOpenStore": { "description": "Snackbar message shown when the app store page cannot be opened" }
 }
