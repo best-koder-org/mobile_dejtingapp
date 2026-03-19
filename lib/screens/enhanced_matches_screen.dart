@@ -297,8 +297,12 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       );
     }
 
+    // Auth required or Disconnected: show tappable retry badge
+    final isRetryable = _connectionStatus == 'Auth required' ||
+        _connectionStatus == 'Disconnected';
+
     // Disconnected / Reconnecting: small subtle indicator
-    return Container(
+    final badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
@@ -321,9 +325,27 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
             _connectionStatus == 'Reconnecting...' ? 'Offline' : _connectionStatus,
             style: const TextStyle(fontSize: 9, color: Colors.white54),
           ),
+          if (isRetryable) ...[
+            const SizedBox(width: 4),
+            const Icon(Icons.refresh, size: 10, color: Colors.white54),
+          ],
         ],
       ),
     );
+
+    if (isRetryable) {
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _connectionStatus = 'Connecting...';
+          });
+          unawaited(_initializeMessaging());
+        },
+        child: badge,
+      );
+    }
+
+    return badge;
   }
 
   Widget _buildMatchesTab() {
