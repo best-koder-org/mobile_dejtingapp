@@ -1380,6 +1380,14 @@
   "@privacySettings": {
     "description": "Privacy settings subtitle"
   },
+  "privacySettingsTitle": "Privacy Settings",
+  "@privacySettingsTitle": {
+    "description": "Privacy Settings screen title"
+  },
+  "privacySettingsComingSoon": "Privacy settings coming soon",
+  "@privacySettingsComingSoon": {
+    "description": "Privacy settings placeholder body text"
+  },
   "onboardingPhoneHint": "Enter your phone number",
   "@onboardingPhoneHint": {
     "description": "Phone number input hint"

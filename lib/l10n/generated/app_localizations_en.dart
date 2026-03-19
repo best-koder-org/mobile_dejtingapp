@@ -1052,6 +1052,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacySettings => 'Control your privacy settings';
 
   @override
+  String get privacySettingsTitle => 'Privacy Settings';
+
+  @override
+  String get privacySettingsComingSoon => 'Privacy settings coming soon';
+
+  @override
   String get onboardingPhoneHint => 'Enter your phone number';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/screens/privacy_settings_screen.dart';
 import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
@@ -60,7 +61,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: Text(AppLocalizations.of(context).privacySecuritySubtitle),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // TODO: Privacy settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PrivacySettingsScreen(),
+                ),
+              );
             },
           ),
           ListTile(

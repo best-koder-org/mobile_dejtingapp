@@ -1057,6 +1057,12 @@ class AppLocalizationsSv extends AppLocalizations {
   String get privacySettings => 'Hantera dina integritetsinställningar';
 
   @override
+  String get privacySettingsTitle => 'Sekretessinställningar';
+
+  @override
+  String get privacySettingsComingSoon => 'Sekretessinställningar kommer snart';
+
+  @override
   String get onboardingPhoneHint => 'Ange ditt telefonnummer';
 
   @override

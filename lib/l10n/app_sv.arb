@@ -321,6 +321,8 @@
   "aboutApp": "Om DatingApp",
   "accountSection": "Konto",
   "privacySettings": "Hantera dina integritetsinställningar",
+  "privacySettingsTitle": "Sekretessinställningar",
+  "privacySettingsComingSoon": "Sekretessinställningar kommer snart",
   "onboardingPhoneHint": "Ange ditt telefonnummer",
   "onboardingVerifyCode": "Verifiera kod",
   "onboardingVerifying": "Verifierar...",

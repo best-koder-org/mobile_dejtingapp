@@ -2024,6 +2024,18 @@ abstract class AppLocalizations {
   /// **'Control your privacy settings'**
   String get privacySettings;
 
+  /// Privacy Settings screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Settings'**
+  String get privacySettingsTitle;
+
+  /// Privacy settings placeholder body text
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy settings coming soon'**
+  String get privacySettingsComingSoon;
+
   /// Phone number input hint
   ///
   /// In en, this message translates to:
