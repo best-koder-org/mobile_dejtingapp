@@ -900,7 +900,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                                 if (userId != null) {
                                   final nav = Navigator.of(context);
                                   await SafetyService.unblockUser(userId);
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     nav.pop();
                                     _loadProfileData();
                                   }
