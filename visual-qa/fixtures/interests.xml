@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="What are you into?" resource-id="" class="android.view.View" content-desc="What are you into?" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="1" text="Outdoors &amp; adventure" resource-id="" class="android.view.View" content-desc="Outdoors &amp; adventure" clickable="false" enabled="true" bounds="[60,540][1020,590]" />
+      <node index="2" text="Hiking" resource-id="" class="android.widget.Button" content-desc="Hiking" clickable="true" enabled="true" bounds="[60,620][280,680]" />
+      <node index="3" text="Rock climbing" resource-id="" class="android.widget.Button" content-desc="Rock climbing" clickable="true" enabled="true" bounds="[300,620][560,680]" />
+      <node index="4" text="Music" resource-id="" class="android.view.View" content-desc="Music" clickable="false" enabled="true" bounds="[60,740][1020,790]" />
+      <node index="5" text="Pop" resource-id="" class="android.widget.Button" content-desc="Pop" clickable="true" enabled="true" bounds="[60,820][200,880]" />
+      <node index="6" text="Rock" resource-id="" class="android.widget.Button" content-desc="Rock" clickable="true" enabled="true" bounds="[220,820][380,880]" />
+      <node index="7" text="Food &amp; drink" resource-id="" class="android.view.View" content-desc="Food &amp; drink" clickable="false" enabled="true" bounds="[60,940][1020,990]" />
+      <node index="8" text="Coffee" resource-id="" class="android.widget.Button" content-desc="Coffee" clickable="true" enabled="true" bounds="[60,1020][260,1080]" />
+      <node index="9" text="Continue" resource-id="" class="android.widget.Button" content-desc="Continue" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

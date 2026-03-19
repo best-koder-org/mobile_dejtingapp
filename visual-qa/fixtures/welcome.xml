@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="DejTing" resource-id="" class="android.view.View" content-desc="DejTing" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Create account" resource-id="" class="android.view.View" content-desc="Create account" clickable="false" enabled="true" bounds="[100,600][980,680]" />
+      <node index="1" text="By tapping Log In or Continue, you agree to our Terms" resource-id="" class="android.view.View" content-desc="By tapping Log In or Continue, you agree to our Terms" clickable="false" enabled="true" bounds="[100,700][980,760]" />
+      <node index="2" text="I'm ready to match" resource-id="" class="android.widget.Button" content-desc="I'm ready to match" clickable="true" enabled="true" bounds="[60,1400][1020,1454]" />
+      <node index="3" text="Sign in" resource-id="" class="android.widget.Button" content-desc="Sign in" clickable="true" enabled="true" bounds="[60,1470][1020,1524]" />
+    </node>
+  </node>
+</hierarchy>

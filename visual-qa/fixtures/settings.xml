@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Settings" resource-id="" class="android.view.View" content-desc="Settings" clickable="false" enabled="true" bounds="[60,120][400,180]" />
+      <!-- Account section -->
+      <node index="1" text="Edit Profile" resource-id="" class="android.view.View" content-desc="Edit Profile" clickable="true" enabled="true" bounds="[60,300][1020,380]" />
+      <node index="2" text="Verify Account" resource-id="" class="android.view.View" content-desc="Verify Account" clickable="true" enabled="true" bounds="[60,400][1020,480]" />
+      <!-- Discovery settings -->
+      <node index="3" text="Show me on DejTing" resource-id="" class="android.widget.Switch" content-desc="Show me on DejTing" clickable="true" enabled="true" bounds="[60,600][1020,680]" />
+      <node index="4" text="Maximum Distance: 50 km" resource-id="" class="android.view.View" content-desc="Maximum Distance: 50 km" clickable="false" enabled="true" bounds="[60,700][1020,760]" />
+      <!-- Push notifications -->
+      <node index="5" text="Push Notifications" resource-id="" class="android.widget.Switch" content-desc="Push Notifications" clickable="true" enabled="true" bounds="[60,900][1020,980]" />
+      <!-- Logout -->
+      <node index="6" text="Logout" resource-id="" class="android.widget.Button" content-desc="Logout" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="How old is your ideal match?" resource-id="" class="android.view.View" content-desc="How old is your ideal match?" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="1" text="Age range: 23 - 35" resource-id="" class="android.view.View" content-desc="Age range: 23 - 35" clickable="false" enabled="true" bounds="[60,500][1020,560]" />
+      <node index="2" text="Age range slider, min 23, max 35" resource-id="" class="android.widget.SeekBar" content-desc="Age range slider, min 23, max 35" clickable="true" enabled="true" bounds="[60,620][1020,680]" />
+      <node index="3" text="Continue" resource-id="" class="android.widget.Button" content-desc="Continue" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <!-- Profile header: name, age, distance -->
+      <node index="0" text="Alex, 28" resource-id="" class="android.view.View" content-desc="Alex, 28" clickable="false" enabled="true" bounds="[60,1400][400,1460]" />
+      <node index="1" text="Stockholm · 3 km" resource-id="" class="android.view.View" content-desc="Stockholm · 3 km" clickable="false" enabled="true" bounds="[60,1470][500,1520]" />
+      <!-- Profile sections -->
+      <node index="2" text="ABOUT ME" resource-id="" class="android.view.View" content-desc="ABOUT ME" clickable="false" enabled="true" bounds="[60,1600][400,1650]" />
+      <node index="3" text="INTERESTS" resource-id="" class="android.view.View" content-desc="INTERESTS" clickable="false" enabled="true" bounds="[60,1800][400,1850]" />
+      <!-- Action buttons -->
+      <node index="4" text="Send a Message" resource-id="" class="android.widget.Button" content-desc="Send a Message" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+      <node index="5" text="Report Profile" resource-id="" class="android.widget.Button" content-desc="Report Profile" clickable="true" enabled="true" bounds="[60,2300][1020,2360]" />
+    </node>
+  </node>
+</hierarchy>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Your birthday?" resource-id="" class="android.view.View" content-desc="Your birthday?" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="1" text="Your profile shows your age, not your date of birth." resource-id="" class="android.view.View" content-desc="Your profile shows your age, not your date of birth." clickable="false" enabled="true" bounds="[60,500][1020,580]" />
+      <node index="2" text="Month" resource-id="" class="android.view.View" content-desc="Month" clickable="true" enabled="true" bounds="[60,640][360,720]" />
+      <node index="3" text="Day" resource-id="" class="android.view.View" content-desc="Day" clickable="true" enabled="true" bounds="[380,640][680,720]" />
+      <node index="4" text="Year" resource-id="" class="android.view.View" content-desc="Year" clickable="true" enabled="true" bounds="[700,640][1020,720]" />
+      <node index="5" text="Continue" resource-id="" class="android.widget.Button" content-desc="Continue" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

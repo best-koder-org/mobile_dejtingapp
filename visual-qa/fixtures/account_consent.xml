@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Choose an account" resource-id="" class="android.view.View" content-desc="Choose an account" clickable="false" enabled="true" bounds="[60,400][1020,460]" />
+      <node index="1" text="DejTing" resource-id="" class="android.view.View" content-desc="DejTing" clickable="false" enabled="true" bounds="[60,200][300,260]" />
+      <node index="2" text="Log in with Google" resource-id="" class="android.widget.Button" content-desc="Log in with Google" clickable="true" enabled="true" bounds="[60,600][1020,680]" />
+      <node index="3" text="Use another account" resource-id="" class="android.widget.Button" content-desc="Use another account" clickable="true" enabled="true" bounds="[60,700][1020,760]" />
+      <node index="4" text="Continue" resource-id="" class="android.widget.Button" content-desc="Continue" clickable="true" enabled="true" bounds="[60,900][1020,960]" />
+      <node index="5" text="Help" resource-id="" class="android.view.View" content-desc="Help" clickable="true" enabled="true" bounds="[100,2200][280,2260]" />
+      <node index="6" text="Privacy" resource-id="" class="android.view.View" content-desc="Privacy" clickable="true" enabled="true" bounds="[440,2200][640,2260]" />
+      <node index="7" text="Terms" resource-id="" class="android.view.View" content-desc="Terms" clickable="true" enabled="true" bounds="[800,2200][980,2260]" />
+    </node>
+  </node>
+</hierarchy>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="What's your sexual orientation?" resource-id="" class="android.view.View" content-desc="What's your sexual orientation?" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="1" text="Select all that describe you to reflect your identity." resource-id="" class="android.view.View" content-desc="Select all that describe you to reflect your identity." clickable="false" enabled="true" bounds="[60,500][1020,560]" />
+      <node index="2" text="Straight" resource-id="" class="android.widget.Button" content-desc="Straight" clickable="true" enabled="true" bounds="[60,620][500,700]" />
+      <node index="3" text="Gay" resource-id="" class="android.widget.Button" content-desc="Gay" clickable="true" enabled="true" bounds="[520,620][1020,700]" />
+      <node index="4" text="Lesbian" resource-id="" class="android.widget.Button" content-desc="Lesbian" clickable="true" enabled="true" bounds="[60,720][500,800]" />
+      <node index="5" text="Bisexual" resource-id="" class="android.widget.Button" content-desc="Bisexual" clickable="true" enabled="true" bounds="[520,720][1020,800]" />
+      <node index="6" text="Pansexual" resource-id="" class="android.widget.Button" content-desc="Pansexual" clickable="true" enabled="true" bounds="[60,820][500,900]" />
+      <node index="7" text="Show my orientation on my profile" resource-id="" class="android.widget.Switch" content-desc="Show my orientation on my profile" clickable="true" enabled="true" bounds="[60,960][1020,1020]" />
+      <node index="8" text="Skip" resource-id="" class="android.widget.Button" content-desc="Skip" clickable="true" enabled="true" bounds="[60,2120][1020,2180]" />
+      <node index="9" text="Continue" resource-id="" class="android.widget.Button" content-desc="Continue" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

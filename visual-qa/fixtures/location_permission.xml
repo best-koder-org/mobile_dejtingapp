@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Enable location" resource-id="" class="android.view.View" content-desc="Enable location" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="1" text="We use your location to show you potential matches nearby. The closer they are, the easier it is to meet up!" resource-id="" class="android.view.View" content-desc="We use your location to show you potential matches nearby. The closer they are, the easier it is to meet up!" clickable="false" enabled="true" bounds="[60,500][1020,620]" />
+      <node index="2" text="Enable Location" resource-id="" class="android.widget.Button" content-desc="Enable Location" clickable="true" enabled="true" bounds="[60,2120][1020,2200]" />
+      <node index="3" text="Skip Location" resource-id="" class="android.widget.Button" content-desc="Skip Location" clickable="true" enabled="true" bounds="[60,2220][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

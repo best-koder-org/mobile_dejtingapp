@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Verify your identity" resource-id="" class="android.view.View" content-desc="Verify your identity" clickable="false" enabled="true" bounds="[60,300][1020,380]" />
+      <node index="1" text="Take a Selfie to Verify" resource-id="" class="android.view.View" content-desc="Take a Selfie to Verify" clickable="false" enabled="true" bounds="[60,400][1020,480]" />
+      <node index="2" text="Good lighting, face clearly visible" resource-id="" class="android.view.View" content-desc="Good lighting, face clearly visible" clickable="false" enabled="true" bounds="[60,840][1020,900]" />
+      <node index="3" text="3 attempts remaining today" resource-id="" class="android.view.View" content-desc="3 attempts remaining today" clickable="false" enabled="true" bounds="[60,1600][1020,1660]" />
+      <node index="4" text="Take Selfie" resource-id="" class="android.widget.Button" content-desc="Take Selfie" clickable="true" enabled="true" bounds="[60,2200][1020,2280]" />
+    </node>
+  </node>
+</hierarchy>

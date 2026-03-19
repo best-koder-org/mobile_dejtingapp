@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.dejtingapp.app" content-desc="" checkable="false" checked="false" clickable="false" enabled="true" focusable="false" focused="false" scrollable="false" long-clickable="false" password="false" selected="false" bounds="[0,0][1080,2400]">
+    <node index="0" text="" resource-id="" class="android.view.View" content-desc="" clickable="false" enabled="true" bounds="[0,0][1080,2400]">
+      <node index="0" text="Add photos" resource-id="" class="android.view.View" content-desc="Add photos" clickable="false" enabled="true" bounds="[60,120][400,180]" />
+      <node index="1" text="Primary Photo" resource-id="" class="android.view.View" content-desc="Primary Photo" clickable="false" enabled="true" bounds="[60,220][400,400]" />
+      <node index="2" text="Photo 2" resource-id="" class="android.view.View" content-desc="Photo 2" clickable="false" enabled="true" bounds="[420,220][760,400]" />
+      <node index="3" text="Photo Tips" resource-id="" class="android.view.View" content-desc="Photo Tips" clickable="false" enabled="true" bounds="[60,900][1020,960]" />
+      <node index="4" text="Use clear, high-quality photos" resource-id="" class="android.view.View" content-desc="Use clear, high-quality photos" clickable="false" enabled="true" bounds="[60,980][1020,1040]" />
+      <node index="5" text="Take a photo" resource-id="" class="android.widget.Button" content-desc="Take a photo" clickable="true" enabled="true" bounds="[60,2120][500,2200]" />
+      <node index="6" text="Choose from gallery" resource-id="" class="android.widget.Button" content-desc="Choose from gallery" clickable="true" enabled="true" bounds="[540,2120][1020,2200]" />
+    </node>
+  </node>
+</hierarchy>
