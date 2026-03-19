@@ -2473,6 +2473,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send anyway'**
   String get messageWarningSendAnyway;
+
+  /// Title on the account consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account'**
+  String get consentTitle;
+
+  /// Subtitle on the account consent screen showing which provider to use
+  ///
+  /// In en, this message translates to:
+  /// **'Log in with {provider}'**
+  String consentSubtitle(String provider);
+
+  /// Button to switch to a different account on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Use another account'**
+  String get consentAnotherAccount;
+
+  /// Legal preamble text before the privacy/terms links on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Before using the app, you can read through the '**
+  String get consentLegalText;
+
+  /// Tappable privacy policy link text on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'privacy policy'**
+  String get consentPrivacyPolicy;
+
+  /// Conjunction between privacy policy and terms of use links on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get consentAnd;
+
+  /// Tappable terms of use link text on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'terms of use'**
+  String get consentTermsOfUse;
+
+  /// Trailing text after the legal links on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **' for DejTing.'**
+  String get consentForApp;
+
+  /// Footer help link on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get consentHelp;
+
+  /// Footer privacy link on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get consentPrivacy;
+
+  /// Footer terms link on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get consentTerms;
+
+  /// Provider name for phone authentication on the consent screen
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get consentProviderPhone;
 }
 
 class _AppLocalizationsDelegate

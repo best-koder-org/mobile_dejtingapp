@@ -520,5 +520,35 @@
   "messageWarningTitle": "Är du säker?",
   "@messageWarningTitle": {
     "description": "Profanity nudge dialog title"
-  }
+  },
+
+  "consentTitle": "Välj ett konto",
+  "@consentTitle": { "description": "Titel på kontogodkännandeskärmen" },
+  "consentSubtitle": "Logga in med {provider}",
+  "@consentSubtitle": {
+    "description": "Undertext på kontogodkännandeskärmen som visar vilken leverantör som används",
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "consentAnotherAccount": "Använd ett annat konto",
+  "@consentAnotherAccount": { "description": "Knapp för att byta till ett annat konto på godkännandeskärmen" },
+  "consentLegalText": "Innan du använder appen kan du läsa igenom ",
+  "@consentLegalText": { "description": "Juridisk inledningstext före integritets-/villkorslänkarna på godkännandeskärmen" },
+  "consentPrivacyPolicy": "integritetspolicyn",
+  "@consentPrivacyPolicy": { "description": "Klickbar integritetspolicylänktext på godkännandeskärmen" },
+  "consentAnd": " och ",
+  "@consentAnd": { "description": "Konjunktion mellan integritetspolicyn och användarvillkorslänkarna på godkännandeskärmen" },
+  "consentTermsOfUse": "användarvillkoren",
+  "@consentTermsOfUse": { "description": "Klickbar användarvillkorslänktext på godkännandeskärmen" },
+  "consentForApp": " för DejTing.",
+  "@consentForApp": { "description": "Avslutande text efter juridiska länkar på godkännandeskärmen" },
+  "consentHelp": "Hjälp",
+  "@consentHelp": { "description": "Hjälplänk i sidfoten på godkännandeskärmen" },
+  "consentPrivacy": "Integritet",
+  "@consentPrivacy": { "description": "Integritetslänk i sidfoten på godkännandeskärmen" },
+  "consentTerms": "Villkor",
+  "@consentTerms": { "description": "Villkorslänk i sidfoten på godkännandeskärmen" },
+  "consentProviderPhone": "Telefon",
+  "@consentProviderPhone": { "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen" }
 }

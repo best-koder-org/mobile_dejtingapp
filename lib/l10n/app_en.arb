@@ -1627,5 +1627,35 @@
   "messageWarningEdit": "Edit message",
   "@messageWarningEdit": { "description": "Button to go back and edit the message" },
   "messageWarningSendAnyway": "Send anyway",
-  "@messageWarningSendAnyway": { "description": "Button to send the flagged message despite warning" }
+  "@messageWarningSendAnyway": { "description": "Button to send the flagged message despite warning" },
+
+  "consentTitle": "Choose an account",
+  "@consentTitle": { "description": "Title on the account consent screen" },
+  "consentSubtitle": "Log in with {provider}",
+  "@consentSubtitle": {
+    "description": "Subtitle on the account consent screen showing which provider to use",
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
+  "consentAnotherAccount": "Use another account",
+  "@consentAnotherAccount": { "description": "Button to switch to a different account on the consent screen" },
+  "consentLegalText": "Before using the app, you can read through the ",
+  "@consentLegalText": { "description": "Legal preamble text before the privacy/terms links on the consent screen" },
+  "consentPrivacyPolicy": "privacy policy",
+  "@consentPrivacyPolicy": { "description": "Tappable privacy policy link text on the consent screen" },
+  "consentAnd": " and ",
+  "@consentAnd": { "description": "Conjunction between privacy policy and terms of use links on the consent screen" },
+  "consentTermsOfUse": "terms of use",
+  "@consentTermsOfUse": { "description": "Tappable terms of use link text on the consent screen" },
+  "consentForApp": " for DejTing.",
+  "@consentForApp": { "description": "Trailing text after the legal links on the consent screen" },
+  "consentHelp": "Help",
+  "@consentHelp": { "description": "Footer help link on the consent screen" },
+  "consentPrivacy": "Privacy",
+  "@consentPrivacy": { "description": "Footer privacy link on the consent screen" },
+  "consentTerms": "Terms",
+  "@consentTerms": { "description": "Footer terms link on the consent screen" },
+  "consentProviderPhone": "Phone",
+  "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" }
 }

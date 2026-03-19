@@ -1293,4 +1293,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messageWarningSendAnyway => 'Send anyway';
+
+  @override
+  String get consentTitle => 'Choose an account';
+
+  @override
+  String consentSubtitle(String provider) {
+    return 'Log in with $provider';
+  }
+
+  @override
+  String get consentAnotherAccount => 'Use another account';
+
+  @override
+  String get consentLegalText =>
+      'Before using the app, you can read through the ';
+
+  @override
+  String get consentPrivacyPolicy => 'privacy policy';
+
+  @override
+  String get consentAnd => ' and ';
+
+  @override
+  String get consentTermsOfUse => 'terms of use';
+
+  @override
+  String get consentForApp => ' for DejTing.';
+
+  @override
+  String get consentHelp => 'Help';
+
+  @override
+  String get consentPrivacy => 'Privacy';
+
+  @override
+  String get consentTerms => 'Terms';
+
+  @override
+  String get consentProviderPhone => 'Phone';
 }

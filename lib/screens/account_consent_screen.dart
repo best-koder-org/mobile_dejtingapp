@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/generated/app_localizations.dart';
 // Onboarding now uses named routes via main.dart
 
 /// Account Consent & Language Selection Screen
@@ -25,55 +26,24 @@ class AccountConsentScreen extends StatefulWidget {
 }
 
 class _AccountConsentScreenState extends State<AccountConsentScreen> {
-  String _selectedLanguage = 'sv'; // 'sv' or 'en'
-  
   // Brand colors
   static const Color coralColor = Color(0xFFFF7F50);
   static const Color purpleColor = Color(0xFF7f13ec);
   
-  // Translations
-  final Map<String, Map<String, String>> _translations = {
-    'sv': {
-      'title': 'Välj ett konto',
-      'subtitle': 'Logga in med ${_getProviderName('google', 'sv')}',
-      'anotherAccount': 'Använd ett annat konto',
-      'legalText': 'Innan du använder appen kan du läsa igenom ',
-      'privacyPolicy': 'integritetspolicyn',
-      'and': ' och ',
-      'termsOfUse': 'användarvillkoren',
-      'forApp': ' för DejTing.',
-      'continue': 'Fortsätt',
-      'help': 'Hjälp',
-      'privacy': 'Integritet',
-      'terms': 'Villkor',
-    },
-    'en': {
-      'title': 'Choose an account',
-      'subtitle': 'Log in with ${_getProviderName('google', 'en')}',
-      'anotherAccount': 'Use another account',
-      'legalText': 'Before using the app, you can read through the ',
-      'privacyPolicy': 'privacy policy',
-      'and': ' and ',
-      'termsOfUse': 'terms of use',
-      'forApp': ' for DejTing.',
-      'continue': 'Continue',
-      'help': 'Help',
-      'privacy': 'Privacy',
-      'terms': 'Terms',
-    },
-  };
-  
-  static String _getProviderName(String provider, String lang) {
+  static String _getProviderName(String provider, BuildContext context) {
     if (provider == 'google') return 'Google';
-    if (provider == 'phone') return lang == 'sv' ? 'Telefon' : 'Phone';
     if (provider == 'apple') return 'Apple';
+    if (provider == 'phone') {
+      return AppLocalizations.of(context)!.consentProviderPhone;
+    }
     return provider;
   }
-  
-  String t(String key) => _translations[_selectedLanguage]![key]!;
-  
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final providerName = _getProviderName(widget.authProvider, context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -128,7 +98,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                     
                     // Title
                     Text(
-                      t('title'),
+                      l10n.consentTitle,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -139,8 +109,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                     
                     // Subtitle
                     Text(
-                      t('subtitle').replaceAll(_getProviderName('google', 'sv'), 
-                                               _getProviderName(widget.authProvider, _selectedLanguage)),
+                      l10n.consentSubtitle(providerName),
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black54,
@@ -209,7 +178,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                         Navigator.pop(context);
                       },
                       icon: const Icon(Icons.person_outline, size: 20),
-                      label: Text(t('anotherAccount')),
+                      label: Text(l10n.consentAnotherAccount),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black87,
                         side: BorderSide(color: Colors.grey[300]!),
@@ -232,9 +201,9 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                           height: 1.5,
                         ),
                         children: [
-                          TextSpan(text: t('legalText')),
+                          TextSpan(text: l10n.consentLegalText),
                           TextSpan(
-                            text: t('privacyPolicy'),
+                            text: l10n.consentPrivacyPolicy,
                             style: const TextStyle(
                               decoration: TextDecoration.underline,
                               color: purpleColor,
@@ -242,9 +211,9 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => _launchURL('https://dejting.se/privacy'),
                           ),
-                          TextSpan(text: t('and')),
+                          TextSpan(text: l10n.consentAnd),
                           TextSpan(
-                            text: t('termsOfUse'),
+                            text: l10n.consentTermsOfUse,
                             style: const TextStyle(
                               decoration: TextDecoration.underline,
                               color: purpleColor,
@@ -252,7 +221,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => _launchURL('https://dejting.se/terms'),
                           ),
-                          TextSpan(text: t('forApp')),
+                          TextSpan(text: l10n.consentForApp),
                         ],
                       ),
                     ),
@@ -298,7 +267,7 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                         ),
                       ),
                       child: Text(
-                        t('continue'),
+                        l10n.continueButton,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -309,36 +278,15 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Language selector and footer links
+                  // Footer links
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Language dropdown
-                      DropdownButton<String>(
-                        value: _selectedLanguage,
-                        underline: const SizedBox(),
-                        items: const [
-                          DropdownMenuItem(value: 'sv', child: Text('🇸🇪 Svenska')),
-                          DropdownMenuItem(value: 'en', child: Text('🇬🇧 English')),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _selectedLanguage = value);
-                          }
-                        },
-                        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                      ),
-                      
-                      // Footer links
-                      Row(
-                        children: [
-                          _buildFooterLink(t('help'), 'https://dejting.se/help'),
-                          const SizedBox(width: 16),
-                          _buildFooterLink(t('privacy'), 'https://dejting.se/privacy'),
-                          const SizedBox(width: 16),
-                          _buildFooterLink(t('terms'), 'https://dejting.se/terms'),
-                        ],
-                      ),
+                      _buildFooterLink(l10n.consentHelp, 'https://dejting.se/help'),
+                      const SizedBox(width: 16),
+                      _buildFooterLink(l10n.consentPrivacy, 'https://dejting.se/privacy'),
+                      const SizedBox(width: 16),
+                      _buildFooterLink(l10n.consentTerms, 'https://dejting.se/terms'),
                     ],
                   ),
                 ],

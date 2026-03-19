@@ -1298,4 +1298,43 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get messageWarningSendAnyway => 'Skicka ändå';
+
+  @override
+  String get consentTitle => 'Välj ett konto';
+
+  @override
+  String consentSubtitle(String provider) {
+    return 'Logga in med $provider';
+  }
+
+  @override
+  String get consentAnotherAccount => 'Använd ett annat konto';
+
+  @override
+  String get consentLegalText =>
+      'Innan du använder appen kan du läsa igenom ';
+
+  @override
+  String get consentPrivacyPolicy => 'integritetspolicyn';
+
+  @override
+  String get consentAnd => ' och ';
+
+  @override
+  String get consentTermsOfUse => 'användarvillkoren';
+
+  @override
+  String get consentForApp => ' för DejTing.';
+
+  @override
+  String get consentHelp => 'Hjälp';
+
+  @override
+  String get consentPrivacy => 'Integritet';
+
+  @override
+  String get consentTerms => 'Villkor';
+
+  @override
+  String get consentProviderPhone => 'Telefon';
 }
