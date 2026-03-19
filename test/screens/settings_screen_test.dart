@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/settings_screen.dart';
+import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import '../helpers/core_screen_test_helper.dart';
 
 void main() {
@@ -76,6 +77,17 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Logout'), findsOneWidget);
+    });
+
+    testWidgets('tapping Verification navigates to VerificationSelfieScreen',
+        (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Verify Your Account'));
+      await tester.pumpAndSettle();
+      expect(find.byType(VerificationSelfieScreen), findsOneWidget);
     });
   });
 }
