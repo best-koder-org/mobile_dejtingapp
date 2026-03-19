@@ -9,6 +9,18 @@ void main() {
   });
 
   group('VerificationSelfieScreen', () {
+    setUp(() {
+      // Increase test viewport to avoid RenderFlex overflow (default 800x600 is too small)
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      binding.window.physicalSizeTestValue = const Size(800, 1200);
+      binding.window.devicePixelRatioTestValue = 1.0;
+    });
+
+    tearDown(() {
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      binding.window.clearPhysicalSizeTestValue();
+      binding.window.clearDevicePixelRatioTestValue();
+    });
     testWidgets('renders scaffold with app bar', (tester) async {
       await tester.pumpWidget(
         buildCoreScreenTestApp(home: const VerificationSelfieScreen()),

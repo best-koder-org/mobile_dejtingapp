@@ -66,7 +66,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(
-        find.bySemanticsLabel('screen:onboarding-complete'),
+        find.byWidgetPredicate((w) => w is Semantics && (w as Semantics).properties.label == 'screen:onboarding-complete'),
         findsOneWidget,
       );
     });

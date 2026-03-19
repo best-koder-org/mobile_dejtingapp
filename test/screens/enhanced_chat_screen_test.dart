@@ -110,7 +110,7 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 500));
       expect(
-        find.bySemanticsLabel('screen:chat'),
+        find.byWidgetPredicate((w) => w is Semantics && (w as Semantics).properties.label == 'screen:chat'),
         findsOneWidget,
       );
     });

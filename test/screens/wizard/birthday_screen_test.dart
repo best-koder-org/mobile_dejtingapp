@@ -87,7 +87,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(
-        find.bySemanticsLabel('screen:onboarding-birthday'),
+        find.byWidgetPredicate((w) => w is Semantics && (w as Semantics).properties.label == 'screen:onboarding-birthday'),
         findsOneWidget,
       );
     });

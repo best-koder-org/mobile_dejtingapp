@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/home_screen.dart';
@@ -52,7 +53,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Bottom sheet should show discovery settings title
       expect(find.text('Discovery Settings'), findsOneWidget);
@@ -64,17 +65,36 @@ void main() {
     });
 
     testWidgets('discovery filter bottom sheet closes on Done', (tester) async {
+      // Increase viewport so the Done button inside the bottom sheet is visible
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      binding.window.physicalSizeTestValue = const Size(800, 1600);
+      binding.window.devicePixelRatioTestValue = 1.0;
+      addTearDown(() {
+        binding.window.clearPhysicalSizeTestValue();
+        binding.window.clearDevicePixelRatioTestValue();
+      });
+
       await tester.pumpWidget(
         buildCoreScreenTestApp(home: const HomeScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
       await tester.tap(find.byIcon(Icons.tune_rounded));
-      await tester.pumpAndSettle();
+      // Need pump() then pump(duration) for the bottom sheet to fully appear
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      // Tap Done button
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+      // Verify the sheet appeared
+      expect(find.text('Discovery Settings'), findsOneWidget);
+
+      // Ensure Done is visible and tap it
+      final doneBtn = find.text('Done');
+      await tester.ensureVisible(doneBtn);
+      await tester.pump();
+      await tester.tap(doneBtn);
+      // Bottom sheet dismiss animation
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       // Bottom sheet should be dismissed
       expect(find.text('Discovery Settings'), findsNothing);
@@ -85,7 +105,7 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 500));
       expect(
-        find.bySemanticsLabel('screen:discover'),
+        find.byWidgetPredicate((w) => w is Semantics && (w as Semantics).properties.label == 'screen:discover'),
         findsOneWidget,
       );
     });

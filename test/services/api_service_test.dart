@@ -122,7 +122,8 @@ class _FixedStatusHttpClientRequest extends Fake
       _FixedStatusHttpClientResponse(_statusCode, _responseBody);
 
   @override
-  Future get done => Future.value();
+  Future<HttpClientResponse> get done => Future.value(
+        _FixedStatusHttpClientResponse(_statusCode, _responseBody));
 }
 
 /// A [Stream<List<int>>] that also implements [HttpClientResponse].
@@ -156,6 +157,8 @@ class _FixedStatusHttpClientResponse extends Stream<List<int>>
   List<Cookie> get cookies => [];
   @override
   HttpConnectionInfo? get connectionInfo => null;
+  @override
+  X509Certificate? get certificate => null;
   @override
   HttpClientResponseCompressionState get compressionState =>
       HttpClientResponseCompressionState.notCompressed;
@@ -381,7 +384,7 @@ void main() {
   // ── AuthService – request header construction ─────────────────────────────
   group('AuthService – request header construction', () {
     HttpOverrides? savedOverrides;
-    setUp(() => savedOverrides = HttpOverrides.global);
+    setUp(() => savedOverrides = HttpOverrides.current);
     tearDown(() => HttpOverrides.global = savedOverrides);
 
     test(
@@ -424,7 +427,7 @@ void main() {
   // ── AuthService – HTTP error status code handling ─────────────────────────
   group('AuthService – HTTP error status code handling', () {
     HttpOverrides? savedOverrides;
-    setUp(() => savedOverrides = HttpOverrides.global);
+    setUp(() => savedOverrides = HttpOverrides.current);
     tearDown(() => HttpOverrides.global = savedOverrides);
 
     test('login returns null for HTTP 401 Unauthorized', () async {
@@ -464,7 +467,7 @@ void main() {
   group('AuthService – network error handling', () {
     HttpOverrides? savedOverrides;
 
-    setUp(() => savedOverrides = HttpOverrides.global);
+    setUp(() => savedOverrides = HttpOverrides.current);
     tearDown(() => HttpOverrides.global = savedOverrides);
 
     test('login returns null when network is unavailable', () async {
@@ -505,7 +508,7 @@ void main() {
   // ── AuthService – successful 200 response parsing ─────────────────────────
   group('AuthService – successful 200 response parsing', () {
     HttpOverrides? savedOverrides;
-    setUp(() => savedOverrides = HttpOverrides.global);
+    setUp(() => savedOverrides = HttpOverrides.current);
     tearDown(() => HttpOverrides.global = savedOverrides);
 
     test('login returns token map when server responds HTTP 200', () async {

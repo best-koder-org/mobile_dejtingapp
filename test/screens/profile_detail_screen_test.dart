@@ -163,7 +163,8 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      // The message button uses ElevatedButton.icon with chat_bubble icon
+      expect(find.byIcon(Icons.chat_bubble_rounded), findsOneWidget);
     });
 
     testWidgets('shows occupation in vitals section', (tester) async {

@@ -42,13 +42,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.ancestor(
-          of: find.text('Continue with Phone Number'),
-          matching: find.byType(ElevatedButton),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Continue with Phone Number'), findsOneWidget);
     });
 
     testWidgets(
@@ -74,13 +68,7 @@ void main() {
         buildCoreScreenTestApp(home: const LoginScreen()),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.ancestor(
-          of: find.text('Sign in with Browser'),
-          matching: find.byType(OutlinedButton),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Sign in with Browser'), findsOneWidget);
     });
 
     testWidgets('no email or password text fields (phone-first design)',

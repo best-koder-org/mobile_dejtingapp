@@ -105,7 +105,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(
-        find.bySemanticsLabel('screen:onboarding-match-preferences'),
+        find.byWidgetPredicate((w) => w is Semantics && (w as Semantics).properties.label == 'screen:onboarding-match-preferences'),
         findsOneWidget,
       );
     });

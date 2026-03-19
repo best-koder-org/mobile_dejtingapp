@@ -5,6 +5,19 @@ import '../helpers/core_screen_test_helper.dart';
 
 void main() {
   group('PhotoUploadScreen', () {
+    setUp(() {
+      // Photo grid needs a taller viewport to show all 6 slots
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      binding.window.physicalSizeTestValue = const Size(800, 1400);
+      binding.window.devicePixelRatioTestValue = 1.0;
+    });
+
+    tearDown(() {
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      binding.window.clearPhysicalSizeTestValue();
+      binding.window.clearDevicePixelRatioTestValue();
+    });
+
     Widget buildSubject() {
       return buildCoreScreenTestApp(
         home: PhotoUploadScreen(

@@ -23,9 +23,26 @@ void main() {
         (tester) async {
       await tester
           .pumpWidget(buildCoreScreenTestApp(home: const SettingsScreen()));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Scroll to find 'Help & Support' using manual pump-and-drag
+      // (scrollUntilVisible uses pumpAndSettle which may timeout)
+      final scrollable = find.byType(Scrollable).first;
+      bool found = false;
+      for (int i = 0; i < 10; i++) {
+        if (tester.any(find.text('Help & Support'))) {
+          found = true;
+          break;
+        }
+        await tester.drag(scrollable, const Offset(0, -200));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(found, isTrue, reason: 'Could not find Help & Support after scrolling');
+
       await tester.tap(find.text('Help & Support'));
-      await tester.pumpAndSettle();
+      // Pump through the navigation transition
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.byType(HelpScreen), findsOneWidget);
     });
   });
