@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  visual-qa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Mount the Flutter app source and output directory
+    volumes:
+      - ../:/app/flutter-app
+      - ./output:/app/output
+    # KVM device for hardware-accelerated emulator (Linux hosts with KVM enabled)
+    devices:
+      - /dev/kvm:/dev/kvm
+    environment:
+      - ANDROID_HOME=/opt/android-sdk
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+    entrypoint: ["/app/visual-qa/run.sh"]
