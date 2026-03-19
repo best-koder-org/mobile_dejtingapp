@@ -459,6 +459,8 @@ class TestScreenSignaturesDict(unittest.TestCase):
 
     def test_at_least_24_screens(self):
         self.assertGreaterEqual(len(SCREEN_SIGNATURES), 24)
+    def test_at_least_22_screens(self):
+        self.assertGreaterEqual(len(SCREEN_SIGNATURES), 23)
 
     def test_screen_names_are_lowercase_underscore(self):
         import re
