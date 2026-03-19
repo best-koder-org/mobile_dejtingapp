@@ -2558,6 +2558,11 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get consentProviderPhone;
 
+  /// Title for the Help & Support screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpScreenTitle;
   /// Title for the location settings screen.
   ///
   /// In en, this message translates to:

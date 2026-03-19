@@ -1340,6 +1340,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentProviderPhone => 'Phone';
 
   @override
+  String get helpScreenTitle => 'Help & Support';
   String get locationSettings => 'Location Settings';
   String hearVoice(String name) => 'Hear ${name}\'s voice';
 

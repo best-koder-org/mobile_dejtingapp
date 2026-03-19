@@ -1345,6 +1345,7 @@ class AppLocalizationsSv extends AppLocalizations {
   String get consentProviderPhone => 'Telefon';
 
   @override
+  String get helpScreenTitle => 'Hjälp och support';
   String get locationSettings => 'Platsinställningar';
   String hearVoice(String name) => 'Hör ${name}s röst';
 

@@ -1,5 +1,6 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/screens/help_screen.dart';
 import 'package:dejtingapp/screens/location_settings_screen.dart';
 import 'package:dejtingapp/screens/privacy_settings_screen.dart';
 import 'package:dejtingapp/screens/verification_selfie_screen.dart';
@@ -216,7 +217,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(AppLocalizations.of(context).helpSupport),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // TODO: Help screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const HelpScreen(),
+                ),
+              );
             },
           ),
           ListTile(

@@ -553,6 +553,8 @@
   "@consentTerms": { "description": "Villkorslänk i sidfoten på godkännandeskärmen" },
   "consentProviderPhone": "Telefon",
   "@consentProviderPhone": { "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen" },
+  "helpScreenTitle": "Hjälp och support",
+  "@helpScreenTitle": { "description": "Titel för hjälp- och supportskärmen" },
   "locationSettings": "Platsinställningar",
   "@locationSettings": { "description": "Titel för platsinställningsskärmen" },
   "hearVoice": "Hör {name}s röst",
