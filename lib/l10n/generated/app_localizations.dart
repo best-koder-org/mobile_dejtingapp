@@ -2558,6 +2558,11 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get consentProviderPhone;
 
+  /// Title for the location settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Settings'**
+  String get locationSettings;
   /// Label on the voice prompt card showing whose voice clip it is
   ///
   /// In en, this message translates to:

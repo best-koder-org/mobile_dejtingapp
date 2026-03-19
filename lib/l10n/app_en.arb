@@ -1666,6 +1666,8 @@
   "@consentTerms": { "description": "Footer terms link on the consent screen" },
   "consentProviderPhone": "Phone",
   "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" },
+  "locationSettings": "Location Settings",
+  "@locationSettings": { "description": "Title for the location settings screen" },
   "hearVoice": "Hear {name}'s voice",
   "@hearVoice": {
     "description": "Label on the voice prompt card showing whose voice clip it is",
