@@ -372,8 +372,7 @@ class SwipeCacheService {
           final matchId = result['matchId']?.toString();
 
           if (kDebugMode) {
-            debugPrint('Drained swipe for ${swipe.targetUserId} '
-                '${isMatch ? "(MATCH!)" : ""}');
+            debugPrint('Drained swipe for ${swipe.targetUserId} ${isMatch ? "(MATCH!)" : ""}');
           }
 
           // Notify about result (especially matches discovered while offline)
