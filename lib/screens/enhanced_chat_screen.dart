@@ -184,7 +184,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load messages: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).errorLoadingMessages(e.toString()))),
         );
       }
     }
@@ -355,8 +355,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to send message. Please try again.'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).failedToSendMessage),
               backgroundColor: Colors.red,
             ),
           );
@@ -365,7 +365,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sending message: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).errorSendingMessage(e.toString()))),
         );
       }
     } finally {
@@ -878,7 +878,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
               Navigator.pop(context);
               Navigator.pop(context); // Go back to matches
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('User blocked successfully.')),
+                SnackBar(content: Text(AppLocalizations.of(context).userBlocked)),
               );
             },
             child: Text(AppLocalizations.of(context).blockButton),
@@ -893,22 +893,20 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context).staySafe),
-        content: const SingleChildScrollView(
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                  '• Never share personal information like your phone number, address, or financial details'),
-              SizedBox(height: 8),
-              Text('• Meet in public places for first dates'),
-              SizedBox(height: 8),
-              Text(
-                  '• Trust your instincts - if something feels wrong, report it'),
-              SizedBox(height: 8),
-              Text('• Our AI monitors conversations for inappropriate content'),
-              SizedBox(height: 8),
-              Text('• Report any suspicious or offensive behavior immediately'),
+              Text(AppLocalizations.of(context).safetyTip1),
+              const SizedBox(height: 8),
+              Text(AppLocalizations.of(context).safetyTip2),
+              const SizedBox(height: 8),
+              Text(AppLocalizations.of(context).safetyTip3),
+              const SizedBox(height: 8),
+              Text(AppLocalizations.of(context).safetyTip4),
+              const SizedBox(height: 8),
+              Text(AppLocalizations.of(context).safetyTip5),
             ],
           ),
         ),
