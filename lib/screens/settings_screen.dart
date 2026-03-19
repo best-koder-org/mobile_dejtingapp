@@ -57,6 +57,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // TODO: Privacy settings
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.language, color: AppTheme.primaryColor),
+            title: Text(AppLocalizations.of(context).languagesLabel),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              // TODO: Language settings
+            },
+          ),
 
           const Divider(height: 32),
 

@@ -61,5 +61,21 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(ListView), findsOneWidget);
     });
+
+    testWidgets('shows language option', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('LANGUAGES'), findsOneWidget);
+    });
+
+    testWidgets('shows logout button', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const SettingsScreen()),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Logout'), findsOneWidget);
+    });
   });
 }
