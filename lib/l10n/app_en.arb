@@ -1658,6 +1658,17 @@
   "@consentTerms": { "description": "Footer terms link on the consent screen" },
   "consentProviderPhone": "Phone",
   "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" },
+  "hearVoice": "Hear {name}'s voice",
+  "@hearVoice": {
+    "description": "Label on the voice prompt card showing whose voice clip it is",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "likeOnly": "Like only",
+  "@likeOnly": { "description": "Button label to like a profile without sending a comment" },
   "blockedCount": "{count, plural, =1{1 contact blocked.} other{{count} contacts blocked.}}",
   "@blockedCount": {
     "description": "Subtitle showing how many contacts are blocked",

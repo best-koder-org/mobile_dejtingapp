@@ -2546,6 +2546,17 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get consentProviderPhone;
 
+  /// Label on the voice prompt card showing whose voice clip it is
+  ///
+  /// In en, this message translates to:
+  /// **'Hear {name}\'s voice'**
+  String hearVoice(String name);
+
+  /// Button label to like a profile without sending a comment
+  ///
+  /// In en, this message translates to:
+  /// **'Like only'**
+  String get likeOnly;
   /// Subtitle showing how many contacts are blocked
   ///
   /// In en, this message translates to:

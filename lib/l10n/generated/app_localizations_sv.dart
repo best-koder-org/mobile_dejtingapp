@@ -1339,6 +1339,10 @@ class AppLocalizationsSv extends AppLocalizations {
   String get consentProviderPhone => 'Telefon';
 
   @override
+  String hearVoice(String name) => 'Hör ${name}s röst';
+
+  @override
+  String get likeOnly => 'Gilla bara';
   String blockedCount(int count) {
     return intl.Intl.pluralLogic(
       count,

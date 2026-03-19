@@ -858,7 +858,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Hear ${name.split(' ').first}\'s voice',
+                        AppLocalizations.of(context).hearVoice(name.split(' ').first),
                         style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
@@ -1214,12 +1214,12 @@ class _LikeCommentSheetState extends State<_LikeCommentSheet> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: widget.onLikeOnly,
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.favorite_rounded, size: 18, color: AppTheme.primaryColor),
-                      SizedBox(width: 6),
-                      Text('Like only'),
+                      const Icon(Icons.favorite_rounded, size: 18, color: AppTheme.primaryColor),
+                      const SizedBox(width: 6),
+                      Text(AppLocalizations.of(context).likeOnly),
                     ],
                   ),
                 ),

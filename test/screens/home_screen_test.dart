@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/home_screen.dart';
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import '../helpers/core_screen_test_helper.dart';
 
 void main() {
@@ -77,6 +78,41 @@ void main() {
 
       // Bottom sheet should be dismissed
       expect(find.text('Discovery Settings'), findsNothing);
+    });
+  });
+
+  group('AppLocalizations i18n keys', () {
+    testWidgets('likeOnly returns localized string in English', (tester) async {
+      late AppLocalizations loc;
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: Builder(
+            builder: (context) {
+              loc = AppLocalizations.of(context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(loc.likeOnly, 'Like only');
+    });
+
+    testWidgets('hearVoice returns parameterized string in English',
+        (tester) async {
+      late AppLocalizations loc;
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: Builder(
+            builder: (context) {
+              loc = AppLocalizations.of(context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(loc.hearVoice('Alice'), "Hear Alice's voice");
     });
   });
 }
