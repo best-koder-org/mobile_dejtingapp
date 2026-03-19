@@ -898,9 +898,10 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                               onPressed: () async {
                                 final userId = user['blockedUserId']?.toString();
                                 if (userId != null) {
+                                  final nav = Navigator.of(context);
                                   await SafetyService.unblockUser(userId);
                                   if (mounted) {
-                                    Navigator.pop(context);
+                                    nav.pop();
                                     _loadProfileData();
                                   }
                                 }
