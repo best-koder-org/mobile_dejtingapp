@@ -271,17 +271,20 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryColor),
-            )
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildMatchesTab(),
-                _buildMessagesTab(),
-              ],
-            ),
+      body: SafeArea(
+        top: false,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor),
+              )
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMatchesTab(),
+                  _buildMessagesTab(),
+                ],
+              ),
+      ),
     );
   }
 
