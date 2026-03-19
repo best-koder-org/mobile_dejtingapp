@@ -1341,18 +1341,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpScreenTitle => 'Help & Support';
-  String get locationSettings => 'Location Settings';
-  String hearVoice(String name) => 'Hear ${name}\'s voice';
 
   @override
-  String get likeOnly => 'Like only';
+  String get locationSettings => 'Location Settings';
+
+  @override
+  String hearVoice(String name) {
+    return 'Hear $name\'s voice';
+  }
+
+  @override
   String blockedCount(int count) {
-    return intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      one: '1 contact blocked.',
       other: '$count contacts blocked.',
+      one: '1 contact blocked.',
     );
+    return '$_temp0';
   }
 
   @override
@@ -1368,8 +1374,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howItWorks => 'How it works';
 
   @override
-  String get spotlightActivated => '🔦 Spotlight activated! 30 min of boosted visibility.';
+  String get spotlightActivated =>
+      '🔦 Spotlight activated! 30 min of boosted visibility.';
 
   @override
-  String failedToLoadBlockList(String error) => 'Failed to load block list: $error';
+  String failedToLoadBlockList(String error) {
+    return 'Failed to load block list: $error';
+  }
+
+  @override
+  String get couldNotOpenStore =>
+      'Could not open the store page. Please try again later.';
 }

@@ -1317,8 +1317,7 @@ class AppLocalizationsSv extends AppLocalizations {
   String get consentAnotherAccount => 'Använd ett annat konto';
 
   @override
-  String get consentLegalText =>
-      'Innan du använder appen kan du läsa igenom ';
+  String get consentLegalText => 'Innan du använder appen kan du läsa igenom ';
 
   @override
   String get consentPrivacyPolicy => 'integritetspolicyn';
@@ -1346,18 +1345,24 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get helpScreenTitle => 'Hjälp och support';
-  String get locationSettings => 'Platsinställningar';
-  String hearVoice(String name) => 'Hör ${name}s röst';
 
   @override
-  String get likeOnly => 'Gilla bara';
+  String get locationSettings => 'Platsinställningar';
+
+  @override
+  String hearVoice(String name) {
+    return 'Hör ${name}s röst';
+  }
+
+  @override
   String blockedCount(int count) {
-    return intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      one: '1 kontakt blockerad.',
       other: '$count kontakter blockerade.',
+      one: '1 kontakt blockerad.',
     );
+    return '$_temp0';
   }
 
   @override
@@ -1373,8 +1378,15 @@ class AppLocalizationsSv extends AppLocalizations {
   String get howItWorks => 'Så här fungerar det';
 
   @override
-  String get spotlightActivated => '🔦 Spotlight aktiverat! 30 min med ökad synlighet.';
+  String get spotlightActivated =>
+      '🔦 Spotlight aktiverat! 30 min med ökad synlighet.';
 
   @override
-  String failedToLoadBlockList(String error) => 'Det gick inte att ladda blocklistan: $error';
+  String failedToLoadBlockList(String error) {
+    return 'Det gick inte att ladda blocklistan: $error';
+  }
+
+  @override
+  String get couldNotOpenStore =>
+      'Det gick inte att öppna butikssidan. Försök igen senare.';
 }

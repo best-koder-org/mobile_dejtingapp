@@ -2558,27 +2558,24 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get consentProviderPhone;
 
-  /// Title for the Help & Support screen.
+  /// Title for the Help & Support screen
   ///
   /// In en, this message translates to:
   /// **'Help & Support'**
   String get helpScreenTitle;
-  /// Title for the location settings screen.
+
+  /// Title for the location settings screen
   ///
   /// In en, this message translates to:
   /// **'Location Settings'**
   String get locationSettings;
+
   /// Label on the voice prompt card showing whose voice clip it is
   ///
   /// In en, this message translates to:
   /// **'Hear {name}\'s voice'**
   String hearVoice(String name);
 
-  /// Button label to like a profile without sending a comment
-  ///
-  /// In en, this message translates to:
-  /// **'Like only'**
-  String get likeOnly;
   /// Subtitle showing how many contacts are blocked
   ///
   /// In en, this message translates to:
@@ -2620,6 +2617,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load block list: {error}'**
   String failedToLoadBlockList(String error);
+
+  /// Snackbar message shown when the app store page cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the store page. Please try again later.'**
+  String get couldNotOpenStore;
 }
 
 class _AppLocalizationsDelegate

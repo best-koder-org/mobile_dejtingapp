@@ -67,8 +67,17 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('privacy policy'), findsOneWidget);
-      expect(find.textContaining('terms of use'), findsOneWidget);
+      // RichText spans aren't found by find.textContaining; search semantics instead
+      expect(
+        find.byWidgetPredicate((w) =>
+          w is RichText && w.text.toPlainText().contains('privacy policy')),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate((w) =>
+          w is RichText && w.text.toPlainText().contains('terms of use')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows footer links', (tester) async {
