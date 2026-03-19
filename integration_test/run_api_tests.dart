@@ -421,7 +421,7 @@ void main() async {
 
   await test('T051.2 Check blocked list', () async {
     final blocked = await getBlockedUsers(alice);
-    assert(blocked != null, 'Should return a list');
+    assert(blocked.isNotEmpty, 'Blocked list should contain at least one user');
   });
 
   await test('T051.3 Check is-blocked', () async {
