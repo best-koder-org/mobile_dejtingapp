@@ -64,5 +64,16 @@ void main() {
       // Immediately after tap the status must be reset to 'Connecting...'
       expect(find.text('Connecting...'), findsOneWidget);
     });
+
+    testWidgets('has screen:matches semantics label', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const EnhancedMatchesScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.bySemanticsLabel('screen:matches'),
+        findsOneWidget,
+      );
+    });
   });
 }

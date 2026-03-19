@@ -110,6 +110,7 @@ void main() {
     });
 
     testWidgets('shows Rate Us tile with star icon', (tester) async {
+testWidgets('has screen:settings semantics label', (tester) async {
       await tester.pumpWidget(
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
@@ -134,6 +135,8 @@ void main() {
       // snackbar fallback message should be shown.
       expect(
         find.text('Could not open the store page. Please try again later.'),
+expect(
+        find.bySemanticsLabel('screen:settings'),
         findsOneWidget,
       );
     });

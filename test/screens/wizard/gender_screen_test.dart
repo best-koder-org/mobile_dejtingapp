@@ -120,5 +120,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-gender semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const GenderScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-gender'),
+        findsOneWidget,
+      );
+    });
   });
 }

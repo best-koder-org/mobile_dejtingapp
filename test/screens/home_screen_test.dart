@@ -79,6 +79,16 @@ void main() {
       // Bottom sheet should be dismissed
       expect(find.text('Discovery Settings'), findsNothing);
     });
+    testWidgets('has screen:discover semantics label', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const HomeScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.bySemanticsLabel('screen:discover'),
+        findsOneWidget,
+      );
+    });
   });
 
   group('AppLocalizations i18n keys', () {

@@ -88,5 +88,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-notifications semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const NotificationPermissionScreen(),
+        routeName: '/onboarding/notifications',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-notifications'),
+        findsOneWidget,
+      );
+    });
   });
 }

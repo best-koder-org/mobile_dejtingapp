@@ -156,7 +156,9 @@ class _PhotosScreenState extends State<PhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-photos',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -255,6 +257,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

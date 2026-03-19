@@ -71,5 +71,17 @@ void main() {
 
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
+
+    testWidgets('has screen:onboarding-relationship-goals semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const RelationshipGoalsScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-relationship-goals'),
+        findsOneWidget,
+      );
+    });
   });
 }

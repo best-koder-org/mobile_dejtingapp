@@ -183,14 +183,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.scaffoldLight,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(child: _buildBody()),
-          ],
+    return Semantics(
+      label: 'screen:discover',
+      child: Scaffold(
+        backgroundColor: AppTheme.scaffoldLight,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(child: _buildBody()),
+            ],
+          ),
         ),
       ),
     );

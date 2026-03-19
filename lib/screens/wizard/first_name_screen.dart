@@ -118,7 +118,9 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-first-name',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -267,6 +269,7 @@ class _FirstNameScreenState extends State<FirstNameScreen> {
         ),
         ],
       ),
+    ),
     );
   }
 }

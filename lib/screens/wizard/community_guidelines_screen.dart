@@ -10,7 +10,9 @@ class CommunityGuidelinesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-community-guidelines',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -99,6 +101,7 @@ class CommunityGuidelinesScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

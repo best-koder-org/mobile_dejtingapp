@@ -99,5 +99,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
+
+    testWidgets('has screen:onboarding-phone-entry semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const PhoneEntryScreen(),
+        routeName: '/onboarding/phone-entry',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-phone-entry'),
+        findsOneWidget,
+      );
+    });
   });
 }

@@ -19,7 +19,9 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-match-preferences',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -143,6 +145,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

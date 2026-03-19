@@ -71,7 +71,9 @@ class _OrientationScreenState extends State<OrientationScreen> {
       'Questioning': l10n.orientationQuestioningDesc,
     };
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-orientation',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -255,6 +257,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
         ),
         ],
       ),
+    ),
     );
   }
 }

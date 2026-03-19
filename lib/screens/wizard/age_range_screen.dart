@@ -42,7 +42,9 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
     final startAge = _range.start.round();
     final endAge = _range.end.round();
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-age-range',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -206,6 +208,7 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
         ),
         ],
       ),
+    ),
     );
   }
 }

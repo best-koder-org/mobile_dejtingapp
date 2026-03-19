@@ -122,41 +122,44 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildProfileHeader(),
+    return Semantics(
+      label: 'screen:profile',
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildProfileHeader(),
 
-            // Tab Bar
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppTheme.dividerColor, width: 0.5),
+              // Tab Bar
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: AppTheme.dividerColor, width: 0.5),
+                  ),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context).getMore),
+                    Tab(text: AppLocalizations.of(context).safety),
+                    Tab(text: AppLocalizations.of(context).myDejTing),
+                  ],
                 ),
               ),
-              child: TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(text: AppLocalizations.of(context).getMore),
-                  Tab(text: AppLocalizations.of(context).safety),
-                  Tab(text: AppLocalizations.of(context).myDejTing),
-                ],
-              ),
-            ),
 
-            // Tab Content
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildGetMoreTab(),
-                  _buildSafetyTab(),
-                  _buildMyDejTingTab(),
-                ],
+              // Tab Content
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildGetMoreTab(),
+                    _buildSafetyTab(),
+                    _buildMyDejTingTab(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

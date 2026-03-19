@@ -83,5 +83,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byIcon(Icons.check), findsNWidgets(4));
     });
+
+    testWidgets('has screen:onboarding-community-guidelines semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const CommunityGuidelinesScreen(),
+        routeName: '/onboarding/community-guidelines',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-community-guidelines'),
+        findsOneWidget,
+      );
+    });
   });
 }

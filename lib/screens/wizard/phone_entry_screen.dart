@@ -300,7 +300,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     final onboarding = OnboardingProvider.maybeOf(context);
     final isSignIn = onboarding == null;
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-phone-entry',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -528,6 +530,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

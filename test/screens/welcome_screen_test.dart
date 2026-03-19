@@ -79,5 +79,16 @@ void main() {
               find.textContaining('privacy').evaluate().isNotEmpty;
       expect(hasLegalText, isTrue);
     });
+
+    testWidgets('has screen:onboarding-welcome semantics label', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const WelcomeScreen()),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-welcome'),
+        findsOneWidget,
+      );
+    });
   });
 }

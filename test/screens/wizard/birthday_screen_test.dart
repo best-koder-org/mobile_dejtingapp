@@ -79,5 +79,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-birthday semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const BirthdayScreen(),
+        routeName: '/onboarding/birthday',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-birthday'),
+        findsOneWidget,
+      );
+    });
   });
 }

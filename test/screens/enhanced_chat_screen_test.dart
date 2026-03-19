@@ -101,5 +101,18 @@ void main() {
       expect(find.byIcon(Icons.mic), findsOneWidget);
       expect(find.byIcon(Icons.send), findsNothing);
     });
+
+    testWidgets('has screen:chat semantics label', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: EnhancedChatScreen(match: _dummyMatch()),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.bySemanticsLabel('screen:chat'),
+        findsOneWidget,
+      );
+    });
   });
 }

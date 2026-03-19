@@ -11,7 +11,9 @@ class NotificationPermissionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-notifications',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -133,6 +135,7 @@ class NotificationPermissionScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

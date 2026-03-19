@@ -82,5 +82,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-orientation semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OrientationScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-orientation'),
+        findsOneWidget,
+      );
+    });
   });
 }

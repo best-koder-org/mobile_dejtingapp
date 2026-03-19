@@ -97,5 +97,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-match-preferences semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const MatchPreferencesScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-match-preferences'),
+        findsOneWidget,
+      );
+    });
   });
 }

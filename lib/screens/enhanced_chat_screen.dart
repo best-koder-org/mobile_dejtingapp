@@ -542,7 +542,9 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   Widget build(BuildContext context) {
     final profile = widget.match.otherUserProfile;
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:chat',
+      child: Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           onTap: () {
@@ -779,6 +781,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
             ),
           ),
         ],
+      ),
       ),
     );
   }

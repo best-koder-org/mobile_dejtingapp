@@ -165,5 +165,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-first-name semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const FirstNameScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-first-name'),
+        findsOneWidget,
+      );
+    });
   });
 }

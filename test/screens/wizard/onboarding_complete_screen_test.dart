@@ -58,5 +58,17 @@ void main() {
       // l10n: skipForNow = "Skip for now"
       expect(find.text('Skip for now'), findsOneWidget);
     });
+
+    testWidgets('has screen:onboarding-complete semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const OnboardingCompleteScreen(),
+        routeName: '/onboarding/complete',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-complete'),
+        findsOneWidget,
+      );
+    });
   });
 }

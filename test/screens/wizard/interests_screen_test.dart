@@ -83,5 +83,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
+
+    testWidgets('has screen:onboarding-interests semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const InterestsScreen(),
+        routeName: '/onboarding/interests',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-interests'),
+        findsOneWidget,
+      );
+    });
   });
 }

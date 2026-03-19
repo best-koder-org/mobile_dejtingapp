@@ -72,7 +72,9 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-complete',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       body: SafeArea(
         child: Column(
@@ -96,6 +98,7 @@ class _OnboardingCompleteScreenState extends State<OnboardingCompleteScreen>
           ],
         ),
       ),
+    ),
     );
   }
 

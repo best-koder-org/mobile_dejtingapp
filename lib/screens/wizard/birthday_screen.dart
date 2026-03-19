@@ -70,7 +70,9 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-birthday',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -210,6 +212,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
         ),
         ],
       ),
+    ),
     );
   }
 

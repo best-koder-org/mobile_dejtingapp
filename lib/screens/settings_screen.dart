@@ -25,13 +25,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).settingsTitle),
-        // Uses theme default AppBar
-        // Uses theme default foreground
-      ),
-      body: ListView(
+    return Semantics(
+      label: 'screen:settings',
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context).settingsTitle),
+          // Uses theme default AppBar
+          // Uses theme default foreground
+        ),
+        body: ListView(
         children: [
           // Account Section
           _buildSectionHeader(AppLocalizations.of(context).sectionAccount),
@@ -262,6 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 32),
         ],
+        ),
       ),
     );
   }

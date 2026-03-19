@@ -80,5 +80,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-location semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const LocationPermissionScreen(),
+        routeName: '/onboarding/location',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-location'),
+        findsOneWidget,
+      );
+    });
   });
 }

@@ -94,7 +94,9 @@ class _InterestsScreenState extends State<InterestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-interests',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -304,6 +306,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

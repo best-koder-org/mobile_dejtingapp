@@ -31,6 +31,17 @@ void main() {
       // Profile hub always renders even without data
       expect(find.byType(Scaffold), findsWidgets);
     });
+
+    testWidgets('has screen:profile semantics label', (tester) async {
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: const ProfileHubScreen()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.bySemanticsLabel('screen:profile'),
+        findsOneWidget,
+      );
+    });
   });
 
   group('AppLocalizations i18n keys', () {

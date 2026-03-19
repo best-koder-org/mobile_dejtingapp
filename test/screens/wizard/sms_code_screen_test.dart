@@ -86,5 +86,17 @@ void main() {
       expect(find.byType(SingleChildScrollView), findsOneWidget);
       await tester.pump(const Duration(seconds: 61));
     });
+
+    testWidgets('has screen:onboarding-sms-code semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const SmsCodeScreen(),
+        routeName: '/onboarding/verify-code',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-sms-code'),
+        findsOneWidget,
+      );
+    });
   });
 }

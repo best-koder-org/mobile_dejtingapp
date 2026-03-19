@@ -226,15 +226,17 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(AppLocalizations.of(context).matchesTitle),
-            const Spacer(),
-            _buildConnectionStatus(),
-          ],
-        ),
+    return Semantics(
+      label: 'screen:matches',
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Text(AppLocalizations.of(context).matchesTitle),
+              const Spacer(),
+              _buildConnectionStatus(),
+            ],
+          ),
         // Uses theme default AppBar (dark surface)
         // Uses theme default foreground
         bottom: TabBar(

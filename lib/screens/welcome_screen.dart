@@ -26,12 +26,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppTheme.brandGradient,
-        ),
-        child: SafeArea(
+    return Semantics(
+      label: 'screen:onboarding-welcome',
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.brandGradient,
+          ),
+          child: SafeArea(
           child: Column(
             children: [
               Expanded(
@@ -133,6 +135,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               if (DevMode.enabled) _buildDevPanel(context),
             ],
           ),
+        ),
         ),
       ),
     );

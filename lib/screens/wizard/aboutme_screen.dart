@@ -124,7 +124,9 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
         _loveLanguage != null ||
         _education != null;
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-about-me',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -260,6 +262,7 @@ class _AboutMeScreenState extends State<AboutMeScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

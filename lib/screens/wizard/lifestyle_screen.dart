@@ -134,7 +134,9 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
     final hasAnySelection =
         _smoking != null || _exercise != null || _pets != null;
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-lifestyle',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -267,6 +269,7 @@ class _LifestyleScreenState extends State<LifestyleScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

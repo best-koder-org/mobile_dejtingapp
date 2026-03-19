@@ -84,5 +84,17 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('has screen:onboarding-photos semantics label', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const PhotosScreen(),
+        routeName: '/onboarding/photos',
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('screen:onboarding-photos'),
+        findsOneWidget,
+      );
+    });
   });
 }

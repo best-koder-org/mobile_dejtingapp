@@ -28,7 +28,9 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-relationship-goals',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -141,6 +143,7 @@ class _RelationshipGoalsScreenState extends State<RelationshipGoalsScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

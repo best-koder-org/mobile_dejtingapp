@@ -373,7 +373,9 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
     final l10n = AppLocalizations.of(context);
     final onboarding = OnboardingProvider.maybeOf(context);
 
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-sms-code',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -609,6 +611,7 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
         ),
         ],
       ),
+    ),
     );
   }
 }

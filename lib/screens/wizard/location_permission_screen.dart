@@ -12,7 +12,9 @@ class LocationPermissionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      label: 'screen:onboarding-location',
+      child: Scaffold(
       backgroundColor: AppTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -124,6 +126,7 @@ class LocationPermissionScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
