@@ -70,5 +70,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
+
+    testWidgets('bottom buttons are protected from system navigation bar', (tester) async {
+      await tester.pumpWidget(buildSubject());
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.byWidgetPredicate((w) => w is SafeArea && !w.top && w.bottom),
+        findsOneWidget,
+      );
+    });
   });
 }

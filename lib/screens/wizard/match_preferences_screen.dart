@@ -60,8 +60,10 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                 ),
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -136,6 +138,7 @@ class _MatchPreferencesScreenState extends State<MatchPreferencesScreen> {
                   ),
                 ),
               ),
+            ),
             ],
           ),
         ],

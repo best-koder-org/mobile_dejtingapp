@@ -186,8 +186,10 @@ class _PhotosScreenState extends State<PhotosScreen> {
                 ),
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -244,6 +246,7 @@ class _PhotosScreenState extends State<PhotosScreen> {
                   ),
                 ),
               ),
+            ),
             ],
           ),
           DevModeSkipButton(

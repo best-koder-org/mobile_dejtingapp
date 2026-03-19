@@ -105,8 +105,10 @@ class _OrientationScreenState extends State<OrientationScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -250,6 +252,7 @@ class _OrientationScreenState extends State<OrientationScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );

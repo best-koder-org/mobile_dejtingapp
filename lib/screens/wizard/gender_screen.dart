@@ -103,11 +103,13 @@ class _GenderScreenState extends State<GenderScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   Text(
                     AppLocalizations.of(context).whatsYourGender,
                     style: const TextStyle(
@@ -244,6 +246,7 @@ class _GenderScreenState extends State<GenderScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );

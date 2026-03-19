@@ -98,9 +98,11 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -205,6 +207,7 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );

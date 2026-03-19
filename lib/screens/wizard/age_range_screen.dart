@@ -71,8 +71,10 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -201,6 +203,7 @@ class _AgeRangeScreenState extends State<AgeRangeScreen> {
               ),
             ),
           ),
+        ),
         ],
       ),
     );

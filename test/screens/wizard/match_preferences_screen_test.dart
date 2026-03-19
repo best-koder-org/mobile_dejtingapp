@@ -85,5 +85,17 @@ void main() {
 
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     });
+
+    testWidgets('bottom buttons are protected from system navigation bar', (tester) async {
+      await tester.pumpWidget(buildOnboardingTestHarness(
+        screen: const MatchPreferencesScreen(),
+        routeName: route,
+      ));
+      await tester.pumpAndSettle();
+      expect(
+        find.byWidgetPredicate((w) => w is SafeArea && !w.top && w.bottom),
+        findsOneWidget,
+      );
+    });
   });
 }
