@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="What are you&#10;looking for?" resource-id=""
+          class="android.view.View" content-desc="What are you&#10;looking for?"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,200][1080,310]"/>
+    <node index="1" text="Long-term partner" resource-id=""
+          class="android.view.View" content-desc="Long-term partner"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,360][520,460]"/>
+    <node index="2" text="Long-term, open to short" resource-id=""
+          class="android.view.View" content-desc="Long-term, open to short"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[540,360][1080,460]"/>
+    <node index="3" text="Short-term, open to long" resource-id=""
+          class="android.view.View" content-desc="Short-term, open to long"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,470][520,570]"/>
+    <node index="4" text="Short-term fun" resource-id=""
+          class="android.view.View" content-desc="Short-term fun"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[540,470][1080,570]"/>
+    <node index="5" text="New friends" resource-id=""
+          class="android.view.View" content-desc="New friends"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,580][520,680]"/>
+    <node index="6" text="Still figuring it out" resource-id=""
+          class="android.view.View" content-desc="Still figuring it out"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[540,580][1080,680]"/>
+    <node index="7" text="Not shown on profile unless you choose" resource-id=""
+          class="android.view.View"
+          content-desc="Not shown on profile unless you choose"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,700][1080,740]"/>
+    <node index="8" text="Skip" resource-id="" class="android.view.View"
+          content-desc="Skip" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[800,60][1056,100]"/>
+    <node index="9" text="Next" resource-id="" class="android.view.View"
+          content-desc="Next" checkable="false" checked="false"
+          clickable="true" enabled="false" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>

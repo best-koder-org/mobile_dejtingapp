@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="What's your orientation?" resource-id=""
+          class="android.view.View" content-desc="What's your orientation?"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,200][1080,300]"/>
+    <node index="1" text="Select up to 3 that apply" resource-id=""
+          class="android.view.View" content-desc="Select up to 3 that apply"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,310][1080,360]"/>
+    <node index="2" text="Straight" resource-id="" class="android.view.View"
+          content-desc="Straight" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,380][1080,440]"/>
+    <node index="3" text="Gay" resource-id="" class="android.view.View"
+          content-desc="Gay" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,450][1080,510]"/>
+    <node index="4" text="Lesbian" resource-id="" class="android.view.View"
+          content-desc="Lesbian" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,520][1080,580]"/>
+    <node index="5" text="Bisexual" resource-id="" class="android.view.View"
+          content-desc="Bisexual" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,590][1080,650]"/>
+    <node index="6" text="Asexual" resource-id="" class="android.view.View"
+          content-desc="Asexual" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,660][1080,720]"/>
+    <node index="7" text="Demisexual" resource-id="" class="android.view.View"
+          content-desc="Demisexual" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,730][1080,790]"/>
+    <node index="8" text="Pansexual" resource-id="" class="android.view.View"
+          content-desc="Pansexual" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,800][1080,860]"/>
+    <node index="9" text="Queer" resource-id="" class="android.view.View"
+          content-desc="Queer" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,870][1080,930]"/>
+    <node index="10" text="Questioning" resource-id="" class="android.view.View"
+          content-desc="Questioning" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,940][1080,1000]"/>
+    <node index="11" text="Show orientation on profile" resource-id=""
+          class="android.view.View"
+          content-desc="Show orientation on profile" checkable="true"
+          checked="false" clickable="true" enabled="true" focusable="true"
+          focused="false" scrollable="false" long-clickable="false"
+          password="false" selected="false" bounds="[0,1800][1080,1840]"/>
+    <node index="12" text="Skip" resource-id="" class="android.view.View"
+          content-desc="Skip" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[800,60][1056,100]"/>
+    <node index="13" text="Next" resource-id="" class="android.view.View"
+          content-desc="Next" checkable="false" checked="false"
+          clickable="true" enabled="false" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>

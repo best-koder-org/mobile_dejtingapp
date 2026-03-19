@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="DejTing" resource-id="" class="android.view.View"
+          content-desc="DejTing" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,0][1080,120]"/>
+    <node index="1" text="I'm ready to match" resource-id=""
+          class="android.view.View" content-desc="I'm ready to match"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[48,1900][1032,1954]"/>
+    <node index="2" text="Sign in" resource-id="" class="android.view.View"
+          content-desc="Sign in" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,1970][1032,2024]"/>
+  </node>
+</hierarchy>

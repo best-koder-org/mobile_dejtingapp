@@ -1,0 +1,16 @@
+# Captures are generated at runtime — not committed
+captures/
+
+# Screenshot baselines are large binary files.
+# Commit them explicitly with: git add baselines/*.png
+baselines/*.png
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Override the root-level *.py exclusion — Visual QA Python scripts are intentional
+!*.py
+!tests/*.py

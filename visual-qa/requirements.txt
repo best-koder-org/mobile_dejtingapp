@@ -1,0 +1,10 @@
+# Visual QA Python dependencies
+#
+# Core (required):
+#   pytest — test runner for tests/test_compare.py
+#
+# Optional:
+#   Pillow — enables screenshot comparison via --ssim flag in compare.py
+
+pytest>=7.0
+Pillow>=9.0

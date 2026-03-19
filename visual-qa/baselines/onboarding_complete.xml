@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="You're All Set!" resource-id=""
+          class="android.view.View" content-desc="You're All Set!"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,500][1080,600]"/>
+    <node index="1"
+          text="Your profile is ready. Start discovering amazing people!"
+          resource-id="" class="android.view.View"
+          content-desc="Your profile is ready. Start discovering amazing people!"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,620][1080,700]"/>
+    <node index="2" text="Start Discovering" resource-id=""
+          class="android.view.View" content-desc="Start Discovering"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="Enable location" resource-id=""
+          class="android.view.View" content-desc="Enable location"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,400][1080,480]"/>
+    <node index="1"
+          text="We use your location to show you potential matches nearby"
+          resource-id="" class="android.view.View"
+          content-desc="We use your location to show you potential matches nearby"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,500][1080,600]"/>
+    <node index="2" text="Enable Location" resource-id=""
+          class="android.view.View" content-desc="Enable Location"
+          checkable="false" checked="false" clickable="true" enabled="true"
+          focusable="true" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[48,2220][1032,2274]"/>
+    <node index="3" text="Maybe Later" resource-id="" class="android.view.View"
+          content-desc="Maybe Later" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[300,2286][780,2340]"/>
+  </node>
+</hierarchy>

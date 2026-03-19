@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="About me" resource-id="" class="android.view.View"
+          content-desc="About me" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,200][1080,280]"/>
+    <node index="1" text="Don't hold back. Authenticity attracts authenticity."
+          resource-id="" class="android.view.View"
+          content-desc="Don't hold back. Authenticity attracts authenticity."
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,290][1080,360]"/>
+    <node index="2" text="Communication style" resource-id=""
+          class="android.view.View" content-desc="Communication style"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,400][1080,440]"/>
+    <node index="3" text="Love language" resource-id=""
+          class="android.view.View" content-desc="Love language"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,700][1080,740]"/>
+    <node index="4" text="Education level" resource-id=""
+          class="android.view.View" content-desc="Education level"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,1000][1080,1040]"/>
+    <node index="5" text="Skip" resource-id="" class="android.view.View"
+          content-desc="Skip" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[800,60][1056,100]"/>
+    <node index="6" text="Next" resource-id="" class="android.view.View"
+          content-desc="Next" checkable="false" checked="false"
+          clickable="true" enabled="false" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>

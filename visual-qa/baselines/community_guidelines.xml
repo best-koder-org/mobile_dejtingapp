@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="Welcome to DejTing." resource-id=""
+          class="android.view.View" content-desc="Welcome to DejTing."
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,200][1080,280]"/>
+    <node index="1" text="Please follow these House Rules." resource-id=""
+          class="android.view.View"
+          content-desc="Please follow these House Rules."
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,300][1080,360]"/>
+    <node index="2" text="Be yourself" resource-id="" class="android.view.View"
+          content-desc="Be yourself" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[24,400][1056,450]"/>
+    <node index="3" text="Stay safe" resource-id="" class="android.view.View"
+          content-desc="Stay safe" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[24,460][1056,510]"/>
+    <node index="4" text="Play it cool" resource-id="" class="android.view.View"
+          content-desc="Play it cool" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[24,520][1056,570]"/>
+    <node index="5" text="Be proactive" resource-id="" class="android.view.View"
+          content-desc="Be proactive" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[24,580][1056,630]"/>
+    <node index="6" text="I agree" resource-id="" class="android.view.View"
+          content-desc="I agree" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>

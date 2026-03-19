@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout"
+        package="com.dejtingapp.app" content-desc="" checkable="false"
+        checked="false" clickable="false" enabled="true" focusable="false"
+        focused="false" scrollable="false" long-clickable="false"
+        password="false" selected="false" bounds="[0,0][1080,2340]">
+    <node index="0" text="Interests" resource-id="" class="android.view.View"
+          content-desc="Interests" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,200][1080,280]"/>
+    <node index="1" text="Add up to 10 interests to show on your profile."
+          resource-id="" class="android.view.View"
+          content-desc="Add up to 10 interests to show on your profile."
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,290][1080,360]"/>
+    <node index="2" text="Outdoors &amp; adventure" resource-id=""
+          class="android.view.View"
+          content-desc="Outdoors &amp; adventure" checkable="false"
+          checked="false" clickable="false" enabled="true" focusable="false"
+          focused="false" scrollable="false" long-clickable="false"
+          password="false" selected="false" bounds="[0,400][1080,440]"/>
+    <node index="3" text="TV &amp; movies" resource-id=""
+          class="android.view.View" content-desc="TV &amp; movies"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,700][1080,740]"/>
+    <node index="4" text="Music" resource-id="" class="android.view.View"
+          content-desc="Music" checkable="false" checked="false"
+          clickable="false" enabled="true" focusable="false" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[0,1000][1080,1040]"/>
+    <node index="5" text="Food &amp; drink" resource-id=""
+          class="android.view.View" content-desc="Food &amp; drink"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,1300][1080,1340]"/>
+    <node index="6" text="0 / 10 selected" resource-id=""
+          class="android.view.View" content-desc="0 / 10 selected"
+          checkable="false" checked="false" clickable="false" enabled="true"
+          focusable="false" focused="false" scrollable="false"
+          long-clickable="false" password="false" selected="false"
+          bounds="[0,100][1080,140]"/>
+    <node index="7" text="Skip" resource-id="" class="android.view.View"
+          content-desc="Skip" checkable="false" checked="false"
+          clickable="true" enabled="true" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[800,60][1056,100]"/>
+    <node index="8" text="Next" resource-id="" class="android.view.View"
+          content-desc="Next" checkable="false" checked="false"
+          clickable="true" enabled="false" focusable="true" focused="false"
+          scrollable="false" long-clickable="false" password="false"
+          selected="false" bounds="[48,2286][1032,2340]"/>
+  </node>
+</hierarchy>
