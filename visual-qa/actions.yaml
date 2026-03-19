@@ -117,3 +117,9 @@ settings:
 settings_full:
   actions:
     - {type: screenshot, name: "settings-full"}
+chat_conversation:
+  actions:
+    - {type: screenshot, name: "chat-conversation"}
+    - {type: tap, target: "Type a message..."}
+    - {type: type, value: "Hello!"}
+    - {type: screenshot, name: "chat-input-active"}

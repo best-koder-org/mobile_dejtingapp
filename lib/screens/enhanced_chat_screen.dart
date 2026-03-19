@@ -1,4 +1,5 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
@@ -12,7 +13,12 @@ import '../widgets/voice/voice_chat_recorder.dart';
 class EnhancedChatScreen extends StatefulWidget {
   final Match match;
 
-  const EnhancedChatScreen({super.key, required this.match});
+  /// Pre-seeded messages used in widget tests. When non-null, the screen
+  /// skips the network load and renders these messages directly.
+  @visibleForTesting
+  final List<Message>? initialMessages;
+
+  const EnhancedChatScreen({super.key, required this.match, this.initialMessages});
 
   @override
   State<EnhancedChatScreen> createState() => _EnhancedChatScreenState();
@@ -46,7 +52,12 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeMessaging();
-    _loadMessages();
+    if (widget.initialMessages != null) {
+      _messages = List.of(widget.initialMessages!);
+      _isLoading = false;
+    } else {
+      _loadMessages();
+    }
     _startAutoRefresh();
   }
 

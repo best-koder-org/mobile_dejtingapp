@@ -131,6 +131,12 @@ SCREEN_SIGNATURES: dict[str, dict] = {
         "required": ["Type a message..."],
         "category": "main",
     },
+    "chat_conversation": {
+        # More specific variant that matches an open conversation: both the
+        # message-input hint and the safety-notice banner must be present.
+        "required": ["Type a message...", "Your safety matters"],
+        "category": "main",
+    },
     "profile_hub": {
         "required": ["Get more", "Safety", "DejTing Plus"],
         "category": "main",

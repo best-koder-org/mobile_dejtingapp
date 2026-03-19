@@ -256,6 +256,15 @@ class TestFixtureChat(unittest.TestCase):
         self.assertAlmostEqual(result.confidence, 1.0)
 
 
+class TestFixtureChatConversation(unittest.TestCase):
+    def test_detects_chat_conversation(self):
+        result = detect_screen(_load("chat_conversation.xml"))
+        self.assertIsNotNone(result)
+        self.assertEqual(result.screen, "chat_conversation")
+        self.assertEqual(result.category, "main")
+        self.assertAlmostEqual(result.confidence, 1.0)
+
+
 class TestFixtureProfileHub(unittest.TestCase):
     def test_detects_profile_hub(self):
         result = detect_screen(_load("profile_hub.xml"))
