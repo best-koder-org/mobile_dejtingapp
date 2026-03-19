@@ -8,6 +8,9 @@ import 'package:uuid/uuid.dart';
 import 'api_service.dart';
 import '../backend_url.dart';
 
+/// Direction of a swipe action
+enum SwipeDirection { like, pass, superlike }
+
 /// Enhanced swipe service with retry logic and idempotency support
 class SwipeService {
   static const _uuid = Uuid();
@@ -15,31 +18,38 @@ class SwipeService {
   static const _baseDelayMs = 200;
 
   /// Record a swipe with automatic retry and idempotency
-  /// 
+  ///
   /// Parameters:
   /// - [targetUserId]: User being swiped on
-  /// - [isLike]: true for like, false for pass
+  /// - [direction]: Swipe direction (like, pass, or superlike)
   /// - [idempotencyKey]: Optional client-provided key; auto-generated if null
-  /// 
-  /// Returns SwipeResponse or null on failure after all retries
+  /// - [client]: Optional HTTP client; a new client is used if null
+  /// - [tokenProvider]: Optional function to retrieve an auth token; defaults
+  ///   to [AppState.getOrRefreshAuthToken]
+  ///
+  /// Returns a response map or null on failure after all retries
   static Future<Map<String, dynamic>?> swipe({
     required String targetUserId,
-    required bool isLike,
+    required SwipeDirection direction,
     String? idempotencyKey,
+    http.Client? client,
+    Future<String?> Function()? tokenProvider,
   }) async {
     // Generate idempotency key if not provided
     final key = idempotencyKey ?? _uuid.v4();
+    final getToken = tokenProvider ?? () => AppState().getOrRefreshAuthToken();
+    final httpClient = client ?? http.Client();
 
     for (int attempt = 0; attempt < _maxRetries; attempt++) {
       try {
-        final token = await AppState().getOrRefreshAuthToken();
+        final token = await getToken();
         if (token == null) {
           debugPrint('Swipe aborted: no access token');
           return null;
         }
 
         final uri = Uri.parse('${ApiUrls.gateway}/api/swipes');
-        final response = await http.post(
+        final response = await httpClient.post(
           uri,
           headers: {
             'Content-Type': 'application/json',
@@ -47,8 +57,8 @@ class SwipeService {
           },
           body: json.encode({
             'targetUserId': targetUserId,
-            'direction': isLike ? 'like' : 'pass',
-            'idempotencyKey': key, // Include idempotency key in request
+            'direction': direction.name,
+            'idempotencyKey': key,
           }),
         ).timeout(
           const Duration(seconds: 10),
@@ -103,20 +113,28 @@ class SwipeService {
   }
 
   /// Batch swipe multiple profiles with idempotency
-  /// 
+  ///
   /// Each swipe in the batch gets its own UUID for retry safety.
+  ///
+  /// - [client]: Optional HTTP client; a new client is used if null
+  /// - [tokenProvider]: Optional function to retrieve an auth token; defaults
+  ///   to [AppState.getOrRefreshAuthToken]
   static Future<Map<String, dynamic>?> batchSwipe({
     required List<Map<String, dynamic>> swipes,
+    http.Client? client,
+    Future<String?> Function()? tokenProvider,
   }) async {
     try {
-      final token = await AppState().getOrRefreshAuthToken();
+      final getToken = tokenProvider ?? () => AppState().getOrRefreshAuthToken();
+      final token = await getToken();
       if (token == null) {
         debugPrint('Batch swipe aborted: no access token');
         return null;
       }
 
+      final httpClient = client ?? http.Client();
+
       final uri = Uri.parse('${ApiUrls.gateway}/api/swipes/batch');
-      
       // Add idempotency keys to each swipe if not present
       final swipesWithKeys = swipes.map((s) {
         return {
@@ -125,7 +143,7 @@ class SwipeService {
         };
       }).toList();
 
-      final response = await http.post(
+      final response = await httpClient.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
