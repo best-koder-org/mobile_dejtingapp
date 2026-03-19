@@ -2590,6 +2590,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record a voice intro for your profile'**
   String get voicePromptSubtitle;
+
+  /// Snackbar message shown after a voice prompt is successfully saved
+  ///
+  /// In en, this message translates to:
+  /// **'Voice prompt saved!'**
+  String get voicePromptSaved;
+
+  /// Label for the Sparks balance row in the Sparks bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Your Sparks'**
+  String get yourSparks;
+
+  /// Section heading inside the Spotlight bottom sheet explaining the feature steps
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howItWorks;
+
+  /// Snackbar message shown after the user activates a Spotlight boost
+  ///
+  /// In en, this message translates to:
+  /// **'🔦 Spotlight activated! 30 min of boosted visibility.'**
+  String get spotlightActivated;
+
+  /// Snackbar error message shown when the block list cannot be fetched
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load block list: {error}'**
+  String failedToLoadBlockList(String error);
 }
 
 class _AppLocalizationsDelegate

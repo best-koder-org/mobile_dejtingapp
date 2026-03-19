@@ -1357,4 +1357,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voicePromptSubtitle => 'Record a voice intro for your profile';
+
+  @override
+  String get voicePromptSaved => 'Voice prompt saved!';
+
+  @override
+  String get yourSparks => 'Your Sparks';
+
+  @override
+  String get howItWorks => 'How it works';
+
+  @override
+  String get spotlightActivated => '🔦 Spotlight activated! 30 min of boosted visibility.';
+
+  @override
+  String failedToLoadBlockList(String error) => 'Failed to load block list: $error';
 }

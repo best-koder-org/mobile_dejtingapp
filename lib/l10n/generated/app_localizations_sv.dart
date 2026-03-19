@@ -1362,4 +1362,19 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get voicePromptSubtitle => 'Spela in en röstintro till din profil';
+
+  @override
+  String get voicePromptSaved => 'Röstprompt sparad!';
+
+  @override
+  String get yourSparks => 'Dina Gnistor';
+
+  @override
+  String get howItWorks => 'Så här fungerar det';
+
+  @override
+  String get spotlightActivated => '🔦 Spotlight aktiverat! 30 min med ökad synlighet.';
+
+  @override
+  String failedToLoadBlockList(String error) => 'Det gick inte att ladda blocklistan: $error';
 }

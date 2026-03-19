@@ -463,7 +463,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             );
             if (result != null && mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Voice prompt saved!')),
+                SnackBar(content: Text(AppLocalizations.of(context).voicePromptSaved)),
               );
             }
           },
@@ -571,7 +571,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Your Sparks', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(AppLocalizations.of(context).yourSparks, style: const TextStyle(fontWeight: FontWeight.w600)),
                   Row(
                     children: [
                       const Icon(Icons.bolt, size: 20, color: AppTheme.tealAccent),
@@ -667,7 +667,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('How it works', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(AppLocalizations.of(context).howItWorks, style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 12),
                   _spotlightStep('1', 'Activate Spotlight'),
                   const SizedBox(height: 8),
@@ -687,8 +687,8 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                         setState(() => _spotlightMinutes = 30);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('🔦 Spotlight activated! 30 min of boosted visibility.'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context).spotlightActivated),
                           ),
                         );
                       },
@@ -812,7 +812,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Coming soon', style: TextStyle(fontSize: 16)),
+                child: Text(AppLocalizations.of(context).comingSoon, style: const TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 24),
@@ -919,7 +919,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load block list: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).failedToLoadBlockList('$e'))),
         );
       }
     }
@@ -1195,7 +1195,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
 
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature — coming soon!')),
+      SnackBar(content: Text(AppLocalizations.of(context).featureComingSoon(feature))),
     );
   }
 

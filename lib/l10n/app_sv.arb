@@ -576,5 +576,20 @@
     }
   },
   "voicePromptSubtitle": "Spela in en röstintro till din profil",
-  "@voicePromptSubtitle": { "description": "Undertext för röstprompt-funktionskortet på profilhubskärmen" }
+  "@voicePromptSubtitle": { "description": "Undertext för röstprompt-funktionskortet på profilhubskärmen" },
+  "voicePromptSaved": "Röstprompt sparad!",
+  "@voicePromptSaved": { "description": "Snackbar-meddelande efter att en röstprompt har sparats" },
+  "yourSparks": "Dina Gnistor",
+  "@yourSparks": { "description": "Etikett för Gnistor-balansraden i Gnistor-bottenplattan" },
+  "howItWorks": "Så här fungerar det",
+  "@howItWorks": { "description": "Sektionsrubrik i Spotlight-bottenplattan som förklarar funktionsstegen" },
+  "spotlightActivated": "🔦 Spotlight aktiverat! 30 min med ökad synlighet.",
+  "@spotlightActivated": { "description": "Snackbar-meddelande efter att användaren aktiverar en Spotlight-boost" },
+  "failedToLoadBlockList": "Det gick inte att ladda blocklistan: {error}",
+  "@failedToLoadBlockList": {
+    "description": "Snackbar-felmeddelande när blocklistan inte kan hämtas",
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

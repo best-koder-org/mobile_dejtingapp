@@ -1689,5 +1689,20 @@
     }
   },
   "voicePromptSubtitle": "Record a voice intro for your profile",
-  "@voicePromptSubtitle": { "description": "Subtitle for the voice prompt feature card on the profile hub screen" }
+  "@voicePromptSubtitle": { "description": "Subtitle for the voice prompt feature card on the profile hub screen" },
+  "voicePromptSaved": "Voice prompt saved!",
+  "@voicePromptSaved": { "description": "Snackbar message shown after a voice prompt is successfully saved" },
+  "yourSparks": "Your Sparks",
+  "@yourSparks": { "description": "Label for the Sparks balance row in the Sparks bottom sheet" },
+  "howItWorks": "How it works",
+  "@howItWorks": { "description": "Section heading inside the Spotlight bottom sheet explaining the feature steps" },
+  "spotlightActivated": "🔦 Spotlight activated! 30 min of boosted visibility.",
+  "@spotlightActivated": { "description": "Snackbar message shown after the user activates a Spotlight boost" },
+  "failedToLoadBlockList": "Failed to load block list: {error}",
+  "@failedToLoadBlockList": {
+    "description": "Snackbar error message shown when the block list cannot be fetched",
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }
