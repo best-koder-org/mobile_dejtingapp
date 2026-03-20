@@ -10,6 +10,7 @@ import 'services/api_service.dart' hide PhotoService;
 import 'services/photo_service.dart';
 import 'services/messaging_service.dart';
 import 'services/matchmaking_realtime_service.dart';
+import 'services/location_service.dart';
 import 'models.dart' show Message;
 
 class MainApp extends StatefulWidget {
@@ -51,6 +52,8 @@ class _MainAppState extends State<MainApp> {
       await _pollUnreadCount();
       _startUnreadPolling();
       _startMatchListener();
+      // Update location in background (fire-and-forget)
+      unawaited(LocationService.instance.updateBackendLocation());
     } catch (e) {
       debugPrint('App initialization error: $e');
     }

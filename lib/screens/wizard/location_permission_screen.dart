@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/dev_mode_banner.dart';
 import '../../providers/onboarding_provider.dart';
+import '../../services/location_service.dart';
 import '../../theme/app_theme.dart';
 
 /// Location Permission Screen (T026 gap)
@@ -85,6 +86,10 @@ class LocationPermissionScreen extends StatelessWidget {
                             final status = await Permission.locationWhenInUse.request();
                             if (!context.mounted) return;
                             OnboardingProvider.of(context).data.locationGranted = status.isGranted;
+                            if (status.isGranted) {
+                              // Fire-and-forget: get GPS + send to backend
+                              LocationService.instance.updateBackendLocation();
+                            }
                             OnboardingProvider.of(context).goNext(context);
                           },
                           style: ElevatedButton.styleFrom(
