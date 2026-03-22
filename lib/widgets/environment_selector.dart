@@ -68,17 +68,26 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
                     _showSnackBar('Switched to Development Environment');
                   },
                 ),
-                if (kDebugMode) // Only show production in debug for testing
-                  _EnvironmentButton(
-                    label: 'Production',
-                    isSelected: EnvironmentConfig.isProduction,
-                    onPressed: () {
-                      setState(() {
-                        EnvSwitcher.useProduction();
-                      });
-                      _showSnackBar('Switched to Production Environment');
-                    },
-                  ),
+                _EnvironmentButton(
+                  label: 'Staging',
+                  isSelected: EnvironmentConfig.isStaging,
+                  onPressed: () {
+                    setState(() {
+                      EnvSwitcher.useStaging();
+                    });
+                    _showSnackBar('Switched to Staging Environment');
+                  },
+                ),
+                _EnvironmentButton(
+                  label: 'Production',
+                  isSelected: EnvironmentConfig.isProduction,
+                  onPressed: () {
+                    setState(() {
+                      EnvSwitcher.useProduction();
+                    });
+                    _showSnackBar('Switched to Production Environment');
+                  },
+                ),
               ],
             ),
           ],
@@ -130,12 +139,19 @@ class EnvironmentInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
 
+    final Color bgColor;
+    if (EnvironmentConfig.isDevelopment) {
+      bgColor = Colors.blue.withValues(alpha: 0.8);
+    } else if (EnvironmentConfig.isStaging) {
+      bgColor = Colors.orange.withValues(alpha: 0.8);
+    } else {
+      bgColor = Colors.red.withValues(alpha: 0.8);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: EnvironmentConfig.isDevelopment
-            ? Colors.blue.withValues(alpha: 0.8)
-            : Colors.red.withValues(alpha: 0.8),
+        color: bgColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

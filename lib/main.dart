@@ -47,7 +47,18 @@ Future<void> main() async {
     debugPrint('⚠️ Firebase skipped on \${defaultTargetPlatform.name} (not supported)');
   }
   await EnvironmentConfig.detectEmulator();
-  EnvSwitcher.useDevelopment();
+  // Read environment from --dart-define=ENVIRONMENT=staging (default: development)
+  const envName = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+  switch (envName) {
+    case 'staging':
+      EnvSwitcher.useStaging();
+      break;
+    case 'production':
+      EnvSwitcher.useProduction();
+      break;
+    default:
+      EnvSwitcher.useDevelopment();
+  }
 
   if (kDebugMode) {
     debugPrint('🚀 Starting DatingApp in ${EnvironmentConfig.settings.name} environment');

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 enum Environment {
   development,
+  staging,
   production,
 }
 
@@ -19,6 +20,7 @@ class EnvironmentConfig {
   // Easy way to check current environment
   static bool get isDevelopment =>
       _currentEnvironment == Environment.development;
+  static bool get isStaging => _currentEnvironment == Environment.staging;
   static bool get isProduction => _currentEnvironment == Environment.production;
 
   // Environment-specific configurations
@@ -26,10 +28,19 @@ class EnvironmentConfig {
     switch (_currentEnvironment) {
       case Environment.development:
         return _developmentSettings;
+      case Environment.staging:
+        return _stagingSettings;
       case Environment.production:
         return _productionSettings;
     }
   }
+
+  /// Staging Tailscale Funnel hostname.
+  /// Set via: --dart-define=STAGING_HOST=fastdev.tailnet-xxx.ts.net
+  static const String _stagingHost = String.fromEnvironment(
+    'STAGING_HOST',
+    defaultValue: 'CHANGE_ME.ts.net',
+  );
 
   // Development environment (your main workspace)
   // MUST be a getter (not static final) so _getBaseUrl runs AFTER detectEmulator()
@@ -50,6 +61,26 @@ class EnvironmentConfig {
     enableLogging: true,
     enableDebugMode: true,
     databaseName: 'dating_app_dev',
+  );
+
+  // Staging environment — Tailscale Funnel, all traffic through YARP gateway
+  static EnvironmentSettings get _stagingSettings => EnvironmentSettings(
+    name: 'Staging',
+    userServiceUrl: 'https://$_stagingHost/api/userprofiles',
+    matchmakingServiceUrl: 'https://$_stagingHost/api/matchmaking',
+    photoServiceUrl: 'https://$_stagingHost/api/photos',
+    messagingServiceUrl: 'https://$_stagingHost/api/messages',
+    swipeServiceUrl: 'https://$_stagingHost/api/swipes',
+    gatewayUrl: 'https://$_stagingHost',
+    keycloakUrl: 'https://$_stagingHost/auth',
+    keycloakRealm: 'DatingApp',
+    keycloakClientId: 'dejtingapp-flutter',
+    keycloakScopes: const ['openid', 'profile', 'email', 'offline_access'],
+    keycloakRedirectUri: 'dejtingapp://callback',
+    apiTimeout: const Duration(seconds: 15),
+    enableLogging: true,
+    enableDebugMode: true,
+    databaseName: 'dating_app_staging',
   );
 
   // Production environment (future)
@@ -175,6 +206,15 @@ class EnvSwitcher {
     EnvironmentConfig.setEnvironment(Environment.development);
     if (kDebugMode) {
       debugPrint('🔧 Switched to DEVELOPMENT environment');
+      debugPrint('Gateway: ${EnvironmentConfig.settings.gatewayUrl}');
+      debugPrint('Keycloak: ${EnvironmentConfig.settings.keycloakUrl}');
+    }
+  }
+
+  static void useStaging() {
+    EnvironmentConfig.setEnvironment(Environment.staging);
+    if (kDebugMode) {
+      debugPrint('🔶 Switched to STAGING environment');
       debugPrint('Gateway: ${EnvironmentConfig.settings.gatewayUrl}');
       debugPrint('Keycloak: ${EnvironmentConfig.settings.keycloakUrl}');
     }
