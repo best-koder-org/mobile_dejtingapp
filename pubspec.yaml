@@ -121,3 +121,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  geolocator_android: ^5.0.0
+  uuid: ^4.0.0

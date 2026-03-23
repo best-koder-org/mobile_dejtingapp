@@ -27,10 +27,10 @@ class DevAutoLogin {
 
   /// Public entry point — timeout-protected.
   static Future<void> ensureDemoSession() async {
-    if (!EnvironmentConfig.isDevelopment) return;
+    if (!EnvironmentConfig.isDevelopment && !EnvironmentConfig.isStaging) return;
 
     try {
-      await _doLogin().timeout(const Duration(seconds: 10));
+      await _doLogin().timeout(const Duration(seconds: 30));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('⚠️ Dev auto-login timed out or failed: $e');
@@ -115,7 +115,9 @@ class DevAutoLogin {
   static Future<Map<String, dynamic>?> _getTokensViaROPC() async {
     final settings = EnvironmentConfig.settings;
     final tokenUrl = settings.keycloakTokenEndpoint;
+    if (kDebugMode) debugPrint('🔗 ROPC token URL: $tokenUrl');
 
+    final sw = Stopwatch()..start();
     final tokenResp = await http.post(
       tokenUrl,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -128,6 +130,7 @@ class DevAutoLogin {
       },
     );
 
+    if (kDebugMode) debugPrint('⏱️ ROPC HTTP took ${sw.elapsedMilliseconds}ms, status=${tokenResp.statusCode}');
     if (tokenResp.statusCode == 200) {
       return json.decode(tokenResp.body) as Map<String, dynamic>;
     }
