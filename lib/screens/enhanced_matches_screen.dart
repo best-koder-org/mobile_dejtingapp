@@ -387,7 +387,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
             ),
             const SizedBox(height: 16),
             SizedBox(
-              height: 120,
+              height: 150,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: _matches.length,
@@ -433,15 +433,27 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            profile?.firstName ?? AppLocalizations.of(context).unknownUser,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          SizedBox(
+                            width: 80,
+                            child: Text(
+                              profile?.firstName ?? AppLocalizations.of(context).unknownUser,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          Text(
-                            _formatTime(match.matchedAt),
-                            style: TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontSize: 12,
+                          SizedBox(
+                            width: 80,
+                            child: Text(
+                              _formatTime(match.matchedAt),
+                              style: TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
