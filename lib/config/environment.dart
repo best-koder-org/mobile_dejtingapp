@@ -37,6 +37,13 @@ class EnvironmentConfig {
 
   /// Staging Tailscale Funnel hostname.
   /// Set via: --dart-define=STAGING_HOST=fastdev.tailnet-xxx.ts.net
+  /// URL scheme for staging (http for adb reverse, https for Funnel).
+  /// Set via: --dart-define=STAGING_SCHEME=http
+  static const String _stagingScheme = String.fromEnvironment(
+    'STAGING_SCHEME',
+    defaultValue: 'https',
+  );
+
   static const String _stagingHost = String.fromEnvironment(
     'STAGING_HOST',
     defaultValue: 'CHANGE_ME.ts.net',
@@ -66,13 +73,13 @@ class EnvironmentConfig {
   // Staging environment — Tailscale Funnel, all traffic through YARP gateway
   static EnvironmentSettings get _stagingSettings => EnvironmentSettings(
     name: 'Staging',
-    userServiceUrl: 'https://$_stagingHost/api/userprofiles',
-    matchmakingServiceUrl: 'https://$_stagingHost/api/matchmaking',
-    photoServiceUrl: 'https://$_stagingHost/api/photos',
-    messagingServiceUrl: 'https://$_stagingHost/api/messages',
-    swipeServiceUrl: 'https://$_stagingHost/api/swipes',
-    gatewayUrl: 'https://$_stagingHost',
-    keycloakUrl: 'https://$_stagingHost/auth',
+    userServiceUrl: '$_stagingScheme://$_stagingHost',
+    matchmakingServiceUrl: '$_stagingScheme://$_stagingHost',
+    photoServiceUrl: '$_stagingScheme://$_stagingHost',
+    messagingServiceUrl: '$_stagingScheme://$_stagingHost',
+    swipeServiceUrl: '$_stagingScheme://$_stagingHost',
+    gatewayUrl: '$_stagingScheme://$_stagingHost',
+    keycloakUrl: '$_stagingScheme://$_stagingHost/auth',
     keycloakRealm: 'DatingApp',
     keycloakClientId: 'dejtingapp-flutter',
     keycloakScopes: const ['openid', 'profile', 'email', 'offline_access'],
