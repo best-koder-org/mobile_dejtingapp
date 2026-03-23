@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import '../services/api_service.dart' show AppState;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -162,7 +163,11 @@ class MessagingService {
           .withUrl(
             hubUrl,
             options: HttpConnectionOptions(
-              accessTokenFactory: () async => _authToken ?? '',
+              accessTokenFactory: () async {
+                final fresh = await AppState().getOrRefreshAuthToken();
+                if (fresh != null) _authToken = fresh;
+                return _authToken ?? '';
+              },
               transport: HttpTransportType.WebSockets,
               skipNegotiation: false,
               logMessageContent: kDebugMode,
@@ -214,6 +219,12 @@ class MessagingService {
 
     // Flush any queued messages now that we're online
     _flushPendingQueue();
+  }
+
+  /// Refresh the stored auth token from AppState before making REST calls.
+  Future<void> _refreshAuthToken() async {
+    final fresh = await AppState().getOrRefreshAuthToken();
+    if (fresh != null) _authToken = fresh;
   }
 
   // =========================================================================
@@ -440,6 +451,7 @@ class MessagingService {
     }
 
     // Try REST fallback
+    await _refreshAuthToken();
     try {
       final response = await http
           .post(
@@ -495,6 +507,7 @@ class MessagingService {
     required double durationSeconds,
   }) async {
     if (_currentUserId == null || _authToken == null) return null;
+    await _refreshAuthToken();
 
     // Upload to photo-service
     final audioUrl = await uploadVoiceMessage(audioFilePath, durationSeconds: durationSeconds);
@@ -555,6 +568,7 @@ class MessagingService {
     if (_isFlushing || _pendingQueue.isEmpty) return;
     if (_currentUserId == null || _authToken == null) return;
 
+    await _refreshAuthToken();
     _isFlushing = true;
 
     final toRemove = <String>[];
@@ -700,6 +714,7 @@ class MessagingService {
   /// Get all conversation summaries.
   Future<List<ConversationSummary>> getConversations() async {
     try {
+      await _refreshAuthToken();
       final response = await http.get(
         Uri.parse('$baseUrl/api/messages/conversations'),
         headers: {
