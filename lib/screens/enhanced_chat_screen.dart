@@ -1,4 +1,5 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
+import 'package:dejtingapp/widgets/skeleton_loaders.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
@@ -365,6 +366,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         otherUserId,
         content,
         type: MessageType.text,
+        matchId: widget.match.id,
       );
 
       if (result != null) {
@@ -650,9 +652,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           // Messages
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
-                  )
+                ? const ChatScreenSkeleton()
                 : _messages.isEmpty
                     ? Center(
                         child: Column(
@@ -799,6 +799,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
       otherUserId,
       filePath,
       durationSeconds: durationSeconds,
+      matchId: widget.match.id,
     );
   }
 

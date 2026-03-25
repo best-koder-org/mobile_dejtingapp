@@ -1184,9 +1184,11 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             child: Text(AppLocalizations.of(context).cancelButton),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+              await AppState().logout();
+              if (!context.mounted) return;
+              Navigator.pushNamedAndRemoveUntil(context, '/welcome', (r) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
             child: Text(AppLocalizations.of(context).logoutButton),

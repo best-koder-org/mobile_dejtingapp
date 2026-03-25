@@ -1,5 +1,6 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
+import 'package:dejtingapp/widgets/skeleton_loaders.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
@@ -217,9 +218,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       body: SafeArea(
         top: false,
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryColor),
-              )
+            ? const SingleChildScrollView(child: MatchesScreenSkeleton())
             : TabBarView(
                 controller: _tabController,
                 children: [

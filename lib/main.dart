@@ -33,6 +33,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'providers/onboarding_provider.dart';
+import 'widgets/error_boundary.dart';
 import 'models/onboarding_data.dart';
 
 Future<void> main() async {
@@ -77,6 +78,12 @@ Future<void> main() async {
   if (kDebugMode) {
     debugPrint('👤 Session: ${appState.hasValidAuthSession() ? "VALID" : "NONE"}');
   }
+
+  // Global error handler — catches uncaught Flutter framework errors
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('\u274c Flutter error: ${details.exceptionAsString()}');
+  };
 
   runApp(const DatingApp());
 }

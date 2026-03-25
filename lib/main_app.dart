@@ -12,6 +12,7 @@ import 'services/messaging_service.dart';
 import 'services/matchmaking_realtime_service.dart';
 import 'services/location_service.dart';
 import 'models.dart' show Message;
+import 'widgets/connectivity_banner.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -273,7 +274,7 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: ConnectivityBanner(child: IndexedStack(index: _currentIndex, children: _screens)),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           border: Border(

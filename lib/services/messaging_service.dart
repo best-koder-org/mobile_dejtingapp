@@ -414,6 +414,7 @@ class MessagingService {
     String receiverId,
     String content, {
     MessageType type = MessageType.text,
+    String? matchId,
   }) async {
     if (_currentUserId == null || _authToken == null) {
       if (kDebugMode) debugPrint('❌ sendMessage: not authenticated');
@@ -442,8 +443,14 @@ class MessagingService {
     if (isConnected && _hubConnection != null) {
     await _refreshAuthToken();
       try {
-        await _hubConnection!
-            .invoke('SendMessage', args: [receiverId, content, type.index]);
+        final bodyType = type == MessageType.audio ? 'Audio' : 'Text';
+        await _hubConnection!.invoke('SendMessage', args: [
+          <String, dynamic>{
+            'matchId': matchId != null ? int.tryParse(matchId) ?? matchId : 0,
+            'body': content,
+            'bodyType': bodyType,
+          }
+        ]);
         if (kDebugMode) debugPrint('📤 Sent via SignalR: $content');
         return optimistic;
       } catch (e) {
@@ -506,6 +513,7 @@ class MessagingService {
     String receiverId,
     String audioFilePath, {
     required double durationSeconds,
+    String? matchId,
   }) async {
     if (_currentUserId == null || _authToken == null) return null;
     await _refreshAuthToken();
@@ -519,6 +527,7 @@ class MessagingService {
       receiverId,
       audioUrl,
       type: MessageType.audio,
+      matchId: matchId,
     );
   }
 

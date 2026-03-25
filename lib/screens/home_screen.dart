@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
+import 'package:dejtingapp/widgets/skeleton_loaders.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/api_services.dart';
@@ -28,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final VoicePromptService _voiceService = VoicePromptService();
   late AnimationController _fadeController;
+  // Horizontal swipe state
+  double _dragX = 0;
 
   // Discovery filter state
   double _maxDistance = 50.0;
@@ -385,16 +388,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(color: AppTheme.primaryColor),
-          const SizedBox(height: 16),
-          Text(AppLocalizations.of(context).findingPeopleNearYou),
-        ],
-      ),
-    );
+    return const DiscoverCardSkeleton();
   }
 
   Widget _buildErrorState() {
@@ -458,13 +452,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // ─── Scrollable Profile View (Hinge-style) ───────────
   Widget _buildProfileView(MatchCandidate candidate) {
-    return FadeTransition(
-      opacity: _fadeController,
-      child: Stack(
-        children: [
-          ListView(
-            controller: _scrollController,
-            padding: const EdgeInsets.only(bottom: 140),
+    return GestureDetector(
+      onHorizontalDragUpdate: (d) => setState(() => _dragX += d.delta.dx),
+      onHorizontalDragEnd: (d) {
+        if (_dragX > 100) {
+          _likeProfile();
+        } else if (_dragX < -100) {
+          _passProfile();
+        }
+        setState(() => _dragX = 0);
+      },
+      onHorizontalDragCancel: () => setState(() => _dragX = 0),
+      child: Transform.translate(
+        offset: Offset(_dragX * 0.4, 0),
+        child: Transform.rotate(
+          angle: _dragX * 0.0005,
+          child: FadeTransition(
+            opacity: _fadeController,
+            child: Stack(
+              children: [
+                // Swipe direction indicator
+                if (_dragX.abs() > 30)
+                  Positioned(
+                    top: 80, left: 0, right: 0,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _dragX > 0
+                              ? AppTheme.primaryColor.withValues(alpha: 0.9)
+                              : Colors.grey.shade800.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _dragX > 0 ? 'LIKE \u2764' : 'SKIP \u2717',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.only(bottom: 140),
             children: [
               // Hero photo (first photo)
               _buildHeroPhoto(
@@ -481,14 +515,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const SizedBox(height: 24),
             ],
           ),
-          Positioned(
-            left: 0, right: 0, bottom: 0,
-            child: SafeArea(
-              top: false,
-              child: _buildActionBar(),
+                Positioned(
+                  left: 0, right: 0, bottom: 0,
+                  child: SafeArea(
+                    top: false,
+                    child: _buildActionBar(),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
