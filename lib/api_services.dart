@@ -150,12 +150,12 @@ class MatchmakingApiService {
       final token = await session.AppState().getOrRefreshAuthToken();
       if (token != null) {
         final resp = await http.post(
-          Uri.parse('${session.UserService.baseUrl}/api/demo/search'),
+          Uri.parse('${session.UserService.baseUrl}/api/userprofiles/search'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
-          body: '{}',
+          body: '{"pageSize": 50}',
         );
         if (resp.statusCode == 200) {
           final body = json.decode(resp.body);
@@ -199,37 +199,44 @@ class MatchmakingApiService {
       debugPrint('User mapping fetch failed (non-fatal): $e');
     }
 
-    final enriched = rawList.map((m) {
+    final enriched = <MatchSummary>[];
+    for (final m in rawList) {
       final matchedId = m['matchedUserId'];
       final int? matchedIdInt = matchedId is int ? matchedId : int.tryParse(matchedId.toString());
       final found = matchedIdInt != null && profileLookup.containsKey(matchedIdInt);
-      if (found) {
-        final p = profileLookup[matchedIdInt]!;
-        m['displayName'] = p['name'] ?? p['firstName'] ?? m['displayName'];
-        m['name'] = p['name'] ?? p['firstName'] ?? m['name'];
-        m['photoUrl'] = p['primaryPhotoUrl'] ?? p['photoUrl'] ?? m['photoUrl'];
-        m['primaryPhotoUrl'] = p['primaryPhotoUrl'] ?? m['primaryPhotoUrl'];
-      } else {
-        // Fallback: use city + occupation from matchmaking data if available
-        m['displayName'] = m['displayName'] ?? 'Match #$matchedIdInt';
-        m['name'] = m['name'] ?? m['displayName'];
+      if (!found) {
+        debugPrint('Skipping unresolvable match profileId=$matchedIdInt');
+        continue;
       }
-      // Inject Keycloak UUID from mapping
+      final p = profileLookup[matchedIdInt]!;
+      final fullName = (p['name'] ?? p['firstName'] ?? m['displayName'] ?? '').toString();
+      m['displayName'] = fullName.split(' ').first;
+      m['name'] = m['displayName'];
+      // Get photo URL, treating empty strings as null
+      var rawPhotoUrl = _nonEmpty(p['primaryPhotoUrl']) ?? _nonEmpty(p['photoUrl']) ?? m['photoUrl'];
+      // If photo URL is a relative path, prepend photo-service base URL
+      if (rawPhotoUrl is String && rawPhotoUrl.startsWith('/api/photos/')) {
+        rawPhotoUrl = '${ApiUrls.photoService}$rawPhotoUrl';
+      }
+      m['photoUrl'] = rawPhotoUrl;
+      m['primaryPhotoUrl'] = rawPhotoUrl;
       if (matchedIdInt != null && keycloakIdLookup.containsKey(matchedIdInt)) {
         m['keycloakUserId'] = keycloakIdLookup[matchedIdInt];
       }
-      return MatchSummary.fromJson(m);
-    }).toList();
-    // Sort: enriched (with real names) first, then unknowns
-    enriched.sort((a, b) {
-      final aReal = !a.displayName.startsWith('Match #') && a.displayName != 'Unknown';
-      final bReal = !b.displayName.startsWith('Match #') && b.displayName != 'Unknown';
-      if (aReal && !bReal) return -1;
-      if (!aReal && bReal) return 1;
-      return b.matchedAt.compareTo(a.matchedAt); // newest first within group
-    });
+      debugPrint('ENRICH profileId=$matchedIdInt name=${m['displayName']} photoUrl=${m['photoUrl']}');
+      debugPrint('ENRICH profileId=$matchedIdInt name=${m['displayName']} photoUrl=${m['photoUrl']}');
+      enriched.add(MatchSummary.fromJson(m));
+    }
+    enriched.sort((a, b) => b.matchedAt.compareTo(a.matchedAt));
     return enriched;
   }
+  /// Returns null if value is null or empty string
+  static String? _nonEmpty(dynamic val) {
+    if (val == null) return null;
+    final s = val.toString();
+    return s.isEmpty ? null : s;
+  }
+
 }
 
 final authApi = AuthApiService();

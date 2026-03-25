@@ -1,4 +1,5 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
+import 'package:dejtingapp/widgets/authenticated_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
@@ -72,7 +73,6 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
 
       _messageSubscription = _messagingService.messageStream.listen((message) {
         _loadConversations();
-        _showMessageNotification(message);
       });
 
       _statusSubscription =
@@ -101,66 +101,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
     });
   }
 
-  void _showMessageNotification(Message message) {
-    // Find the sender's name
-    final senderMatch = _matches.firstWhere(
-      (match) => match.otherUserProfile?.userId == message.senderId,
-      orElse: () => Match(
-        id: '',
-        userId1: '',
-        userId2: '',
-        matchedAt: DateTime.now(),
-        otherUserProfile: UserProfile(
-          userId: message.senderId,
-          firstName: 'Someone',
-          lastName: '',
-          dateOfBirth: DateTime.now(),
-        ),
-      ),
-    );
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage(
-                  senderMatch.otherUserProfile?.photoUrls.isNotEmpty == true
-                      ? senderMatch.otherUserProfile!.photoUrls.first
-                      : 'https://picsum.photos/400/600?random=1',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      senderMatch.otherUserProfile?.firstName ?? 'Someone',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      message.content,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          action: SnackBarAction(
-            label: 'Reply',
-            onPressed: () => _openChat(senderMatch),
-          ),
-          duration: const Duration(seconds: 4),
-        ),
-      );
-    }
-  }
 
   Future<void> _loadData() async {
     setState(() {
@@ -193,7 +134,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                   matchedAt: s.matchedAt,
                   otherUserProfile: UserProfile(
                     userId: s.keycloakUserId ?? s.matchedUserId,
-                    firstName: s.displayName,
+                    firstName: s.displayName.split(' ').first,
                     lastName: '',
                     dateOfBirth: DateTime(2000, 1, 1),
                     photoUrls:
@@ -294,13 +235,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
   Widget _buildConnectionStatus() {
     // In dev mode, don't show noisy reconnecting status — just show a dot
     if (_connectionStatus == 'Connected') {
-      return Container(
-        width: 8, height: 8,
-        decoration: const BoxDecoration(
-          color: Colors.green,
-          shape: BoxShape.circle,
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     // Auth required or Disconnected: show tappable retry badge
@@ -401,37 +336,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                       onLongPress: () => _viewProfile(match),
                       child: Column(
                         children: [
-                          Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 40,
-                                backgroundImage: NetworkImage(
-                                  profile?.photoUrls.isNotEmpty == true
-                                      ? profile!.photoUrls.first
-                                      : 'https://picsum.photos/400/600?random=${index + 1}',
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.primaryColor,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.white, width: 2),
-                                  ),
-                                  child: const Icon(
-                                    Icons.chat,
-                                    color: Colors.white,
-                                    size: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          AuthenticatedAvatar(profile: profile, radius: 40),
                           const SizedBox(height: 8),
                           SizedBox(
                             width: 80,
@@ -443,19 +348,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SizedBox(
-                            width: 80,
-                            child: Text(
-                              _formatTime(match.matchedAt),
-                              style: TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 12,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+
                         ],
                       ),
                     ),
@@ -486,45 +379,50 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
 
   Widget _buildMatchCard(Match match) {
     final profile = match.otherUserProfile;
+    // Show last message if conversation exists, otherwise "Say hello!"
+    final conversation = _conversations.cast<ConversationSummary?>().firstWhere(
+      (c) => c!.otherUserId == match.userId2,
+      orElse: () => null,
+    );
+    final subtitle = conversation?.lastMessage.content ?? 'Say hello!';
+    final hasUnread = (conversation?.unreadCount ?? 0) > 0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(
-            profile?.photoUrls.isNotEmpty == true
-                ? profile!.photoUrls.first
-                : 'https://picsum.photos/400/600?random=1',
-          ),
-        ),
+        leading: AuthenticatedAvatar(profile: profile),
         title: Text(
           profile?.firstName ?? AppLocalizations.of(context).unknownUser,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          profile?.bio ?? 'Say hello!',
+          subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: hasUnread ? AppTheme.textPrimary : AppTheme.textSecondary,
+          ),
         ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _formatTime(match.matchedAt),
+              _formatTime(conversation?.lastMessage.timestamp ?? match.matchedAt),
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: hasUnread ? AppTheme.primaryColor : AppTheme.textSecondary,
                 fontSize: 12,
               ),
             ),
-            const SizedBox(height: 4),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppTheme.primaryColor,
-                shape: BoxShape.circle,
+            if (hasUnread)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
           ],
         ),
         onTap: () => _openChat(match),
@@ -589,13 +487,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
       child: ListTile(
         leading: Stack(
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(
-                profile?.photoUrls.isNotEmpty == true
-                    ? profile!.photoUrls.first
-                    : 'https://picsum.photos/400/600?random=1',
-              ),
-            ),
+            AuthenticatedAvatar(profile: profile),
             if (hasUnread)
               Positioned(
                 top: 0,
@@ -633,7 +525,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
-            color: hasUnread ? Colors.black87 : Colors.grey[600],
+            color: hasUnread ? AppTheme.textPrimary : AppTheme.textSecondary,
           ),
         ),
         trailing: Column(
@@ -694,12 +586,33 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else {
-      return '${difference.inDays}d';
+    if (difference.inMinutes < 1) {
+      return 'Now';
     }
+    // Today: show time of day
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day) {
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
+    // Yesterday
+    final yesterday = now.subtract(const Duration(days: 1));
+    if (dateTime.year == yesterday.year &&
+        dateTime.month == yesterday.month &&
+        dateTime.day == yesterday.day) {
+      return 'Yesterday';
+    }
+    // This week: day name
+    if (difference.inDays < 7) {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return days[dateTime.weekday - 1];
+    }
+    // Older: short date
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[dateTime.month - 1]} ${dateTime.day}';
   }
+
 }
