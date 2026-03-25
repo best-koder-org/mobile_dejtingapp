@@ -40,13 +40,15 @@ class DevAutoLogin {
 
   /// Actual login logic.
   static Future<void> _doLogin() async {
-    final env = Platform.environment;
-    if (env[_disableFlag] == '1' ||
-        env[_disableFlag]?.toLowerCase() == 'true') {
-      if (kDebugMode) {
-        debugPrint('🚫 Dev auto-login disabled via environment flag.');
+    if (!kIsWeb) {
+      final env = Platform.environment;
+      if (env[_disableFlag] == '1' ||
+          env[_disableFlag]?.toLowerCase() == 'true') {
+        if (kDebugMode) {
+          debugPrint('🚫 Dev auto-login disabled via environment flag.');
+        }
+        return;
       }
-      return;
     }
 
     final appState = AppState();

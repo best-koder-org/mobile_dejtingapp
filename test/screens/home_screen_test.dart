@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/home_screen.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import '../helpers/core_screen_test_helper.dart';
+import 'package:dejtingapp/widgets/skeleton_loaders.dart';
 
 void main() {
   group('HomeScreen', () {
@@ -22,7 +23,7 @@ void main() {
       );
       await tester.pump();
       // Should show loading state on init (API call in flight)
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(DiscoverCardSkeleton), findsOneWidget);
     });
 
     testWidgets('shows error or empty state after failed load', (tester) async {

@@ -137,6 +137,10 @@ class EnvironmentConfig {
 
   /// Call once from main() before any network requests.
   static Future<void> detectEmulator() async {
+    if (kIsWeb) {
+      _isRunningOnEmulator = false;
+      return;
+    }
     if (!Platform.isAndroid) {
       _isRunningOnEmulator = false;
       return;
