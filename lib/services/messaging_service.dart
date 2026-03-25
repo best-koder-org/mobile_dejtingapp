@@ -440,6 +440,7 @@ class MessagingService {
 
     // Try to send via SignalR
     if (isConnected && _hubConnection != null) {
+    await _refreshAuthToken();
       try {
         await _hubConnection!
             .invoke('SendMessage', args: [receiverId, content, type.index]);
@@ -529,6 +530,7 @@ class MessagingService {
   }) async {
     if (_authToken == null) return null;
 
+    await _refreshAuthToken();
     try {
       final uri = Uri.parse('\$baseUrl/api/voice-messages');
       final request = http.MultipartRequest('POST', uri)
@@ -680,6 +682,7 @@ class MessagingService {
     int page = 1,
     int pageSize = 50,
   }) async {
+    await _refreshAuthToken();
     try {
       final response = await http.get(
         Uri.parse(

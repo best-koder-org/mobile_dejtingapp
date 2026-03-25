@@ -1,6 +1,7 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/widgets/authenticated_avatar.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
 import '../models.dart';
@@ -27,13 +28,14 @@ class EnhancedChatScreen extends StatefulWidget {
 class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     with WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
+  final FocusNode _messageFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final MessagingService _messagingService = MessagingService();
 
   List<Message> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
-  String _connectionStatus = 'Connecting...';
+  String _connectionStatus = '';
   Timer? _refreshTimer;
   late StreamSubscription _messageSubscription;
   late StreamSubscription _statusSubscription;
@@ -51,6 +53,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _connectionStatus = _messagingService.isConnected ? 'Connected' : 'Connecting...';
     _initializeMessaging();
     if (widget.initialMessages != null) {
       _messages = List.of(widget.initialMessages!);
@@ -66,6 +69,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     WidgetsBinding.instance.removeObserver(this);
     _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
+    _messageFocusNode.dispose();
     _scrollController.dispose();
     _refreshTimer?.cancel();
     _typingDebounce?.cancel();
@@ -188,6 +192,13 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           _isLoading = false;
         });
         _scrollToBottom();
+
+        // Mark unread messages from the other user as read
+        for (final msg in _messages) {
+          if (msg.senderId == otherUserId && !msg.isRead) {
+            _messagingService.markAsRead(msg.id);
+          }
+        }
       }
     } catch (e) {
       setState(() {
@@ -358,6 +369,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
 
       if (result != null) {
         _messageController.clear();
+        // Keep keyboard open for rapid messaging
+        _messageFocusNode.requestFocus();
         // Stop typing indicator
         _iAmTyping = false;
         _typingDebounce?.cancel();
@@ -398,14 +411,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(
-                profile?.photoUrls.isNotEmpty == true
-                    ? profile!.photoUrls.first
-                    : 'https://picsum.photos/400/600?random=1',
-              ),
-            ),
+            AuthenticatedAvatar(profile: profile, radius: 16),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -506,6 +512,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     }
   }
 
+
+
   Widget _buildConnectionStatus() {
     Color statusColor;
     IconData statusIcon;
@@ -572,14 +580,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
           },
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage(
-                  profile?.photoUrls.isNotEmpty == true
-                      ? profile!.photoUrls.first
-                      : 'https://picsum.photos/400/600?random=1',
-                ),
-              ),
+              AuthenticatedAvatar(profile: profile, radius: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -701,14 +702,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
               padding: const EdgeInsets.only(left: 16, bottom: 4),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundImage: NetworkImage(
-                      profile?.photoUrls.isNotEmpty == true
-                          ? profile!.photoUrls.first
-                          : 'https://picsum.photos/400/600?random=1',
-                    ),
-                  ),
+                  AuthenticatedAvatar(profile: profile, radius: 12),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -747,6 +741,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      focusNode: _messageFocusNode,
                       decoration: InputDecoration(
                         hintText: AppLocalizations.of(context).typeMessage,
                         border: OutlineInputBorder(
