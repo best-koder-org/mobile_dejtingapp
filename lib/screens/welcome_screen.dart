@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/dev_mode.dart';
 import '../services/dev_auto_login.dart';
 import '../theme/app_theme.dart';
+import '../flavors/flavor_config.dart';
 
 /// Welcome Screen — Two clear paths:
 /// 1. "I'm ready to match" → registration/onboarding flow
@@ -63,6 +64,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         Text(
                           l10n.createAccount,
                           style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        const SizedBox(height: 8),
+                        // Flavor-specific tagline
+                        Text(
+                          FlavorConfig.current.copy.welcomeSubtitle,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
 

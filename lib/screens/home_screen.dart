@@ -9,6 +9,7 @@ import 'package:dejtingapp/services/swipe_service.dart';
 import 'package:dejtingapp/services/voice_prompt_service.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/screens/profile_detail_screen.dart';
+import 'package:dejtingapp/flavors/flavor_config.dart';
 
 /// Hinge-style scrollable Discover screen
 /// Shows one profile at a time as a vertically-scrollable card
@@ -31,6 +32,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   // Horizontal swipe state
   double _dragX = 0;
+
+  // Swipe limit tracking (from FlavorConfig)
+  int _swipesUsedToday = 0;
 
   // Discovery filter state
   double _maxDistance = 50.0;
@@ -96,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (candidate == null) return;
 
     _advanceToNext();
+    setState(() => _swipesUsedToday++);
 
     // Send pass to backend (fire-and-forget)
     SwipeService.swipe(
@@ -127,6 +132,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final candidate = _currentCandidate;
     if (candidate == null) return;
 
+    // Enforce client-side daily swipe limit from flavor config
+    final limit = FlavorConfig.current.featureFlags.dailySwipeLimit;
+    if (limit > 0 && _swipesUsedToday >= limit) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(FlavorConfig.current.copy.discoverEmptyTitle),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+      return;
+    }
+
     debugPrint(
       '\u2764\uFE0F Liked profile \${candidate.userId}'
       '\${likedContent != null ? " (content: \$likedContent)" : ""}',
@@ -134,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     // Fire swipe to backend (non-blocking — advance UI immediately)
     _advanceToNext();
+    setState(() => _swipesUsedToday++);
 
     final result = await SwipeService.swipe(
       targetUserId: candidate.userId,
@@ -432,10 +452,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: const Icon(Icons.explore_rounded, size: 48, color: AppTheme.primaryColor),
             ),
             const SizedBox(height: 24),
-            Text(AppLocalizations.of(context).seenEveryone,
+            Text(FlavorConfig.current.copy.discoverEmptyTitle,
               style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context).checkBackLater,
+            Text(FlavorConfig.current.copy.discoverEmptySubtitle,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center),
             const SizedBox(height: 32),
@@ -730,13 +750,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     // Interleave remaining photos and API prompts
     while (photoIdx < photos.length || promptIdx < prompts.length) {
-      // Add a prompt
-      if (promptIdx < prompts.length) {
+      // Add a prompt (only if flavor shows profile prompts)
+      if (promptIdx < prompts.length && FlavorConfig.current.featureFlags.showProfilePrompts) {
         widgets.add(_buildPromptCard(
           prompts[promptIdx].question,
           prompts[promptIdx].answer,
         ));
         promptIdx++;
+      } else if (promptIdx < prompts.length) {
+        promptIdx++; // Skip prompts but advance index
       }
 
       // Add a photo
@@ -745,15 +767,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         photoIdx++;
       }
 
-      // Insert voice prompt after the second content pair
-      if (!voiceInserted && candidate.voicePromptUrl != null && widgets.length >= 3) {
+      // Insert voice prompt after the second content pair (only if flavor has prominent voice prompts)
+      if (!voiceInserted && candidate.voicePromptUrl != null && widgets.length >= 3 && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
         widgets.add(_buildVoicePromptCard(candidate.voicePromptUrl!, candidate.displayName));
         voiceInserted = true;
       }
     }
 
-    // Voice prompt at end if not yet inserted
-    if (!voiceInserted && candidate.voicePromptUrl != null) {
+    // Voice prompt at end if not yet inserted (only if flavor shows voice prompts)
+    if (!voiceInserted && candidate.voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
       widgets.add(_buildVoicePromptCard(candidate.voicePromptUrl!, candidate.displayName));
     }
 
