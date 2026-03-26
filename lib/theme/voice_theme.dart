@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_theme.dart';
 
-/// Fleet theme — bold neon green on dark, sharper edges, energetic.
-class FleetTheme {
-  FleetTheme._();
+/// Voice theme — warm purple/indigo, intimate, voice-centric.
+class VoiceTheme {
+  VoiceTheme._();
 
   // ─── Brand Colors ─────────────────────────────────────
-  static const primaryColor = Color(0xFF00E676);       // Neon green
-  static const primaryLight = Color(0xFF69F0AE);       // Light green
-  static const primaryDark = Color(0xFF00C853);        // Deep green
-  static const primarySubtle = Color(0x1A00E676);      // 10% green
+  static const primaryColor = Color(0xFF9C27B0);       // Deep purple
+  static const primaryLight = Color(0xFFCE93D8);       // Light purple
+  static const primaryDark = Color(0xFF6A1B9A);        // Dark purple
+  static const primarySubtle = Color(0x1A9C27B0);      // 10% purple
 
-  static const secondaryColor = Color(0xFF00B0FF);     // Electric blue
-  static const tertiaryColor = Color(0xFFFF4081);      // Hot pink — super like
+  static const secondaryColor = Color(0xFF5C6BC0);     // Indigo
+  static const tertiaryColor = Color(0xFFFF4081);      // Pink — super like
 
-  // ─── Surface Colors (pure dark) ───────────────────────
-  static const scaffoldDark = Color(0xFF0A0A0A);       // Pure dark
-  static const surfaceColor = Color(0xFF141414);        // Dark cards
-  static const surfaceElevated = Color(0xFF1E1E1E);    // Elevated
-  static const dividerColor = Color(0xFF2A2A2A);       // Gray dividers
+  // ─── Surface Colors ───────────────────────────────────
+  static const scaffoldDark = Color(0xFF0D0A14);       // Deep purple-black
+  static const surfaceColor = Color(0xFF1A1428);        // Dark purple cards
+  static const surfaceElevated = Color(0xFF251E38);    // Elevated
+  static const dividerColor = Color(0xFF2E2645);       // Purple-gray dividers
 
   // ─── Text Colors ──────────────────────────────────────
   static const textPrimary = Color(0xFFFFFFFF);
@@ -38,9 +38,9 @@ class FleetTheme {
       tertiary: tertiaryColor,
       surface: surfaceColor,
       error: AppTheme.errorColor,
-      onPrimary: Colors.black,
+      onPrimary: Colors.white,
       onSurface: textPrimary,
-      onSecondary: Colors.black,
+      onSecondary: Colors.white,
       outline: dividerColor,
     ),
 
@@ -48,29 +48,24 @@ class FleetTheme {
     dividerColor: dividerColor,
 
     textTheme: TextTheme(
-      displayLarge: GoogleFonts.spaceGrotesk(
+      displayLarge: GoogleFonts.poppins(
         fontSize: 32, fontWeight: FontWeight.bold,
         color: textPrimary, letterSpacing: -0.5,
       ),
-      displayMedium: GoogleFonts.spaceGrotesk(
-        fontSize: 28, fontWeight: FontWeight.bold,
-        color: textPrimary,
+      displayMedium: GoogleFonts.poppins(
+        fontSize: 28, fontWeight: FontWeight.bold, color: textPrimary,
       ),
-      headlineLarge: GoogleFonts.spaceGrotesk(
-        fontSize: 24, fontWeight: FontWeight.w600,
-        color: textPrimary,
+      headlineLarge: GoogleFonts.poppins(
+        fontSize: 24, fontWeight: FontWeight.w600, color: textPrimary,
       ),
-      headlineMedium: GoogleFonts.spaceGrotesk(
-        fontSize: 20, fontWeight: FontWeight.w600,
-        color: textPrimary,
+      headlineMedium: GoogleFonts.poppins(
+        fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary,
       ),
-      titleLarge: GoogleFonts.spaceGrotesk(
-        fontSize: 18, fontWeight: FontWeight.w600,
-        color: textPrimary,
+      titleLarge: GoogleFonts.poppins(
+        fontSize: 18, fontWeight: FontWeight.w600, color: textPrimary,
       ),
-      titleMedium: GoogleFonts.spaceGrotesk(
-        fontSize: 16, fontWeight: FontWeight.w500,
-        color: textPrimary,
+      titleMedium: GoogleFonts.poppins(
+        fontSize: 16, fontWeight: FontWeight.w500, color: textPrimary,
       ),
       bodyLarge: GoogleFonts.inter(
         fontSize: 16, color: textPrimary, height: 1.5,
@@ -95,7 +90,7 @@ class FleetTheme {
       elevation: 0,
       scrolledUnderElevation: 0.5,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.spaceGrotesk(
+      titleTextStyle: GoogleFonts.poppins(
         fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary,
       ),
     ),
@@ -104,7 +99,7 @@ class FleetTheme {
       color: surfaceColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: dividerColor, width: 0.5),
       ),
     ),
@@ -112,16 +107,14 @@ class FleetTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.black,
+        foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(26),
         ),
-        textStyle: GoogleFonts.inter(
-          fontSize: 16, fontWeight: FontWeight.w700,
-        ),
+        textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     ),
 
@@ -132,7 +125,7 @@ class FleetTheme {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(26),
         ),
       ),
     ),
@@ -140,9 +133,7 @@ class FleetTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: primaryColor,
-        textStyle: GoogleFonts.inter(
-          fontSize: 14, fontWeight: FontWeight.w600,
-        ),
+        textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
 
@@ -150,15 +141,15 @@ class FleetTheme {
       filled: true,
       fillColor: surfaceElevated,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: dividerColor),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: dividerColor),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: primaryColor, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -170,9 +161,7 @@ class FleetTheme {
       backgroundColor: surfaceElevated,
       selectedColor: primarySubtle,
       labelStyle: GoogleFonts.inter(fontSize: 13, color: textPrimary),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       side: const BorderSide(color: dividerColor, width: 0.5),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     ),
@@ -203,22 +192,18 @@ class FleetTheme {
     ),
 
     dividerTheme: const DividerThemeData(
-      color: dividerColor,
-      thickness: 0.5,
-      space: 0,
+      color: dividerColor, thickness: 0.5, space: 0,
     ),
 
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: primaryColor,
-      foregroundColor: Colors.black,
+      foregroundColor: Colors.white,
       elevation: 2,
     ),
 
     dialogTheme: DialogThemeData(
       backgroundColor: surfaceElevated,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
 
     bottomSheetTheme: const BottomSheetThemeData(
@@ -226,36 +211,6 @@ class FleetTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-    ),
-
-    snackBarTheme: SnackBarThemeData(
-      backgroundColor: surfaceElevated,
-      contentTextStyle: GoogleFonts.inter(color: textPrimary, fontSize: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      behavior: SnackBarBehavior.floating,
-    ),
-
-    switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return primaryColor;
-        return textTertiary;
-      }),
-      trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return primarySubtle;
-        return dividerColor;
-      }),
-    ),
-
-    sliderTheme: const SliderThemeData(
-      activeTrackColor: primaryColor,
-      inactiveTrackColor: dividerColor,
-      thumbColor: primaryColor,
-      overlayColor: primarySubtle,
-    ),
-
-    listTileTheme: const ListTileThemeData(
-      iconColor: primaryColor,
-      textColor: textPrimary,
     ),
   );
 }

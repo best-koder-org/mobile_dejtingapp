@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Feature flags that differ between app flavors.
 class FlavorFeatureFlags {
+  // ─── Existing flags ───────────────────────────────────
   /// Maximum daily swipe limit (0 = unlimited).
   final int dailySwipeLimit;
 
@@ -17,12 +18,52 @@ class FlavorFeatureFlags {
   /// Whether discovery is photo-forward (larger images, less text).
   final bool photoForwardDiscovery;
 
+  // ─── Voice flags ──────────────────────────────────────
+  /// Hide photos in discovery — show silhouette instead.
+  final bool hidePhotosInDiscovery;
+
+  /// Number of voice answers required during onboarding (0 = none).
+  final int voiceAnswersRequired;
+
+  /// Messages before photo reveal button activates (0 = disabled).
+  final int photoRevealThreshold;
+
+  // ─── Darkness flags ───────────────────────────────────
+  /// Whether private photo albums (reveal-on-request) are enabled.
+  final bool privateAlbums;
+
+  /// Whether couple/group profiles are enabled.
+  final bool coupleProfiles;
+
+  /// Whether incognito browsing mode is available.
+  final bool incognitoMode;
+
+  // ─── Oldies flags ─────────────────────────────────────
+  /// Whether accessibility mode is enabled (large fonts, high contrast, big tap targets).
+  final bool accessibilityMode;
+
+  /// Whether in-app video chat is enabled.
+  final bool videoChatEnabled;
+
+  /// Whether daily curated picks mode replaces infinite swiping.
+  final bool dailyPicksMode;
+
   const FlavorFeatureFlags({
     required this.dailySwipeLimit,
     required this.showCompatibilityScores,
     required this.prominentVoicePrompts,
     required this.showProfilePrompts,
     required this.photoForwardDiscovery,
+    // New flags — all default false/0 so existing configs don't break
+    this.hidePhotosInDiscovery = false,
+    this.voiceAnswersRequired = 0,
+    this.photoRevealThreshold = 0,
+    this.privateAlbums = false,
+    this.coupleProfiles = false,
+    this.incognitoMode = false,
+    this.accessibilityMode = false,
+    this.videoChatEnabled = false,
+    this.dailyPicksMode = false,
   });
 }
 

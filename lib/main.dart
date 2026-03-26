@@ -2,7 +2,7 @@ import "package:dejtingapp/l10n/generated/app_localizations.dart";
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
-import 'package:dejtingapp/flavors/hinge_config.dart';
+import 'package:dejtingapp/flavors/dejting_config.dart';
 import 'package:flutter/foundation.dart';
 import 'main_app.dart';
 import 'screens/auth_screens.dart';
@@ -41,12 +41,12 @@ import 'models/onboarding_data.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Default to Hinge flavor if not set by a flavor-specific entry point
+  // Default to Dejting flavor if not set by a flavor-specific entry point
   try {
     // ignore: unnecessary_statements
     FlavorConfig.current;
   } catch (_) {
-    FlavorConfig.current = HingeFlavorConfig();
+    FlavorConfig.current = DejtingFlavorConfig();
   }
 
   // Firebase only works on Android/iOS — skip on desktop (dev testing)
