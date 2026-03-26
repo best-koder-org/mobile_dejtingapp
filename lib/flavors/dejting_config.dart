@@ -2,10 +2,10 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'flavor_config.dart';
 
-/// "Dejting" / Hinge flavor — serious relationships, warm coral theme, intentional pace.
-class HingeFlavorConfig extends FlavorConfig {
+/// "Dejting" flavor — serious relationships, warm coral theme, intentional pace.
+class DejtingFlavorConfig extends FlavorConfig {
   @override
-  String get flavorId => 'hinge';
+  String get flavorId => 'dejting';
 
   @override
   String get appName => 'Dejting';
