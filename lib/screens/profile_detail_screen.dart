@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/widgets/voice/voice_prompt_player.dart';
+import 'package:dejtingapp/flavors/flavor_config.dart';
 
 /// Full-profile detail screen — Hinge-style scrollable view.
 ///
@@ -358,8 +359,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Compatibility badge (if available)
-        if (_compatibility != null) _buildCompatibilityBadge(),
+        // Compatibility badge (only if flavor shows compatibility scores)
+        if (_compatibility != null && FlavorConfig.current.featureFlags.showCompatibilityScores) _buildCompatibilityBadge(),
 
         // Vitals bar
         _buildVitalsSection(),
@@ -377,15 +378,16 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
             ),
           ),
 
-        // Voice Prompt
-        if (_voicePromptUrl != null)
+        // Voice Prompt (only if flavor has prominent voice prompts)
+        if (_voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts)
           VoicePromptPlayer(
             voicePromptUrl: _voicePromptUrl!,
             displayName: _displayName,
           ),
 
-        // Prompts
-        ..._prompts.map((p) => _buildPromptCard(p.question, p.answer)),
+        // Prompts (only if flavor shows profile prompts)
+        if (FlavorConfig.current.featureFlags.showProfilePrompts)
+          ..._prompts.map((p) => _buildPromptCard(p.question, p.answer)),
 
         // Interests
         if (_interests.isNotEmpty) _buildInterestsSection(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -53,8 +54,8 @@ class ProfileCard extends StatelessWidget {
               child: _buildContent(context),
             ),
             
-            // Match Score Badge
-            if (matchScore != null) _buildMatchScoreBadge(),
+            // Match Score Badge (only if flavor shows compatibility scores)
+            if (matchScore != null && FlavorConfig.current.featureFlags.showCompatibilityScores) _buildMatchScoreBadge(),
           ],
         ),
       ),
@@ -62,8 +63,9 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _buildPhotoBackground() {
+    final isPhotoForward = FlavorConfig.current.featureFlags.photoForwardDiscovery;
     return AspectRatio(
-      aspectRatio: 0.75,
+      aspectRatio: isPhotoForward ? 0.65 : 0.75,
       child: photoUrls.isNotEmpty
           ? CachedNetworkImage(
               imageUrl: photoUrls.first,
@@ -137,8 +139,8 @@ class ProfileCard extends StatelessWidget {
           
           const SizedBox(height: 8),
           
-          // Bio
-          Text(
+          // Bio — hidden in photo-forward mode
+          if (!FlavorConfig.current.featureFlags.photoForwardDiscovery) Text(
             bio,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
