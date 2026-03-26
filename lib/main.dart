@@ -89,11 +89,8 @@ Future<void> main() async {
     debugPrint('👤 Session: ${appState.hasValidAuthSession() ? "VALID" : "NONE"}');
   }
 
-  // Global error handler — catches uncaught Flutter framework errors
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    debugPrint('\u274c Flutter error: ${details.exceptionAsString()}');
-  };
+  // Global error handling — framework errors, error widget, async errors
+  setupGlobalErrorHandling();
 
   runApp(const DatingApp());
 }

@@ -3,39 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// Catches render/build errors in child subtree and shows a friendly fallback.
-class ErrorBoundary extends StatefulWidget {
-  final Widget child;
+/// Custom error widget shown when a widget fails to build/render.
+/// Set via [ErrorWidget.builder] in [setupGlobalErrorHandling].
+class ErrorFallback extends StatelessWidget {
+  final FlutterErrorDetails? details;
 
-  const ErrorBoundary({super.key, required this.child});
-
-  @override
-  State<ErrorBoundary> createState() => _ErrorBoundaryState();
-}
-
-class _ErrorBoundaryState extends State<ErrorBoundary> {
-  FlutterErrorDetails? _error;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_error != null) {
-      return _ErrorFallback(
-        onRetry: () => setState(() => _error = null),
-      );
-    }
-    return widget.child;
-  }
-}
-
-class _ErrorFallback extends StatelessWidget {
-  final VoidCallback onRetry;
-
-  const _ErrorFallback({required this.onRetry});
+  const ErrorFallback({super.key, this.details});
 
   @override
   Widget build(BuildContext context) {
@@ -57,19 +30,9 @@ class _ErrorFallback extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ett oväntat fel inträffade. Försök igen.',
+              'Ett oväntat fel inträffade.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Försök igen'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-              ),
             ),
           ],
         ),
@@ -78,60 +41,28 @@ class _ErrorFallback extends StatelessWidget {
   }
 }
 
-/// Global error screen for unrecoverable errors — shown before MaterialApp.
-class GlobalErrorScreen extends StatelessWidget {
-  final FlutterErrorDetails details;
+/// Sets up global error handling for the app:
+/// - [FlutterError.onError] for framework errors (build, layout, painting)
+/// - [ErrorWidget.builder] for custom error display in widget trees
+/// - [PlatformDispatcher.instance.onError] for unhandled async errors
+///
+/// Call once in main() before runApp().
+void setupGlobalErrorHandling() {
+  // Framework errors — log in debug, silence the red screen in release
+  FlutterError.onError = (details) {
+    if (kDebugMode) {
+      FlutterError.presentError(details);
+    }
+    debugPrint('\u274c Flutter error: ${details.exceptionAsString()}');
+  };
 
-  const GlobalErrorScreen({super.key, required this.details});
+  // Replace the default red/yellow error widget with a user-friendly fallback
+  ErrorWidget.builder = (details) => ErrorFallback(details: details);
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.warning_amber_rounded, size: 80, color: Colors.orangeAccent),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Appen stötte på ett problem',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Starta om appen för att fortsätta.',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (kDebugMode) ...[
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        details.exceptionAsString(),
-                        style: const TextStyle(color: Colors.red, fontSize: 12, fontFamily: 'monospace'),
-                        maxLines: 5,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Catch unhandled async errors (e.g. unawaited futures, isolate errors)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('\u274c Unhandled async error: $error');
+    debugPrint(stack.toString());
+    return true; // handled — prevent crash
+  };
 }
