@@ -10,6 +10,7 @@ import 'package:dejtingapp/services/voice_prompt_service.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/screens/profile_detail_screen.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
+import 'package:dejtingapp/widgets/discovery/voice_discovery_card.dart';
 
 /// Hinge-style scrollable Discover screen
 /// Shows one profile at a time as a vertically-scrollable card
@@ -404,7 +405,72 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_hasError) return _buildErrorState();
     final candidate = _currentCandidate;
     if (candidate == null) return _buildEmptyState();
+
+    // Voice flavor: blind discovery card (no photos)
+    if (FlavorConfig.current.featureFlags.hidePhotosInDiscovery) {
+      return _buildVoiceDiscoveryView(candidate);
+    }
     return _buildProfileView(candidate);
+  }
+
+  /// Build the Voice flavor blind discovery view.
+  Widget _buildVoiceDiscoveryView(MatchCandidate candidate) {
+    return FadeTransition(
+      opacity: _fadeController,
+      child: GestureDetector(
+        onHorizontalDragUpdate: (d) => setState(() => _dragX += d.delta.dx),
+        onHorizontalDragEnd: (d) {
+          if (_dragX > 100) {
+            _likeProfile();
+          } else if (_dragX < -100) {
+            _passProfile();
+          }
+          setState(() => _dragX = 0);
+        },
+        onHorizontalDragCancel: () => setState(() => _dragX = 0),
+        child: Transform.translate(
+          offset: Offset(_dragX * 0.4, 0),
+          child: Transform.rotate(
+            angle: _dragX * 0.0005,
+            child: Stack(
+              children: [
+                VoiceDiscoveryCard(
+                  candidate: candidate,
+                  onLike: () => _likeProfile(),
+                  onPass: _passProfile,
+                  onSuperLike: () => _likeProfile(likedContent: 'superlike'),
+                ),
+                // Swipe direction indicator
+                if (_dragX.abs() > 30)
+                  Positioned(
+                    top: 80, left: 0, right: 0,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _dragX > 0
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.9)
+                              : Colors.grey.shade800.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _dragX > 0 ? 'LIKE \u2764' : 'SKIP \u2717',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildLoadingState() {
