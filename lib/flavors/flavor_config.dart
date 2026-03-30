@@ -1,3 +1,4 @@
+import 'dejting_config.dart';
 import 'package:flutter/material.dart';
 
 /// Feature flags that differ between app flavors.
@@ -73,6 +74,7 @@ class FlavorCopy {
   final String welcomeSubtitle;
   final String discoverEmptyTitle;
   final String discoverEmptySubtitle;
+  final String discoverSubtitle;
   final String onboardingGoalQuestion;
   final List<String> onboardingGoalOptions;
 
@@ -81,6 +83,7 @@ class FlavorCopy {
     required this.welcomeSubtitle,
     required this.discoverEmptyTitle,
     required this.discoverEmptySubtitle,
+    this.discoverSubtitle = '',
     required this.onboardingGoalQuestion,
     required this.onboardingGoalOptions,
   });
@@ -89,7 +92,10 @@ class FlavorCopy {
 /// Abstract flavor configuration — each flavor implements this.
 abstract class FlavorConfig {
   /// Singleton current flavor — set once at app startup.
-  static late FlavorConfig current;
+  /// Defaults to DejtingFlavorConfig if not explicitly set.
+  static FlavorConfig? _current;
+  static FlavorConfig get current => _current ?? DejtingFlavorConfig();
+  static set current(FlavorConfig config) => _current = config;
 
   /// Machine-readable flavor identifier sent to backend.
   String get flavorId;

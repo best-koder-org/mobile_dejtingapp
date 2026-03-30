@@ -25,6 +25,7 @@ import 'screens/wizard/aboutme_screen.dart';
 import 'screens/wizard/location_permission_screen.dart';
 import 'screens/wizard/notification_permission_screen.dart';
 import 'screens/wizard/onboarding_complete_screen.dart';
+import 'screens/voice_onboarding_screen.dart';
 
 import 'edit_profile_screen.dart';
 import 'services/api_service.dart';
@@ -134,6 +135,7 @@ class DatingApp extends StatelessWidget {
         '/onboarding/match-preferences': (context) => OnboardingProvider(data: _onboardingData, child: const MatchPreferencesScreen()),
         '/onboarding/age-range': (context) => OnboardingProvider(data: _onboardingData, child: const AgeRangeScreen()),
         '/onboarding/photos': (context) => OnboardingProvider(data: _onboardingData, child: const PhotosScreen()),
+        '/onboarding/voice-answers': (context) => OnboardingProvider(data: _onboardingData, child: const VoiceOnboardingScreen()),
         '/onboarding/verify-code': (context) => OnboardingProvider(data: _onboardingData, child: const SmsCodeScreen()),
         '/onboarding/lifestyle': (context) => OnboardingProvider(data: _onboardingData, child: const LifestyleScreen()),
         '/onboarding/interests': (context) => OnboardingProvider(data: _onboardingData, child: const InterestsScreen()),

@@ -30,6 +30,7 @@ class VoiceFlavorConfig extends FlavorConfig {
     welcomeTitle: 'Hear them first',
     welcomeSubtitle: 'Fall for their voice, not their face',
     discoverEmptyTitle: 'No more voices for today',
+    discoverSubtitle: 'LISTEN FIRST',
     discoverEmptySubtitle: 'Come back tomorrow for new connections',
     onboardingGoalQuestion: 'What matters most to you?',
     onboardingGoalOptions: [
