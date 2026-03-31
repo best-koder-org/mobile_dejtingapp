@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_auth/smart_auth.dart';
 import '../../config/dev_mode.dart';
+import '../../config/environment.dart';
 import '../../services/firebase_phone_auth_service.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../theme/app_theme.dart';
@@ -229,6 +230,21 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
         });
         return;
       }
+    }
+
+
+    // Emulator DevMode: skip Firebase (slow/unavailable on emulator)
+    if (DevMode.enabled && EnvironmentConfig.isEmulator) {
+      debugPrint('🔧 DevMode on emulator: skipping Firebase, navigating to verify-code');
+      Navigator.pushNamed(
+        context,
+        '$_routePrefix/verify-code',
+        arguments: {
+          'verificationId': 'dev-mode-emulator-fake-id',
+          'phoneNumber': fullPhone,
+        },
+      );
+      return;
     }
 
     setState(() {
