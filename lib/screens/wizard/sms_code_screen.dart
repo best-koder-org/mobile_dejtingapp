@@ -191,11 +191,12 @@ class _SmsCodeScreenState extends State<SmsCodeScreen> {
       _errorMessage = null;
     });
 
-    // Desktop DevMode: Firebase not available — skip verification
+    // DevMode on desktop or emulator: skip Firebase verification
     if (DevMode.enabled &&
-        defaultTargetPlatform != TargetPlatform.android &&
-        defaultTargetPlatform != TargetPlatform.iOS) {
-      debugPrint('🔧 DevMode on desktop: skipping Firebase SMS verify');
+        (EnvironmentConfig.isEmulator ||
+         (defaultTargetPlatform != TargetPlatform.android &&
+          defaultTargetPlatform != TargetPlatform.iOS))) {
+      debugPrint('🔧 DevMode: skipping Firebase SMS verify (desktop/emulator)');
       if (mounted) {
         _handlePostAuth();
       }
