@@ -1,16 +1,79 @@
 # mobile_dejtingapp
 
-A new Flutter project.
+Flutter client for the DatingApp platform (mobile + web targets).
 
-## Getting Started
+## What It Does
 
-This project is a starting point for a Flutter application.
+The app provides end-user product flows, including:
+- Auth and onboarding
+- Discovery and swipe interactions
+- Match and messaging experiences
+- Profile, settings, and verification flows
 
-A few resources to get you started if this is your first Flutter project:
+## Why It Is Interesting
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+This is the strongest frontend showcase repo in the platform:
+- Multi-screen production app architecture
+- Service-oriented client layer (`lib/services`)
+- Test coverage with widget and service tests
+- Integration with multiple backend services
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Stack
+
+- Flutter 3.32.1
+- Dart 3.5
+- Riverpod-lite patterns
+- API + real-time service integrations
+
+## Project Layout
+
+```text
+dejtingapp/
+  lib/
+    screens/      # Product UI and flows
+    services/     # API/auth/messaging/swipe/photo services
+    models/       # Data models
+    widgets/      # Reusable UI components
+    theme/        # App design system / theme
+  test/           # Widget + service tests
+  integration_test/
+```
+
+## Setup
+
+```bash
+flutter pub get
+```
+
+## Run
+
+```bash
+flutter run
+```
+
+For web target:
+
+```bash
+flutter run -d chrome
+```
+
+## Analyze and Test
+
+```bash
+flutter analyze --no-fatal-infos --no-fatal-warnings
+flutter test
+```
+
+## Backends Used
+
+This client integrates with:
+- UserService
+- MatchmakingService
+- swipe-service
+- messaging-service
+- photo-service
+- dejting-yarp gateway
+
+## Status
+
+Most recently updated, high-signal repo for portfolio/demo review.
