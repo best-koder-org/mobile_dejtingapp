@@ -1385,4 +1385,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get couldNotOpenStore =>
       'Could not open the store page. Please try again later.';
+
+  @override
+  String get compatibilityQuestionsTitle => 'Compatibility questions';
+
+  @override
+  String get compatibilityQuestionsSubtitle =>
+      'Help us find your best matches.';
+
+  @override
+  String get errorLoadQuestions => 'Could not load questions';
 }
