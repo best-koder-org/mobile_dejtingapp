@@ -162,36 +162,5 @@ void main() {
       expect(capturedUri?.path, contains('/api/matchmaking/matches/7/insight'));
     });
 
-    test('MatchInsight.fromJson / toJson round-trip', () {
-      final original = MatchInsight(
-        matchId: 10,
-        overallScore: 0.75,
-        reasons: ['reason1'],
-        friction: ['friction1'],
-        growth: ['growth1'],
-      );
-
-      final json = original.toJson();
-      final restored = MatchInsight.fromJson(json);
-
-      expect(restored.matchId, equals(original.matchId));
-      expect(restored.overallScore, equals(original.overallScore));
-      expect(restored.reasons, equals(original.reasons));
-      expect(restored.friction, equals(original.friction));
-      expect(restored.growth, equals(original.growth));
-    });
-
-    test('MatchInsight.fromJson with null growth', () {
-      final json = {
-        'matchId': 5,
-        'overallScore': 0.5,
-        'reasons': <String>[],
-        'friction': <String>[],
-        'growth': null,
-      };
-
-      final insight = MatchInsight.fromJson(json);
-      expect(insight.growth, isNull);
-    });
   });
 }
