@@ -113,7 +113,7 @@ class _CompatibilityQuestionsScreenState
               onPressed: _submitting ? null : _skip,
               child: Text(
                 l10n.skipButton,
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 15),
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 15),
               ),
             ),
             IconButton(
@@ -210,8 +210,8 @@ class _CompatibilityQuestionsScreenState
               const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
               const SizedBox(height: 16),
               Text(
-                'Could not load questions',
-                style: TextStyle(
+                l10n.errorLoadQuestions,
+                style: const TextStyle(
                     color: AppTheme.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w600),
@@ -220,7 +220,7 @@ class _CompatibilityQuestionsScreenState
               const SizedBox(height: 8),
               Text(
                 _error!,
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -254,8 +254,8 @@ class _CompatibilityQuestionsScreenState
         children: [
           const SizedBox(height: 8),
           Text(
-            'Compatibility questions',
-            style: TextStyle(
+            l10n.compatibilityQuestionsTitle,
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
@@ -263,8 +263,8 @@ class _CompatibilityQuestionsScreenState
           ),
           const SizedBox(height: 8),
           Text(
-            'Help us find your best matches.',
-            style: TextStyle(
+            l10n.compatibilityQuestionsSubtitle,
+            style: const TextStyle(
               fontSize: 15,
               color: AppTheme.textSecondary,
               height: 1.4,
