@@ -55,7 +55,7 @@ void main() {
       final semanticsWidgets =
           tester.widgetList<Semantics>(find.byType(Semantics));
       final labels = semanticsWidgets
-          .map((s) => s.label)
+          .map((s) => s.properties.label ?? "")
           .whereType<String>()
           .toList();
 
@@ -74,7 +74,7 @@ void main() {
       final semanticsWidgets =
           tester.widgetList<Semantics>(find.byType(Semantics));
       final labels = semanticsWidgets
-          .map((s) => s.label)
+          .map((s) => s.properties.label ?? "")
           .whereType<String>()
           .toList();
 
