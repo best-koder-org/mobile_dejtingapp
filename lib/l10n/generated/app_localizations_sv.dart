@@ -1389,4 +1389,14 @@ class AppLocalizationsSv extends AppLocalizations {
   @override
   String get couldNotOpenStore =>
       'Det gick inte att öppna butikssidan. Försök igen senare.';
+
+  @override
+  String get compatibilityQuestionsTitle => 'Kompatibilitetsfrågor';
+
+  @override
+  String get compatibilityQuestionsSubtitle =>
+      'Hjälp oss hitta dina bästa matchningar.';
+
+  @override
+  String get errorLoadQuestions => 'Kunde inte ladda frågorna';
 }

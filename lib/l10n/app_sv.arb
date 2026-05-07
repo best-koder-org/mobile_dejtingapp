@@ -591,5 +591,11 @@
     }
   },
   "couldNotOpenStore": "Det gick inte att öppna butikssidan. Försök igen senare.",
-  "@couldNotOpenStore": { "description": "Snackbar-meddelande som visas när appbutikssidan inte kan öppnas" }
+  "@couldNotOpenStore": { "description": "Snackbar-meddelande som visas när appbutikssidan inte kan öppnas" },
+  "compatibilityQuestionsTitle": "Kompatibilitetsfrågor",
+  "@compatibilityQuestionsTitle": { "description": "Rubrik för skärmen med kompatibilitetsfrågor" },
+  "compatibilityQuestionsSubtitle": "Hjälp oss hitta dina bästa matchningar.",
+  "@compatibilityQuestionsSubtitle": { "description": "Underrubrik för skärmen med kompatibilitetsfrågor" },
+  "errorLoadQuestions": "Kunde inte ladda frågorna",
+  "@errorLoadQuestions": { "description": "Felmeddelande när kompatibilitetsfrågor inte kan laddas" }
 }
