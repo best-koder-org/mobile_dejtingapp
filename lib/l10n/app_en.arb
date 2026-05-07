@@ -1704,5 +1704,11 @@
     }
   },
   "couldNotOpenStore": "Could not open the store page. Please try again later.",
-  "@couldNotOpenStore": { "description": "Snackbar message shown when the app store page cannot be opened" }
+  "@couldNotOpenStore": { "description": "Snackbar message shown when the app store page cannot be opened" },
+  "compatibilityQuestionsTitle": "Compatibility questions",
+  "@compatibilityQuestionsTitle": { "description": "Title for the compatibility questions onboarding screen" },
+  "compatibilityQuestionsSubtitle": "Help us find your best matches.",
+  "@compatibilityQuestionsSubtitle": { "description": "Subtitle for the compatibility questions onboarding screen" },
+  "errorLoadQuestions": "Could not load questions",
+  "@errorLoadQuestions": { "description": "Error message shown when compatibility questions cannot be loaded" }
 }
