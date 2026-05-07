@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dejtingapp/screens/wizard/compatibility_questions_screen.dart';
 import 'package:dejtingapp/services/compatibility_service.dart';
@@ -62,7 +63,7 @@ class _ErrorCompatibilityService implements CompatibilityService {
 class _LoadingCompatibilityService implements CompatibilityService {
   @override
   Future<List<CompatibilityQuestion>> fetchQuestions() async {
-    await Future<void>.delayed(const Duration(seconds: 60)); // effectively ∞
+    await Completer<void>().future; // never completes, no pending timer
     return const [];
   }
 
