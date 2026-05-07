@@ -171,6 +171,7 @@ class MessagingService {
               transport: HttpTransportType.WebSockets,
               skipNegotiation: false,
               logMessageContent: kDebugMode,
+              requestTimeout: 15000,
             ),
           )
           .build();
