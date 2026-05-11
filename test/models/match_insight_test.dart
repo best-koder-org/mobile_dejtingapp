@@ -11,7 +11,7 @@ void main() {
         matchId: 10,
         overallScore: 0.75,
         reasons: ['reason1'],
-        friction: ['friction1'],
+        frictions: ['friction1'],
         growth: ['growth1'],
       );
 
@@ -21,7 +21,7 @@ void main() {
       expect(restored.matchId, equals(original.matchId));
       expect(restored.overallScore, equals(original.overallScore));
       expect(restored.reasons, equals(original.reasons));
-      expect(restored.friction, equals(original.friction));
+      expect(restored.frictions, equals(original.frictions));
       expect(restored.growth, equals(original.growth));
     });
 
@@ -43,7 +43,7 @@ void main() {
         matchId: 1,
         overallScore: 0.5,
         reasons: [],
-        friction: [],
+        frictions: [],
       );
 
       final json = insight.toJson();
