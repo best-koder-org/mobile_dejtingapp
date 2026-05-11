@@ -43,7 +43,7 @@ void main() {
       expect(insight!.matchId, equals(42));
       expect(insight.overallScore, closeTo(0.87, 1e-9));
       expect(insight.reasons, containsAll(['shared interests', 'similar values']));
-      expect(insight.friction, contains('different schedules'));
+      expect(insight.frictions, contains('different schedules'));
       expect(insight.growth, isNotNull);
       expect(insight.growth, contains('travel together'));
     });

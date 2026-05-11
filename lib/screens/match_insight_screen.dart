@@ -99,7 +99,7 @@ class _InsightBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reasons = insight.reasons;
-    final friction = insight.friction.take(3).toList(growable: false);
+    final friction = insight.frictions.take(3).toList(growable: false);
     final growth = insight.growth ?? const <String>[];
 
     return ListView(
