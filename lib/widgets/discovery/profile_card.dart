@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
+import 'package:dejtingapp/widgets/compatibility_badge.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -236,47 +237,11 @@ class ProfileCard extends StatelessWidget {
   }
 
   Widget _buildMatchScoreBadge() {
+    final score = (matchScore ?? 0).clamp(0, 100) / 100.0;
     return Positioned(
       top: 16,
       right: 16,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color(0xFF6B46C1),
-              const Color(0xFF9333EA),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF9333EA).withValues(alpha: 0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.whatshot,
-              color: Colors.white,
-              size: 16,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '$matchScore%',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: CompatibilityBadge(score: score, size: 56),
     );
   }
 }

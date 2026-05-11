@@ -54,14 +54,16 @@ void main() {
     testWidgets('shows match score badge when provided', (tester) async {
       await tester.pumpWidget(buildCard(matchScore: 87));
       await tester.pump();
+      // New CompatibilityBadge renders "87%" inside the circular ring.
       expect(find.text('87%'), findsOneWidget);
-      expect(find.byIcon(Icons.whatshot), findsOneWidget);
     });
 
     testWidgets('does not show match score badge when not provided', (tester) async {
       await tester.pumpWidget(buildCard());
       await tester.pump();
-      expect(find.byIcon(Icons.whatshot), findsNothing);
+      // CompatibilityBadge is not rendered when matchScore is null.
+      expect(find.text('0%'), findsNothing);
+      expect(find.text('100%'), findsNothing);
     });
 
     testWidgets('shows photo placeholder when photoUrls is empty', (tester) async {
