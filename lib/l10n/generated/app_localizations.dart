@@ -63,7 +63,7 @@ import 'app_localizations_sv.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('sv')
+    Locale('sv'),
   ];
 
   /// The application title
@@ -2623,6 +2623,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open the store page. Please try again later.'**
   String get couldNotOpenStore;
+
+  /// Title for the compatibility questions onboarding screen
+  ///
+  /// In en, this message translates to:
+  /// **'Compatibility questions'**
+  String get compatibilityQuestionsTitle;
+
+  /// Subtitle for the compatibility questions onboarding screen
+  ///
+  /// In en, this message translates to:
+  /// **'Help us find your best matches.'**
+  String get compatibilityQuestionsSubtitle;
+
+  /// Error message shown when compatibility questions cannot be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load questions'**
+  String get errorLoadQuestions;
 }
 
 class _AppLocalizationsDelegate
@@ -2652,8 +2670,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
