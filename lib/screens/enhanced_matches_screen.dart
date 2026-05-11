@@ -12,6 +12,7 @@ import '../services/messaging_service.dart';
 import '../api_services.dart';
 import '../services/api_service.dart' show AppState;
 import 'enhanced_chat_screen.dart';
+import 'match_insight_screen.dart';
 import 'profile_detail_screen.dart';
 
 class EnhancedMatchesScreen extends StatefulWidget {
@@ -416,9 +417,13 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
                     if (insight == null) {
                       return const SizedBox.shrink();
                     }
-                    return CompatibilityBadge(
-                      score: insight.overallScore.clamp(0.0, 1.0),
-                      size: 24,
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _openInsight(match, insight),
+                      child: CompatibilityBadge(
+                        score: insight.overallScore.clamp(0.0, 1.0),
+                        size: 24,
+                      ),
                     );
                   },
                 ),
@@ -612,6 +617,20 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
           profile: match.otherUserProfile,
           isMatched: true,
           onMessage: () => _openChat(match),
+        ),
+      ),
+    );
+  }
+
+  void _openInsight(Match match, MatchInsight insight) {
+    final matchIdInt = int.tryParse(match.id);
+    if (matchIdInt == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MatchInsightScreen(
+          matchId: matchIdInt,
+          otherUserName: match.otherUserProfile?.firstName,
         ),
       ),
     );
