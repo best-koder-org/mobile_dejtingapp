@@ -6,7 +6,22 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+import '../services/api_service.dart' show AppState;
 import '../services/feedback_service.dart';
+
+/// Returns a human label for the current logged-in user, or null if anonymous.
+/// Reads from [AppState] singleton without touching disk. Visible in tests as
+/// null because AppState is not initialized.
+String? _currentUserLabel() {
+  final profile = AppState().userProfile;
+  if (profile == null) return null;
+  final name = (profile['displayName'] ??
+          profile['preferred_username'] ??
+          profile['email'])
+      ?.toString();
+  if (name == null || name.isEmpty) return null;
+  return name;
+}
 
 /// Compile-time visibility flag. Visible in debug builds OR when the build was
 /// compiled with `--dart-define=DEJTING_FEEDBACK_VISIBLE=true`.
@@ -219,6 +234,19 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
             'Send feedback${widget.screenLabel != null ? ' • ${widget.screenLabel}' : ''}',
             style: Theme.of(context).textTheme.titleMedium,
           ),
+          const SizedBox(height: 4),
+          Builder(builder: (_) {
+            final label = _currentUserLabel();
+            return Text(
+              label != null
+                  ? 'Submitting as $label'
+                  : 'Submitting anonymously',
+              key: const Key('feedback-identity-hint'),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.black54,
+                  ),
+            );
+          }),
           const SizedBox(height: 12),
           GestureDetector(
             key: const Key('feedback-mic-hold'),

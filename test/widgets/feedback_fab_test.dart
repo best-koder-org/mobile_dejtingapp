@@ -59,6 +59,15 @@ void main() {
     expect(find.byKey(const Key('feedback-send-button')), findsOneWidget);
   });
 
+  testWidgets('Sheet shows anonymous identity hint when not logged in',
+      (tester) async {
+    await tester.pumpWidget(_wrap(const FeedbackFab()));
+    await tester.tap(find.byKey(const Key('feedback-fab')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('feedback-identity-hint')), findsOneWidget);
+    expect(find.text('Submitting anonymously'), findsOneWidget);
+  });
+
   testWidgets('Sending text-only feedback calls service.submit and shows toast',
       (tester) async {
     final fake = _FakeFeedbackService();
