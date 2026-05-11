@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'main_app.dart';
 import 'screens/auth_screens.dart';
 import 'screens/photo_upload_screen.dart';
+import 'widgets/feedback_fab.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/wizard/phone_entry_screen.dart';
 import 'screens/wizard/community_guidelines_screen.dart';
@@ -112,6 +113,15 @@ class DatingApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: FlavorConfig.current.theme,
       initialRoute: _getInitialRoute(),
+      builder: (context, child) {
+        // Overlay the dev-only feedback FAB above every screen.
+        return Stack(
+          children: [
+            child ?? const SizedBox.shrink(),
+            if (feedbackFabEnabled) const FeedbackFab(),
+          ],
+        );
+      },
       routes: {
         // Auth routes
         '/login': (context) => const LoginScreen(),
