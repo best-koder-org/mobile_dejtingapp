@@ -1,10 +1,13 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
+import 'package:dejtingapp/widgets/compatibility_badge.dart';
 import 'package:dejtingapp/widgets/skeleton_loaders.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'dart:async';
 import '../models.dart';
+import '../models/match_insight.dart';
+import '../services/match_insight_service.dart';
 import '../services/messaging_service.dart';
 import '../api_services.dart';
 import '../services/api_service.dart' show AppState;
@@ -22,6 +25,7 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   final MessagingService _messagingService = MessagingService();
+  final MatchInsightService _insightService = MatchInsightService();
 
   List<Match> _matches = [];
   List<ConversationSummary> _conversations = [];
@@ -389,7 +393,39 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: AuthenticatedAvatar(profile: profile),
+        leading: SizedBox(
+          width: 48,
+          height: 48,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AuthenticatedAvatar(profile: profile),
+              Positioned(
+                right: -6,
+                bottom: -6,
+                child: FutureBuilder<MatchInsight?>(
+                  future: () {
+                    final matchIdInt = int.tryParse(match.id);
+                    if (matchIdInt == null) return Future.value(null);
+                    return _insightService
+                        .fetchInsight(matchIdInt)
+                        .catchError((_) => null);
+                  }(),
+                  builder: (context, snapshot) {
+                    final insight = snapshot.data;
+                    if (insight == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return CompatibilityBadge(
+                      score: insight.overallScore.clamp(0.0, 1.0),
+                      size: 24,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
         title: Text(
           profile?.firstName ?? AppLocalizations.of(context).unknownUser,
           style: const TextStyle(fontWeight: FontWeight.bold),
