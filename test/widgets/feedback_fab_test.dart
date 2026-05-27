@@ -54,7 +54,7 @@ void main() {
     await tester.pumpWidget(_wrap(const FeedbackFab()));
     await tester.tap(find.byKey(const Key('feedback-fab')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('feedback-mic-hold')), findsOneWidget);
+    expect(find.byKey(const Key('feedback-mic-toggle')), findsOneWidget);
     expect(find.byKey(const Key('feedback-note-input')), findsOneWidget);
     expect(find.byKey(const Key('feedback-send-button')), findsOneWidget);
   });

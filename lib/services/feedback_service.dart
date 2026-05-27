@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 
 import '../backend_url.dart';
 import 'api_service.dart';
+import 'http_client_factory.dart';
 
 /// Uploads dev-only user feedback (voice memos + metadata) to bot-service.
 ///
@@ -20,7 +21,7 @@ class FeedbackService {
   FeedbackService({
     http.Client? httpClient,
     Future<String?> Function()? tokenProvider,
-  })  : _httpClient = httpClient ?? http.Client(),
+  })  : _httpClient = httpClient ?? createPlatformHttpClient(),
         _tokenProvider =
             tokenProvider ?? (() => AppState().getOrRefreshAuthToken());
 
@@ -71,8 +72,16 @@ class FeedbackService {
 
     debugPrint('FeedbackService: POST $uri (audio=${audioFile != null}, '
         'note=${noteText?.length ?? 0} chars, screen=$screen)');
+    debugPrint('FeedbackService: _httpClient is ${_httpClient.runtimeType}');
 
-    final streamed = await _httpClient.send(request);
+    final http.StreamedResponse streamed;
+    try {
+      streamed = await _httpClient.send(request);
+    } catch (e, stack) {
+      debugPrint('FeedbackService: send threw ${e.runtimeType}: $e');
+      debugPrint('$stack');
+      rethrow;
+    }
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return <String, dynamic>{};
@@ -83,5 +92,19 @@ class FeedbackService {
     }
     debugPrint('FeedbackService: failed ${response.statusCode} ${response.body}');
     throw Exception('Feedback upload failed: ${response.statusCode}');
+  }
+
+  /// Fetches a single feedback row by id. Returns null on 404.
+  /// Used to poll for the server-side transcript after submission.
+  Future<Map<String, dynamic>?> fetchById(int id) async {
+    final uri = Uri.parse('${ApiUrls.gateway}/api/userfeedback/$id');
+    final resp = await _httpClient.get(uri);
+    if (resp.statusCode == 404) return null;
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      throw Exception('fetchById failed: ${resp.statusCode}');
+    }
+    if (resp.body.isEmpty) return null;
+    final decoded = json.decode(resp.body);
+    return decoded is Map<String, dynamic> ? decoded : null;
   }
 }
