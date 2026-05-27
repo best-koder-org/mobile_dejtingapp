@@ -114,7 +114,7 @@ class EnvironmentConfig {
   /// LAN IP of the dev machine — used when running on a real Android device.
   /// The emulator uses 10.0.2.2 (virtual router), but a physical phone needs
   /// the machine's actual network address. Update this when your IP changes.
-  static const String _devMachineLanIp = '127.0.0.1';  // adb reverse tunnels all ports over USB
+  static const String _devMachineLanIp = '10.224.48.196';  // adb reverse tunnels all ports over USB
 
   /// Whether the app is running on an Android emulator vs a real device.
   /// Set once at startup by [detectEmulator].

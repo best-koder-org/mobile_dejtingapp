@@ -1,9 +1,11 @@
 import "package:dejtingapp/l10n/generated/app_localizations.dart";
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:dejtingapp/flavors/dejting_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'main_app.dart';
 import 'screens/auth_screens.dart';
 import 'screens/photo_upload_screen.dart';
@@ -33,6 +35,7 @@ import 'services/api_service.dart';
 import 'config/environment.dart';
 import 'config/dev_mode.dart';
 import 'services/dev_auto_login.dart';
+import 'services/http_client_factory.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -43,6 +46,13 @@ import 'models/onboarding_data.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Route every http.Client() construction (including all top-level
+  // http.get/post calls) through our Cronet-on-Android factory so TLS uses
+  // the Android system trust store. See [createPlatformHttpClient].
+  await http.runWithClient(_runApp, createPlatformHttpClient);
+}
+
+Future<void> _runApp() async {
   // Default to Dejting flavor if not set by a flavor-specific entry point
   try {
     // ignore: unnecessary_statements
@@ -94,6 +104,13 @@ Future<void> main() async {
   // Global error handling — framework errors, error widget, async errors
   setupGlobalErrorHandling();
 
+  // Enable immersive fullscreen on Android so native nav bars don't cover
+  // important UI (e.g. the send button). This uses the sticky immersive
+  // mode which keeps system UI hidden while the user interacts with the app.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
   runApp(const DatingApp());
 }
 
@@ -107,6 +124,7 @@ class DatingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       title: FlavorConfig.current.appName,
