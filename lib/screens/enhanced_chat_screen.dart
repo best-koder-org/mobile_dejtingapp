@@ -11,6 +11,10 @@ import '../utils/profanity_filter.dart';
 import 'profile_detail_screen.dart';
 import '../widgets/voice/voice_message_bubble.dart';
 import '../widgets/voice/voice_chat_recorder.dart';
+import '../models/match_insight.dart';
+import '../widgets/connection_insight_card.dart';
+import '../services/api_service.dart';
+import '../services/match_insight_service.dart';
 
 class EnhancedChatScreen extends StatefulWidget {
   final Match match;
@@ -49,6 +53,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   Timer? _typingTimeout;
   bool _iAmTyping = false;
   bool _hasText = false;
+  MatchInsight? _matchInsight;
+  UserProfile? _currentUserProfile;
 
   @override
   void initState() {
@@ -62,6 +68,8 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     } else {
       _loadMessages();
     }
+    _loadMatchInsight();
+    _loadCurrentUserProfile();
     _startAutoRefresh();
   }
 
@@ -170,6 +178,30 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     final matchId = widget.match.id;
     if (matchId.isNotEmpty) {
       _messagingService.sendTyping(matchId, isTyping);
+    }
+  }
+
+  void _loadMatchInsight() async {
+    try {
+      final service = MatchInsightService();
+      final matchId = int.tryParse(widget.match.id);
+      if (matchId == null) return;
+      final insight = await service.fetchInsight(matchId);
+      if (insight != null && mounted) {
+        setState(() => _matchInsight = insight);
+      }
+    } catch (e) {
+      // Non-fatal — card just won't show
+      debugPrint('Failed to load MatchInsight: $e');
+    }
+  }
+
+  void _loadCurrentUserProfile() {
+    final stored = AppState().userProfile;
+    if (stored != null) {
+      setState(() {
+        _currentUserProfile = UserProfile.fromJson(stored);
+      });
     }
   }
 
@@ -648,6 +680,17 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
               ],
             ),
           ),
+
+          // Connection Insight Card (T540+)
+          if (_matchInsight?.connectionHook != null &&
+              _matchInsight!.connectionHook!.headline.isNotEmpty)
+            ConnectionInsightCard(
+              hook: _matchInsight!.connectionHook!,
+              matchProfile: widget.match.otherUserProfile!,
+              currentUserProfile: _currentUserProfile,
+              messageController: _messageController,
+              messageFocusNode: _messageFocusNode,
+            ),
 
           // Messages
           Expanded(

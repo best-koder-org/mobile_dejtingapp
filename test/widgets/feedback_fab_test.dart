@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:dejtingapp/services/feedback_service.dart';
 import 'package:dejtingapp/widgets/feedback_fab.dart';
 
@@ -9,6 +10,8 @@ class _FakeFeedbackService implements FeedbackService {
   int callCount = 0;
   Map<String, dynamic>? lastArgs;
   bool throwOnSubmit = false;
+  /// If set, returned by [fetchById]; simulates watcher already transcribed.
+  Map<String, dynamic>? fetchByIdResult;
 
   @override
   Future<Map<String, dynamic>> submit({
@@ -31,7 +34,9 @@ class _FakeFeedbackService implements FeedbackService {
   }
 
   @override
-  // ignore: unused_element
+  Future<Map<String, dynamic>?> fetchById(int id) async => fetchByIdResult;
+
+  @override
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -114,5 +119,43 @@ void main() {
 
     expect(fake.callCount, 1);
     expect(find.textContaining('Feedback failed'), findsOneWidget);
+  });
+
+  testWidgets('Submit with note calls _FakeFeedbackService correctly', (tester) async {
+    final fake = _FakeFeedbackService();
+    await tester.pumpWidget(_wrap(FeedbackFab(service: fake)));
+
+    // Open sheet
+    await tester.tap(find.byKey(const Key('feedback-fab')));
+    await tester.pumpAndSettle();
+
+    // Add a note and send
+    await tester.enterText(
+        find.byKey(const Key('feedback-note-input')), 'just a note');
+    await tester.tap(find.byKey(const Key('feedback-send-button')));
+    await tester.pumpAndSettle();
+
+    // Verify submit was called with correct args
+    expect(fake.callCount, 1);
+    expect(fake.lastArgs?['noteText'], 'just a note');
+    expect(fake.lastArgs?['audioFile'], isNull,
+        reason: 'text-only submit should have null audioFile');
+  });
+
+  testWidgets('_FakeFeedbackService fetchById returns configured result',
+      (tester) async {
+    final fake = _FakeFeedbackService()
+      ..fetchByIdResult = {'id': 42, 'transcript': 'Hello from test'};
+
+    // fetchById returns the configured result
+    final result = await fake.fetchById(42);
+    expect(result, isNotNull);
+    expect(result!['id'], 42);
+    expect(result['transcript'], 'Hello from test');
+
+    // After clearing, fetchById returns null (simulating 404 / not yet processed)
+    fake.fetchByIdResult = null;
+    final empty = await fake.fetchById(42);
+    expect(empty, isNull);
   });
 }

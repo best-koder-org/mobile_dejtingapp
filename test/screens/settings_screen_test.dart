@@ -78,12 +78,23 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('shows language option', (tester) async {
+    testWidgets('shows help and support option', (tester) async {
       await tester.pumpWidget(
         buildCoreScreenTestApp(home: const SettingsScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('LANGUAGES'), findsOneWidget);
+      // Scroll down to find Help & Support
+      final scrollable = find.byType(Scrollable).first;
+      bool found = false;
+      for (int i = 0; i < 10; i++) {
+        if (tester.any(find.text('Help & Support'))) {
+          found = true;
+          break;
+        }
+        await tester.drag(scrollable, const Offset(0, -200));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(found, isTrue);
     });
 
     testWidgets('shows logout button', (tester) async {

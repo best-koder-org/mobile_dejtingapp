@@ -144,28 +144,38 @@ class MatchmakingApiService {
     if (profileId == null) return [];
     final rawList = await session.MatchmakingService.getMatches(profileId.toString());
 
-    // Enrich match data with names/photos from UserService demo profiles
+    // Collect the matched profile IDs we need to enrich.
+    final matchedIds = <int>{};
+    for (final m in rawList) {
+      final matchedId = m['matchedUserId'];
+      final id = matchedId is int ? matchedId : int.tryParse(matchedId.toString());
+      if (id != null) matchedIds.add(id);
+    }
+
+    // Enrich match data with names/photos from UserService demo profiles.
+    // Fetch each profile by ID (GET /api/userprofiles/{id}) — this is reliable,
+    // unlike the bulk POST /search endpoint.
     Map<int, Map<String, dynamic>> profileLookup = {};
     try {
       final token = await session.AppState().getOrRefreshAuthToken();
       if (token != null) {
-        final resp = await http.post(
-          Uri.parse('${session.UserService.baseUrl}/api/userprofiles/search'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: '{"pageSize": 50}',
-        );
-        if (resp.statusCode == 200) {
-          final body = json.decode(resp.body);
-          final List<dynamic> profiles = body['results'] ?? body['data']?['results'] ?? [];
-          for (final p in profiles) {
-            if (p is Map<String, dynamic> && p['id'] != null) {
-              profileLookup[p['id'] as int] = p;
+        await Future.wait(matchedIds.map((id) async {
+          try {
+            final resp = await http.get(
+              Uri.parse('${session.UserService.baseUrl}/api/userprofiles/$id'),
+              headers: {'Authorization': 'Bearer $token'},
+            );
+            if (resp.statusCode == 200) {
+              final body = json.decode(resp.body);
+              final p = body['data'] ?? body;
+              if (p is Map<String, dynamic> && p['id'] != null) {
+                profileLookup[p['id'] as int] = p;
+              }
             }
+          } catch (e) {
+            debugPrint('Profile $id enrichment failed (non-fatal): $e');
           }
-        }
+        }));
       }
     } catch (e) {
       debugPrint('Match enrichment failed (non-fatal): $e');
@@ -203,27 +213,29 @@ class MatchmakingApiService {
     for (final m in rawList) {
       final matchedId = m['matchedUserId'];
       final int? matchedIdInt = matchedId is int ? matchedId : int.tryParse(matchedId.toString());
-      final found = matchedIdInt != null && profileLookup.containsKey(matchedIdInt);
-      if (!found) {
-        debugPrint('Skipping unresolvable match profileId=$matchedIdInt');
-        continue;
+      // Enrich when we have a profile; otherwise fall back to the raw match data
+      // so the match still shows up in the UI (never silently drop matches).
+      final p = matchedIdInt != null ? profileLookup[matchedIdInt] : null;
+      if (p != null) {
+        final fullName = (p['name'] ?? p['firstName'] ?? m['displayName'] ?? '').toString();
+        if (fullName.isNotEmpty) {
+          m['displayName'] = fullName.split(' ').first;
+          m['name'] = m['displayName'];
+        }
+        // Get photo URL, treating empty strings as null
+        var rawPhotoUrl = _nonEmpty(p['primaryPhotoUrl']) ?? _nonEmpty(p['photoUrl']) ?? m['photoUrl'];
+        // If photo URL is a relative path, prepend photo-service base URL
+        if (rawPhotoUrl is String && rawPhotoUrl.startsWith('/api/photos/')) {
+          rawPhotoUrl = '${ApiUrls.photoService}$rawPhotoUrl';
+        }
+        m['photoUrl'] = rawPhotoUrl;
+        m['primaryPhotoUrl'] = rawPhotoUrl;
+      } else {
+        debugPrint('Match profileId=$matchedIdInt has no UserService profile — showing with fallback data');
       }
-      final p = profileLookup[matchedIdInt]!;
-      final fullName = (p['name'] ?? p['firstName'] ?? m['displayName'] ?? '').toString();
-      m['displayName'] = fullName.split(' ').first;
-      m['name'] = m['displayName'];
-      // Get photo URL, treating empty strings as null
-      var rawPhotoUrl = _nonEmpty(p['primaryPhotoUrl']) ?? _nonEmpty(p['photoUrl']) ?? m['photoUrl'];
-      // If photo URL is a relative path, prepend photo-service base URL
-      if (rawPhotoUrl is String && rawPhotoUrl.startsWith('/api/photos/')) {
-        rawPhotoUrl = '${ApiUrls.photoService}$rawPhotoUrl';
-      }
-      m['photoUrl'] = rawPhotoUrl;
-      m['primaryPhotoUrl'] = rawPhotoUrl;
       if (matchedIdInt != null && keycloakIdLookup.containsKey(matchedIdInt)) {
         m['keycloakUserId'] = keycloakIdLookup[matchedIdInt];
       }
-      debugPrint('ENRICH profileId=$matchedIdInt name=${m['displayName']} photoUrl=${m['photoUrl']}');
       debugPrint('ENRICH profileId=$matchedIdInt name=${m['displayName']} photoUrl=${m['photoUrl']}');
       enriched.add(MatchSummary.fromJson(m));
     }

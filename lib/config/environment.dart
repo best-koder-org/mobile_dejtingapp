@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum Environment {
   development,
@@ -7,23 +8,96 @@ enum Environment {
   production,
 }
 
+/// Which dev server backend to connect to.
+///
+/// - [server]: LAN IP of the dev machine running Docker (192.168.1.103).
+/// - [funnel]: Tailscale Funnel URL (public internet, works on emulator).
+/// - [custom]: User-entered IP/hostname.
+enum DevServer { server, funnel, custom, local }
+
 class EnvironmentConfig {
-  static Environment _currentEnvironment =
-      Environment.development; // Default to dev
+  static Environment _currentEnvironment = Environment.development;
+  static DevServer _devServer = DevServer.local;
+
+  /// Custom host override for [DevServer.custom].
+  static String _customHost = '';
 
   static Environment get current => _currentEnvironment;
+  static DevServer get devServer => _devServer;
+  static String get customHost => _customHost;
+  static const String _prefsKey = 'dev_server_choice';
+  static const String _prefsCustomHostKey = 'dev_custom_host';
 
   static void setEnvironment(Environment env) {
     _currentEnvironment = env;
   }
 
-  // Easy way to check current environment
-  static bool get isDevelopment =>
-      _currentEnvironment == Environment.development;
+  /// Switch dev server and persist choice.
+  static Future<void> setDevServer(DevServer server, {String? customHost}) async {
+    _devServer = server;
+    if (customHost != null) _customHost = customHost;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_prefsKey, server.index);
+    if (customHost != null) {
+      await prefs.setString(_prefsCustomHostKey, customHost);
+    }
+  }
+
+  /// Load persisted dev server choice. Call once at startup.
+  static Future<void> loadDevServerChoice() async {
+    final prefs = await SharedPreferences.getInstance();
+    final idx = prefs.getInt(_prefsKey) ?? DevServer.local.index;
+    _devServer = DevServer.values[idx];
+    _customHost = prefs.getString(_prefsCustomHostKey) ?? '';
+  }
+
+  // Convenience checks
+  static bool get isDevelopment => _currentEnvironment == Environment.development;
   static bool get isStaging => _currentEnvironment == Environment.staging;
   static bool get isProduction => _currentEnvironment == Environment.production;
 
-  // Environment-specific configurations
+  // ── Dev server hosts ──────────────────────────────────────────────────────
+  static const String _devMachineLanIp = '192.168.1.103';
+  static const String _funnelHost = 'a.tail45c6a7.ts.net';
+
+  /// The active hostname/IP for the current dev server choice.
+  static String get _activeDevHost {
+    switch (_devServer) {
+      case DevServer.server:
+        return _devMachineLanIp;
+      case DevServer.funnel:
+        return _funnelHost;
+      case DevServer.custom:
+        return _customHost.isNotEmpty ? _customHost : _devMachineLanIp;
+      case DevServer.local:
+        if (_isRunningOnEmulator) return '10.0.2.2';
+        // Physical Android device → use dev machine LAN IP
+        if (Platform.isAndroid) return _devMachineLanIp;
+        return 'localhost';
+    }
+  }
+
+  /// The URL scheme for the current dev server.
+  static String get _activeDevScheme {
+    // Funnel always uses https; LAN and custom default to http
+    return _devServer == DevServer.funnel ? 'https' : 'http'; // local and server also use http
+  }
+
+  /// Human-readable label for the current dev server choice.
+  static String get devServerLabel {
+    switch (_devServer) {
+      case DevServer.server:
+        return 'Server ($_devMachineLanIp)';
+      case DevServer.funnel:
+        return 'Funnel ($_funnelHost)';
+      case DevServer.custom:
+        return 'Custom (${_customHost.isNotEmpty ? _customHost : "not set"})';
+      case DevServer.local:
+        return 'Local (${_isRunningOnEmulator ? "10.0.2.2" : "localhost"})';
+    }
+  }
+
+  // ── Environment settings ──────────────────────────────────────────────────
   static EnvironmentSettings get settings {
     switch (_currentEnvironment) {
       case Environment.development:
@@ -35,31 +109,26 @@ class EnvironmentConfig {
     }
   }
 
-  /// Staging Tailscale Funnel hostname.
-  /// Set via: --dart-define=STAGING_HOST=fastdev.tailnet-xxx.ts.net
-  /// URL scheme for staging (http for adb reverse, https for Funnel).
-  /// Set via: --dart-define=STAGING_SCHEME=http
+  // ── Staging constants (dart-define) ───────────────────────────────────────
   static const String _stagingScheme = String.fromEnvironment(
     'STAGING_SCHEME',
     defaultValue: 'https',
   );
-
   static const String _stagingHost = String.fromEnvironment(
     'STAGING_HOST',
     defaultValue: 'CHANGE_ME.ts.net',
   );
 
-  // Development environment (your main workspace)
-  // MUST be a getter (not static final) so _getBaseUrl runs AFTER detectEmulator()
+  // ── Development settings ──────────────────────────────────────────────────
   static EnvironmentSettings get _developmentSettings => EnvironmentSettings(
-    name: 'Development',
-    userServiceUrl: _getBaseUrl(8082),
-    matchmakingServiceUrl: _getBaseUrl(8083),
-    photoServiceUrl: _getBaseUrl(8085), // FIXED: Match dev-start port 8085
-    messagingServiceUrl: _getBaseUrl(8086), // ADDED: Messaging service
-    swipeServiceUrl: _getBaseUrl(8087), // Updated to port 8087
-    gatewayUrl: _getBaseUrl(8080),
-    keycloakUrl: _getBaseUrl(8090),
+    name: _devServer == DevServer.funnel ? 'Dev (Funnel)' : 'Development',
+    userServiceUrl: _devUrl(8082),
+    matchmakingServiceUrl: _devUrl(8083),
+    photoServiceUrl: _devUrl(8085),
+    messagingServiceUrl: _devUrl(8086),
+    swipeServiceUrl: _devUrl(8087),
+    gatewayUrl: _devUrl(8080),
+    keycloakUrl: _devServer == DevServer.funnel ? 'https://$_funnelHost/auth' : _devUrl(8090), // local/server/custom all use direct Keycloak port
     keycloakRealm: 'DatingApp',
     keycloakClientId: 'dejtingapp-flutter',
     keycloakScopes: const ['openid', 'profile', 'email', 'offline_access'],
@@ -70,7 +139,7 @@ class EnvironmentConfig {
     databaseName: 'dating_app_dev',
   );
 
-  // Staging environment — Tailscale Funnel, all traffic through YARP gateway
+  // ── Staging settings (Tailscale Funnel) ───────────────────────────────────
   static EnvironmentSettings get _stagingSettings => EnvironmentSettings(
     name: 'Staging',
     userServiceUrl: '$_stagingScheme://$_stagingHost',
@@ -90,14 +159,13 @@ class EnvironmentConfig {
     databaseName: 'dating_app_staging',
   );
 
-  // Production environment (future)
+  // ── Production settings (future) ──────────────────────────────────────────
   static EnvironmentSettings get _productionSettings => EnvironmentSettings(
     name: 'Production',
     userServiceUrl: 'https://api.yourdatingapp.com/users',
     matchmakingServiceUrl: 'https://api.yourdatingapp.com/matchmaking',
     photoServiceUrl: 'https://api.yourdatingapp.com/photos',
-    messagingServiceUrl:
-        'https://api.yourdatingapp.com/messaging', // ADDED: Messaging service
+    messagingServiceUrl: 'https://api.yourdatingapp.com/messaging',
     swipeServiceUrl: 'https://api.yourdatingapp.com/swipes',
     gatewayUrl: 'https://api.yourdatingapp.com',
     keycloakUrl: 'https://auth.yourdatingapp.com',
@@ -111,29 +179,12 @@ class EnvironmentConfig {
     databaseName: 'dating_app_prod',
   );
 
-  /// LAN IP of the dev machine — used when running on a real Android device.
-  /// The emulator uses 10.0.2.2 (virtual router), but a physical phone needs
-  /// the machine's actual network address. Update this when your IP changes.
-  static const String _devMachineLanIp = '10.224.48.196';  // adb reverse tunnels all ports over USB
+  /// Build a dev-mode URL using the active dev host + scheme.
+  static String _devUrl(int port) => '$_activeDevScheme://$_activeDevHost:$port';
 
-  /// Whether the app is running on an Android emulator vs a real device.
-  /// Set once at startup by [detectEmulator].
-  static bool _isRunningOnEmulator = true; // safe default for dev
+  /// Whether the app is running on an Android emulator.
+  static bool _isRunningOnEmulator = true;
   static bool get isEmulator => _isRunningOnEmulator;
-
-  static String _getBaseUrl(int port) {
-    if (kIsWeb) {
-      return 'http://localhost:$port';
-    }
-    if (Platform.isAndroid) {
-      // 10.0.2.2 is the emulator's alias for the host machine.
-      // Real devices must use the host's LAN IP instead.
-      return _isRunningOnEmulator
-          ? 'http://10.0.2.2:$port'
-          : 'http://$_devMachineLanIp:$port';
-    }
-    return 'http://localhost:$port';
-  }
 
   /// Call once from main() before any network requests.
   static Future<void> detectEmulator() async {
@@ -152,20 +203,21 @@ class EnvironmentConfig {
           fingerprint.contains('emulator') ||
           fingerprint.contains('sdk_gphone') ||
           fingerprint.contains('vbox');
-      debugPrint('📱 Device: ${_isRunningOnEmulator ? "EMULATOR" : "REAL DEVICE → $_devMachineLanIp"}');
+      debugPrint('📱 Device: ${_isRunningOnEmulator ? "EMULATOR" : "REAL DEVICE → $_activeDevHost"}');
     } catch (_) {
       _isRunningOnEmulator = true;
     }
   }
-
 }
+
+// ── EnvironmentSettings ─────────────────────────────────────────────────────
 
 class EnvironmentSettings {
   final String name;
   final String userServiceUrl;
   final String matchmakingServiceUrl;
   final String photoServiceUrl;
-  final String messagingServiceUrl; // ADDED: Messaging service URL
+  final String messagingServiceUrl;
   final String swipeServiceUrl;
   final String gatewayUrl;
   final String keycloakUrl;
@@ -183,7 +235,7 @@ class EnvironmentSettings {
     required this.userServiceUrl,
     required this.matchmakingServiceUrl,
     required this.photoServiceUrl,
-    required this.messagingServiceUrl, // ADDED: Required parameter
+    required this.messagingServiceUrl,
     required this.swipeServiceUrl,
     required this.gatewayUrl,
     required this.keycloakUrl,
@@ -211,12 +263,13 @@ class EnvironmentSettings {
   String toString() => 'Environment: $name';
 }
 
-// Convenience methods for easy environment switching
+// ── EnvSwitcher ─────────────────────────────────────────────────────────────
+
 class EnvSwitcher {
   static void useDevelopment() {
     EnvironmentConfig.setEnvironment(Environment.development);
     if (kDebugMode) {
-      debugPrint('🔧 Switched to DEVELOPMENT environment');
+      debugPrint('🔧 Switched to DEVELOPMENT (${EnvironmentConfig.devServerLabel})');
       debugPrint('Gateway: ${EnvironmentConfig.settings.gatewayUrl}');
       debugPrint('Keycloak: ${EnvironmentConfig.settings.keycloakUrl}');
     }
@@ -225,7 +278,7 @@ class EnvSwitcher {
   static void useStaging() {
     EnvironmentConfig.setEnvironment(Environment.staging);
     if (kDebugMode) {
-      debugPrint('🔶 Switched to STAGING environment');
+      debugPrint('🔶 Switched to STAGING');
       debugPrint('Gateway: ${EnvironmentConfig.settings.gatewayUrl}');
       debugPrint('Keycloak: ${EnvironmentConfig.settings.keycloakUrl}');
     }
@@ -234,9 +287,16 @@ class EnvSwitcher {
   static void useProduction() {
     EnvironmentConfig.setEnvironment(Environment.production);
     if (kDebugMode) {
-      debugPrint('🚀 Switched to PRODUCTION environment');
+      debugPrint('🚀 Switched to PRODUCTION');
       debugPrint('Gateway: ${EnvironmentConfig.settings.gatewayUrl}');
       debugPrint('Keycloak: ${EnvironmentConfig.settings.keycloakUrl}');
     }
+  }
+
+  /// Switch dev server (LAN server / Funnel / custom) without changing env.
+  static Future<void> switchDevServer(DevServer server, {String? customHost}) async {
+    await EnvironmentConfig.setDevServer(server, customHost: customHost);
+    // Re-apply current env so URLs recalculate
+    useDevelopment();
   }
 }
