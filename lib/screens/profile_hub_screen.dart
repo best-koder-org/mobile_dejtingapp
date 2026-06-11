@@ -5,6 +5,7 @@ import 'package:dejtingapp/services/api_service.dart' hide PhotoService;
 import 'package:dejtingapp/services/verification_service.dart';
 import 'package:dejtingapp/services/safety_service.dart';
 import 'package:dejtingapp/services/photo_service.dart';
+import 'package:dejtingapp/services/billing_service.dart';
 import 'package:dejtingapp/widgets/verification_badge.dart';
 import 'package:dejtingapp/utils/profile_completion_calculator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'verification_selfie_screen.dart';
 import 'settings_screen.dart';
 import 'voice_prompt_screen.dart';
+import 'sparks_store_screen.dart';
 
 /// DejTing profile hub — inspired by Hinge but branded for DejTing.
 ///
@@ -40,10 +42,12 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   int _blockedCount = 0;
   Map<String, String>? _imageHeaders;
 
-  // Spark / Spotlight balances (persisted later via backend)
-  final int _sparksRemaining = 1; // Free users get 1/week
+  // Billing data (loaded from backend, Feeld-inspired)
+  int _sparksRemaining = 0;
+  int _sparksBalance = 0;
+  int _sparksDailyMax = 0;
+  bool _isPremium = false;
   int _spotlightMinutes = 0;
-  final bool _isPlusSubscriber = false;
 
   // Services
   final _verificationService = VerificationService();
@@ -68,7 +72,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
       final token = await appState.getOrRefreshAuthToken();
       final userId = int.tryParse(appState.userId ?? '');
 
-      _displayName = appState.userProfile?['preferred_username'] as String? ?? appState.userProfile?['name'] as String? ?? 'Profile';
+      _displayName = appState.userProfile?['name'] as String? ?? appState.userProfile?['preferred_username'] as String? ?? 'Profile';
 
       if (token != null) {
         _imageHeaders = {'Authorization': 'Bearer $token'};
@@ -109,6 +113,17 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           _blockedCount = blocked.length;
         } catch (_) {
           _blockedCount = 0;
+        }
+
+        // Load billing data
+        try {
+          final billing = await BillingService.getStatus();
+          _isPremium = billing.isPremium;
+          _sparksRemaining = billing.availableSparks;
+          _sparksBalance = billing.sparksBalance;
+          _sparksDailyMax = billing.sparksDailyMax;
+        } catch (_) {
+          // Billing service unavailable — use defaults
         }
       }
     } catch (e) {
@@ -266,8 +281,11 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           title: AppLocalizations.of(context).dejTingPlus,
           subtitle: 'Unlimited Sparks, weekly Spotlight,\nand see who likes you first.',
           gradientColors: [AppTheme.secondaryColor, AppTheme.primaryColor],
-          buttonText: _isPlusSubscriber ? 'Manage' : 'Upgrade',
-          onPressed: () => _showPlusSheet(),
+          buttonText: _isPremium ? 'Manage' : 'Upgrade',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SparksStoreScreen()),
+          ),
         ),
 
         const SizedBox(height: 16),
@@ -594,13 +612,13 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              _isPlusSubscriber
-                  ? 'Plus subscribers get 5 Sparks per week.'
-                  : 'Free: 1 Spark per week. Upgrade for 5.',
+              _isPremium
+                  ? 'Majestic: 2 Sparks per day included.'
+                  : 'Free: 0 Sparks. Upgrade for 2 Sparks/day.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
-            if (!_isPlusSubscriber)
+            if (!_isPremium)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -706,16 +724,16 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
                 child: Text(
                   _spotlightMinutes > 0
                       ? 'Active — ${_spotlightMinutes}m remaining'
-                      : _isPlusSubscriber
+                      : _isPremium
                           ? 'Activate Spotlight (1/week free)'
                           : 'Activate Spotlight',
                 ),
               ),
             ),
-            if (!_isPlusSubscriber) ...[
+            if (!_isPremium) ...[
               const SizedBox(height: 8),
               Text(
-                'Plus subscribers get 1 free Spotlight per week.',
+                'Premium subscribers get 1 free Spotlight per week.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

@@ -11,6 +11,14 @@ import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/screens/profile_detail_screen.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:dejtingapp/widgets/discovery/voice_discovery_card.dart';
+import 'package:dejtingapp/services/billing_service.dart';
+import 'package:dejtingapp/screens/sparks_store_screen.dart';
+import 'dart:convert';
+import 'package:dejtingapp/models/match_insight.dart';
+import 'package:dejtingapp/widgets/connection_insight_card.dart';
+import 'package:dejtingapp/backend_url.dart';
+import 'package:dejtingapp/services/api_service.dart';
+import 'package:http/http.dart' as http;
 
 /// Hinge-style scrollable Discover screen
 /// Shows one profile at a time as a vertically-scrollable card
@@ -36,11 +44,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // Swipe limit tracking (from FlavorConfig)
   int _swipesUsedToday = 0;
+  int _sparksRemaining = 0;
+  bool _sparksLoading = false;
 
   // Discovery filter state
   double _maxDistance = 50.0;
   RangeValues _ageRange = const RangeValues(18, 35);
   bool _showMeInDiscovery = true;
+  ConnectionHook? _preMatchInsight;
 
   @override
   void initState() {
@@ -50,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
     );
     _loadCandidates();
+    _loadSparks();
   }
 
   @override
@@ -74,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _isLoading = false;
       });
       _fadeController.forward(from: 0);
+      _fetchPreMatchInsight();
     } catch (e) {
       debugPrint('Error loading candidates: $e');
       setState(() {
@@ -91,8 +104,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       setState(() => _currentIndex++);
       _scrollController.jumpTo(0);
       _fadeController.forward(from: 0);
+      _fetchPreMatchInsight();
     } else {
       setState(() => _currentIndex = _candidates.length);
+    }
+  }
+
+  Future<void> _fetchPreMatchInsight() async {
+    final candidate = _currentCandidate;
+    if (candidate == null) return;
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) return;
+      final url = '${ApiUrls.matchmakingService}/api/compatibility/preview/${candidate.userId}';
+      final response = await http.get(
+        Uri.parse(url), headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200 && mounted) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        setState(() => _preMatchInsight = ConnectionHook.fromJson(data));
+      }
+    } catch (e) {
+      debugPrint('Pre-match insight fetch: $e');
     }
   }
 
@@ -586,6 +619,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   controller: _scrollController,
                   padding: const EdgeInsets.only(bottom: 140),
             children: [
+              // Pre-match connection insight — "What brings you together"
+              if (_preMatchInsight != null && _preMatchInsight!.headline.isNotEmpty)
+                ConnectionInsightCard(
+                  hook: _preMatchInsight!,
+                  matchProfile: UserProfile(
+                    userId: candidate.userId,
+                    firstName: candidate.displayName,
+                    lastName: '',
+                    dateOfBirth: DateTime.now().subtract(const Duration(days: 25 * 365)),
+                    interests: candidate.interestsOverlap,
+                    city: candidate.city,
+                    occupation: candidate.occupation,
+                  ),
+                ),
               // Hero photo (first photo)
               _buildHeroPhoto(
                 candidate.photoUrl ?? (candidate.photoUrls.isNotEmpty ? candidate.photoUrls[0] : null),
@@ -1181,6 +1228,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // Spark button (left)
+          _buildSparkButton(),
+          const SizedBox(width: 16),
           _buildActionButton(
             icon: Icons.close_rounded,
             color: AppTheme.textTertiary,
@@ -1201,6 +1251,96 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSparkButton() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: _sparksLoading ? null : _sendSpark,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 56, height: 56,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                  blurRadius: 12, offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: _sparksLoading
+                ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.bolt, color: Colors.white, size: 28),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _sparksRemaining > 0 ? 'Spark $_sparksRemaining' : 'Spark',
+          style: TextStyle(
+            fontSize: 11,
+            color: _sparksRemaining > 0 ? AppTheme.primaryColor : AppTheme.textTertiary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _loadSparks() async {
+    try {
+      final status = await BillingService.getStatus();
+      if (!mounted) return;
+      setState(() => _sparksRemaining = status.availableSparks);
+    } catch (_) {
+      // Billing not available — Sparks stay 0
+    }
+  }
+
+  Future<void> _sendSpark() async {
+    if (_sparksRemaining <= 0) {
+      _showPaywall();
+      return;
+    }
+    setState(() => _sparksLoading = true);
+    try {
+      final result = await BillingService.spendSpark('spark_ping');
+      if (!mounted) return;
+      if (result.success) {
+        setState(() {
+          _sparksRemaining = result.dailyRemaining > 0
+              ? result.dailyRemaining
+              : result.newBalance;
+          _sparksLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Spark sent!')),
+        );
+      } else {
+        setState(() => _sparksLoading = false);
+        _showPaywall();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _sparksLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed: $e')),
+      );
+    }
+  }
+
+  void _showPaywall() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const PaywallSheet(featureName: 'Sparks'),
     );
   }
 

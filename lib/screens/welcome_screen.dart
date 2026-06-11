@@ -5,6 +5,7 @@ import '../config/dev_mode.dart';
 import '../services/dev_auto_login.dart';
 import '../theme/app_theme.dart';
 import '../flavors/flavor_config.dart';
+import '../widgets/environment_selector.dart';
 
 /// Welcome Screen — Two clear paths:
 /// 1. "I'm ready to match" → registration/onboarding flow
@@ -233,6 +234,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Environment & Server Switcher
+          const EnvironmentSelector(),
         ],
       ),
     );

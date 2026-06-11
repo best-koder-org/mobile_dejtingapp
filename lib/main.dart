@@ -70,6 +70,7 @@ Future<void> _runApp() async {
     debugPrint('⚠️ Firebase skipped on \${defaultTargetPlatform.name} (not supported)');
   }
   await EnvironmentConfig.detectEmulator();
+  await EnvironmentConfig.loadDevServerChoice();
   // Read environment from --dart-define=ENVIRONMENT=staging (default: development)
   const envName = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
   switch (envName) {
@@ -197,6 +198,11 @@ class DatingApp extends StatelessWidget {
 
   String _getInitialRoute() {
     final appState = AppState();
+    
+    // In dev/staging: always start at welcome screen so the user can press "Dev Sign In"
+    if (EnvironmentConfig.isDevelopment || EnvironmentConfig.isStaging) {
+      return '/welcome';
+    }
     
     // If we have a valid session, go straight to home (Discover)
     if (appState.hasValidAuthSession(gracePeriod: const Duration(minutes: 1))) {

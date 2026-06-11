@@ -79,7 +79,7 @@ class _FeedbackFabState extends State<FeedbackFab> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _isUploading ? null : () {
-          debugPrint('[FeedbackFab] tap → openSheet');
+          if (kDebugMode) debugPrint('[FeedbackFab] tap → openSheet');
           _openSheet();
         },
         onPanUpdate: (details) {
@@ -155,8 +155,8 @@ class _FeedbackFabState extends State<FeedbackFab> {
         );
       }
     } catch (e, stack) {
-      debugPrint('[FeedbackFab] submit failed: $e');
-      debugPrint('$stack');
+      if (kDebugMode) debugPrint('[FeedbackFab] submit failed: $e');
+      if (kDebugMode) debugPrint('$stack');
       if (!mounted) return;
       final snackCtx = rootNavigatorKey.currentContext ?? context;
       ScaffoldMessenger.of(snackCtx).showSnackBar(

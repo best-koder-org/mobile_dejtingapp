@@ -11,26 +11,26 @@ import '../utils/jwt_utils.dart';
 
 /// Dev Auto-Login — direct ROPC with known BotService password.
 ///
-/// The demo-user is provisioned by BotService with a known password
-/// (bot_pass_demo-user), so we just do a direct ROPC grant.
-/// No admin API needed.
-///
-/// Wrapped with a 10-second timeout so it never blocks app startup.
+/// Before logging in, optionally resets all interactions (matches, swipes,
+/// messages) and re-seeds mutual likes between the demo-user and active bot
+/// profiles so there are fresh candidates to swipe on.
 class DevAutoLogin {
   const DevAutoLogin._();
 
   static const _demoUsername = 'bot_demo-user@bot.local';
-  /// Password matches BotService's KeycloakBotProvisioner password scheme:
-  /// {BOT_PASSWORD_PREFIX}{personaId} = "bot_pass_demo-user"
   static const _demoPassword = 'bot_pass_demo-user';
   static const _disableFlag = 'DEMO_AUTO_LOGIN_DISABLED';
+
+  // Bot profile IDs (from seeding / bot state)
+  static const _demoProfileId = 1;
+  static const _botProfiles = [2, 3, 4]; // maja, elsa, linnea
 
   /// Public entry point — timeout-protected.
   static Future<void> ensureDemoSession() async {
     if (!EnvironmentConfig.isDevelopment && !EnvironmentConfig.isStaging) return;
 
     try {
-      await _doLogin().timeout(const Duration(seconds: 30));
+      await _doLogin().timeout(const Duration(seconds: 60));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('⚠️ Dev auto-login timed out or failed: $e');
@@ -38,7 +38,7 @@ class DevAutoLogin {
     }
   }
 
-  /// Actual login logic.
+  /// Actual login logic with optional reset + seed.
   static Future<void> _doLogin() async {
     if (!kIsWeb) {
       final env = Platform.environment;
@@ -54,22 +54,24 @@ class DevAutoLogin {
     final appState = AppState();
     await appState.initialize();
 
+    // Always start fresh: clear any existing session before re-login.
+    // This ensures the user always starts from the login screen flow.
     if (appState.hasValidAuthSession()) {
-      if (kDebugMode) debugPrint('✅ Dev auto-login: existing session still valid');
-      return;
+      if (kDebugMode) debugPrint('🔄 Dev auto-login: clearing existing session for fresh login...');
+      await appState.logout();
+      await appState.initialize();
     }
 
     try {
       if (kDebugMode) debugPrint('🔐 Dev auto-login: ROPC for $_demoUsername...');
 
-      // Direct ROPC — demo-user password is set by BotService
+      // ── 1. Get tokens via ROPC ──
       final tokens = await _getTokensViaROPC();
       if (tokens == null) {
-        if (kDebugMode) debugPrint('⚠️ Dev auto-login: ROPC failed (is BotService running?)');
+        if (kDebugMode) debugPrint('⚠️ Dev auto-login: ROPC failed');
         return;
       }
 
-      // Build session
       final accessToken = tokens['access_token'] as String;
       final refreshToken = tokens['refresh_token'] as String?;
       final idToken = tokens['id_token'] as String?;
@@ -96,10 +98,12 @@ class DevAutoLogin {
         profile: profile,
       );
 
-      // Demo user is already onboarded on the backend
       await appState.setOnboardingComplete();
 
-      // Eagerly resolve the integer profile ID so matchmaking works
+      // ── 2. Seed matches (skip reset — data is managed by backend script) ──
+      if (kDebugMode) debugPrint('🧹 Dev auto-login: login complete (match seeding managed by backend)');
+
+      // Eagerly resolve profile ID
       final profileId = await appState.getOrResolveProfileId();
       if (kDebugMode) {
         debugPrint('✅ Dev auto-login: Logged in as $_demoUsername ($userId), profileId=$profileId');
@@ -113,11 +117,67 @@ class DevAutoLogin {
     }
   }
 
-  /// Get tokens using direct grant (ROPC) with the BotService-provisioned password.
+  /// Reset all interactions and seed fresh mutual matches.
+  static Future<void> _resetAndSeed(String accessToken) async {
+    final gw = EnvironmentConfig.settings.gatewayUrl;
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    // ── 2a. Composite admin reset ──
+    try {
+      final resetUrl = '$gw/api/admin/reset-interactions';
+      if (kDebugMode) debugPrint('   ↳ Admin reset: POST $resetUrl');
+      final resetResp = await http.post(Uri.parse(resetUrl), headers: headers).timeout(const Duration(seconds: 15));
+      if (kDebugMode) debugPrint('   ↳ Admin reset: ${resetResp.statusCode} ${resetResp.body}');
+    } catch (e) {
+      if (kDebugMode) debugPrint('   ⚠️ Admin reset failed (non-fatal): $e');
+    }
+
+    // ── 2b. Demo-user likes bots ──
+    for (final botId in _botProfiles) {
+      try {
+        final swipeBody = json.encode({
+          'targetUserId': botId.toString(),
+          'direction': 'like',
+        });
+        final swipeResp = await http.post(
+          Uri.parse('$gw/api/swipes'),
+          headers: headers,
+          body: swipeBody,
+        ).timeout(const Duration(seconds: 10));
+        if (kDebugMode) debugPrint('   ↳ Swipe 1→$botId: ${swipeResp.statusCode}');
+      } catch (e) {
+        if (kDebugMode) debugPrint('   ⚠️ Swipe 1→$botId failed: $e');
+      }
+    }
+
+    // ── 2c. Bots like demo-user (batch endpoint, no auth needed) ──
+    for (final botId in _botProfiles) {
+      try {
+        final batchBody = json.encode({
+          'userId': botId,
+          'swipes': [
+            {'targetUserId': _demoProfileId.toString(), 'isLike': true},
+          ],
+        });
+        final batchResp = await http.post(
+          Uri.parse('$gw/api/swipes/batch'),
+          headers: {'Content-Type': 'application/json'},
+          body: batchBody,
+        ).timeout(const Duration(seconds: 10));
+        if (kDebugMode) debugPrint('   ↳ Batch $botId→1: ${batchResp.statusCode}');
+      } catch (e) {
+        if (kDebugMode) debugPrint('   ⚠️ Batch $botId→1 failed: $e');
+      }
+    }
+  }
+
+  /// Get tokens using ROPC.
   static Future<Map<String, dynamic>?> _getTokensViaROPC() async {
     final settings = EnvironmentConfig.settings;
     final tokenUrl = settings.keycloakTokenEndpoint;
-    if (kDebugMode) debugPrint('🔗 ROPC token URL: $tokenUrl');
 
     final sw = Stopwatch()..start();
     final tokenResp = await http.post(

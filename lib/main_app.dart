@@ -3,7 +3,9 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'screens/home_screen.dart';
+import 'screens/top_picks_screen.dart';
 import 'screens/enhanced_matches_screen.dart';
+import 'screens/messages_screen.dart';
 import 'screens/profile_hub_screen.dart';
 import 'services/app_initialization_service.dart';
 import 'services/api_service.dart' hide PhotoService;
@@ -26,7 +28,7 @@ class _MainAppState extends State<MainApp> {
   String? _profilePhotoUrl;
   Map<String, String>? _imageHeaders;
 
-  // Unread message badge
+  // Unread message badge (Messages tab)
   int _totalUnreadCount = 0;
   Timer? _unreadPollTimer;
   StreamSubscription<Message>? _newMessageSubscription;
@@ -35,9 +37,11 @@ class _MainAppState extends State<MainApp> {
   StreamSubscription<MatchNotification>? _matchSubscription;
 
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const EnhancedMatchesScreen(),
-    const ProfileHubScreen(),
+    const HomeScreen(),            // 0: Discover
+    const TopPicksScreen(),        // 1: Top Picks ⚡
+    const EnhancedMatchesScreen(), // 2: Matches ❤️
+    const MessagesScreen(),        // 3: Messages 💬
+    const ProfileHubScreen(),      // 4: Profile 👤
   ];
 
   @override
@@ -97,6 +101,13 @@ class _MainAppState extends State<MainApp> {
     _unreadPollTimer?.cancel();
     _newMessageSubscription?.cancel();
     _matchSubscription?.cancel();
+    // Disconnect SignalR services to prevent stale-token crashes
+    try {
+      MessagingService().disconnect();
+    } catch (_) {}
+    try {
+      MatchmakingRealtimeService().disconnect();
+    } catch (_) {}
     super.dispose();
   }
 
@@ -187,7 +198,6 @@ class _MainAppState extends State<MainApp> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Hearts animation area
                       const Text(
                         '❤️',
                         style: TextStyle(fontSize: 64),
@@ -212,15 +222,14 @@ class _MainAppState extends State<MainApp> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      // Send message button
+                      // Send message button → navigates to Messages tab (index 3)
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pop();
-                            // Switch to matches tab
                             setState(() {
-                              _currentIndex = 1;
+                              _currentIndex = 3; // Messages tab
                             });
                           },
                           style: ElevatedButton.styleFrom(
@@ -283,11 +292,14 @@ class _MainAppState extends State<MainApp> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
           onTap: (index) {
-            if (index == 2 && _currentIndex != 2) {
+            // Reload profile photo when tapping Profile tab
+            if (index == 4 && _currentIndex != 4) {
               _loadProfilePhoto();
             }
-            if (index == 1) {
+            // Refresh messages count when tapping Messages tab
+            if (index == 3) {
               _pollUnreadCount();
             }
             setState(() {
@@ -295,22 +307,39 @@ class _MainAppState extends State<MainApp> {
             });
           },
           items: [
+            // 0: Discover
             const BottomNavigationBarItem(
               icon: Icon(Icons.explore),
               label: 'Discover',
             ),
+            // 1: Top Picks
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.auto_awesome),
+              label: 'Top Picks',
+            ),
+            // 2: Matches
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.favorite),
+              label: 'Matches',
+            ),
+            // 3: Messages (with unread badge)
             BottomNavigationBarItem(
               icon: _totalUnreadCount > 0
                   ? Badge(
                       backgroundColor: Colors.red,
                       smallSize: 10,
-                      child: const Icon(Icons.favorite),
+                      label: Text(
+                        _totalUnreadCount > 99 ? '99+' : '$_totalUnreadCount',
+                        style: const TextStyle(fontSize: 8, color: Colors.white),
+                      ),
+                      child: const Icon(Icons.chat_bubble_outline),
                     )
-                  : const Icon(Icons.favorite),
-              label: 'Matches',
+                  : const Icon(Icons.chat_bubble_outline),
+              label: 'Messages',
             ),
+            // 4: Profile
             BottomNavigationBarItem(
-              icon: _buildProfileNavIcon(isSelected: _currentIndex == 2),
+              icon: _buildProfileNavIcon(isSelected: _currentIndex == 4),
               label: 'Profile',
             ),
           ],

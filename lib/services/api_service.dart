@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import '../backend_url.dart';
 import '../config/environment.dart';
 import '../utils/jwt_utils.dart';
+import 'messaging_service.dart';
+import 'matchmaking_realtime_service.dart';
 
 class AuthService {
   static EnvironmentSettings get _env => EnvironmentConfig.settings;
@@ -452,6 +454,14 @@ class AppState {
   }
 
   Future<void> logout() async {
+    // Disconnect real-time services FIRST to prevent crash from stale tokens
+    try {
+      await MessagingService().disconnect();
+    } catch (_) {}
+    try {
+      await MatchmakingRealtimeService().disconnect();
+    } catch (_) {}
+
     await AuthService.logout(refreshToken: _refreshToken);
 
     _userId = null;

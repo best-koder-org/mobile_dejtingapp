@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import '../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/models.dart';
+import 'package:dejtingapp/models/match_insight.dart';
 import 'package:dejtingapp/widgets/voice/voice_prompt_player.dart';
+import 'package:dejtingapp/widgets/connection_insight_card.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
+import 'package:dejtingapp/services/api_service.dart';
+import 'package:dejtingapp/backend_url.dart';
+import 'package:http/http.dart' as http;
 
 /// Full-profile detail screen — Hinge-style scrollable view.
 ///
@@ -124,16 +130,52 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
   double? get _compatibility => widget.candidate?.compatibility;
 
+  // Pre-match insight — "What brings you together"
+  ConnectionHook? _preMatchInsight;
+  bool _insightLoading = false;
+
   @override
   void initState() {
     super.initState();
     _photoPageController = PageController();
+    _fetchPreMatchInsight();
   }
 
   @override
   void dispose() {
     _photoPageController.dispose();
     super.dispose();
+  }
+
+  /// Fetches pre-match insight for the candidate being viewed.
+  Future<void> _fetchPreMatchInsight() async {
+    final candidate = widget.candidate;
+    if (candidate == null) return;
+
+    // Fetching pre-match insight
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) return;
+
+      final url = '${ApiUrls.matchmakingService}/api/compatibility/preview/${candidate.userId}';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 8));
+
+      if (response.statusCode == 200 && mounted) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        setState(() {
+          _preMatchInsight = ConnectionHook.fromJson(data);
+          _insightLoading = false;
+        });
+      } else {
+        if (mounted) setState(() => _insightLoading = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _insightLoading = false);
+      debugPrint('Pre-match insight fetch failed: $e');
+    }
   }
 
   @override

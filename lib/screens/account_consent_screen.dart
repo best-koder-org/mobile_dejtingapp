@@ -174,8 +174,8 @@ class _AccountConsentScreenState extends State<AccountConsentScreen> {
                     // Use another account button
                     OutlinedButton.icon(
                       onPressed: () {
-                        // TODO: Trigger OAuth account picker again
-                        Navigator.pop(context);
+                        // Pop back to login screen to allow OAuth account switch
+                        Navigator.popUntil(context, (route) => route.isFirst);
                       },
                       icon: const Icon(Icons.person_outline, size: 20),
                       label: Text(l10n.consentAnotherAccount),
