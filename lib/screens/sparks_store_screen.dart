@@ -167,9 +167,9 @@ class PaywallSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
+                      final rootNavigator = Navigator.of(context, rootNavigator: true);
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
+                      rootNavigator.push(
                         MaterialPageRoute(builder: (_) => const SparksStoreScreen()),
                       );
                     },
