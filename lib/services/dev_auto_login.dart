@@ -54,12 +54,12 @@ class DevAutoLogin {
     final appState = AppState();
     await appState.initialize();
 
-    // Always start fresh: clear any existing session before re-login.
-    // This ensures the user always starts from the login screen flow.
+    // Only clear the session if we can't refresh the token.
+    // Otherwise reuse the existing session to avoid login failures
+    // when backend is temporarily unreachable.
     if (appState.hasValidAuthSession()) {
-      if (kDebugMode) debugPrint('🔄 Dev auto-login: clearing existing session for fresh login...');
-      await appState.logout();
-      await appState.initialize();
+      if (kDebugMode) debugPrint('✅ Dev auto-login: existing session still valid, reusing');
+      return;
     }
 
     try {
