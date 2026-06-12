@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/services/billing_service.dart';
 
-/// Sparks Store + Premium plans screen. Shows real backend catalog and allows
-/// sandbox purchase via BillingService.
+/// Sparks Store + Premium plans screen. Shows hardcoded fallback data immediately,
+/// then refreshes from backend in background. Uses OutlinedButton throughout.
 class SparksStoreScreen extends StatefulWidget {
   const SparksStoreScreen({super.key});
 
@@ -12,11 +12,17 @@ class SparksStoreScreen extends StatefulWidget {
 }
 
 class _SparksStoreScreenState extends State<SparksStoreScreen> {
-  List<PremiumPlan> _plans = [];
-  List<SparksBundle> _bundles = [];
-  bool _loading = true;
+  List<PremiumPlan> _plans = [
+    PremiumPlan('premium_month', 'Premium Month', 'Full access for 30 days', 30),
+    PremiumPlan('premium_3months', 'Premium Quarter', 'Full access for 90 days', 90),
+    PremiumPlan('premium_year', 'Premium Year', 'Full access for 365 days — best value', 365),
+  ];
+  List<SparksBundle> _bundles = [
+    SparksBundle('sparks_100', 'Starter Pack', 100, 99),
+    SparksBundle('sparks_500', 'Boost Pack', 500, 399),
+    SparksBundle('sparks_1500', 'Super Pack', 1500, 999),
+  ];
   bool _purchasing = false;
-  String? _error;
 
   @override
   void initState() {
@@ -25,19 +31,14 @@ class _SparksStoreScreenState extends State<SparksStoreScreen> {
   }
 
   Future<void> _loadCatalog() async {
-    setState(() { _loading = true; _error = null; });
     try {
       final catalog = await BillingService.getCatalog();
       if (!mounted) return;
       setState(() {
         _plans = catalog.plans;
         _bundles = catalog.bundles;
-        _loading = false;
       });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() { _error = e.toString(); _loading = false; });
-    }
+    } catch (_) {}
   }
 
   Future<void> _purchase(String sku, String label) async {
@@ -48,78 +49,79 @@ class _SparksStoreScreenState extends State<SparksStoreScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$label purchased! ${result.message}')),
       );
-      setState(() => _purchasing = false);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Purchase failed: $e')),
       );
-      setState(() => _purchasing = false);
+    } finally {
+      if (mounted) setState(() => _purchasing = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final plans = _plans;
+    final bundles = _bundles;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Sparks Store')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Error: $_error'),
-                      TextButton(onPressed: _loadCatalog, child: const Text('Retry')),
-                    ],
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text('Premium Plans', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          for (final p in plans)
+            Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(p.description),
+                trailing: SizedBox(
+                  width: 100,
+                  child: OutlinedButton(
+                    onPressed: _purchasing ? null : () => _purchase(p.sku, p.name),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppTheme.primaryColor),
+                      foregroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    ),
+                    child: _purchasing
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : Text(p.durationDays >= 365 ? 'Best value' : 'Subscribe', style: const TextStyle(fontSize: 12)),
                   ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // ── Premium Plans ──
-                    Text('Premium Plans',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    ..._plans.map((p) => Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(p.description),
-                            trailing: _purchasing
-                                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                                : ElevatedButton(
-                                    onPressed: () => _purchase(p.sku, p.name),
-                                    child: Text(
-                                      p.durationDays >= 365 ? 'Best value' : 'Subscribe',
-                                    ),
-                                  ),
-                          ),
-                        )),
-
-                    const Divider(height: 32),
-
-                    // ── Sparks Bundles ──
-                    Text('Sparks Bundles',
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    ..._bundles.map((b) => Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            leading: const Icon(Icons.bolt, color: AppTheme.tealAccent),
-                            title: Text('${b.sparks} Sparks',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(b.name),
-                            trailing: _purchasing
-                                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                                : ElevatedButton(
-                                    onPressed: () => _purchase(b.sku, b.name),
-                                    child: Text('\$${(b.priceUsdCents / 100).toStringAsFixed(2)}'),
-                                  ),
-                          ),
-                        )),
-                  ],
                 ),
+              ),
+            ),
+          const Divider(height: 32),
+          Text('Sparks Bundles', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 8),
+          for (final b in bundles)
+            Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: const Icon(Icons.bolt, color: AppTheme.tealAccent),
+                title: Text('${b.sparks} Sparks', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(b.name),
+                trailing: SizedBox(
+                  width: 80,
+                  child: OutlinedButton(
+                    onPressed: _purchasing ? null : () => _purchase(b.sku, b.name),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppTheme.primaryColor),
+                      foregroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    ),
+                    child: _purchasing
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : Text('\$${(b.priceUsdCents / 100).toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
