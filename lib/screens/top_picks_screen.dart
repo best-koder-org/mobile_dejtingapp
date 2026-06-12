@@ -3,8 +3,8 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/api_services.dart';
-
 import 'package:dejtingapp/services/billing_service.dart';
+import 'sparks_store_screen.dart';
 
 /// Top Picks screen — daily curated profiles that require spark credits to contact.
 ///
@@ -110,23 +110,30 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
     setState(() => _connecting = true);
 
     try {
+      final result = await BillingService.spendSpark('spark_ping');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connected with ${candidate.displayName}! (1 ⚡ spent)'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      setState(() {
-        _sparksBalance--;
-        _connecting = false;
-      });
+
+      if (result.success) {
+        _sparksBalance = result.dailyRemaining > 0 ? result.dailyRemaining : result.newBalance;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Spark sent to ${candidate.displayName}! (1 ⚡ used)'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _viewProfile(candidate);
+      } else {
+        if (result.error == 'Insufficient sparks') {
+          _showNoSparksDialog();
+        } else {
+          _showNoSparksDialog();
+        }
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to connect: $e')),
-      );
-      setState(() => _connecting = false);
+      _showNoSparksDialog();
+    } finally {
+      if (mounted) setState(() => _connecting = false);
     }
   }
 
@@ -146,7 +153,11 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              final rootNavigator = Navigator.of(ctx, rootNavigator: true);
               Navigator.pop(ctx);
+              rootNavigator.push(
+                MaterialPageRoute(builder: (_) => const SparksStoreScreen()),
+              ).then((_) => _loadTopPicks());
             },
             child: const Text('Get Sparks'),
           ),

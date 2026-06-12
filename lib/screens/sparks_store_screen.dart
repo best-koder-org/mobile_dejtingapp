@@ -47,8 +47,15 @@ class _SparksStoreScreenState extends State<SparksStoreScreen> {
       final result = await BillingService.purchase(sku);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$label purchased! ${result.message}')),
+        SnackBar(
+          content: Text('$label purchased! ${result.message}'),
+          backgroundColor: Colors.green.shade700,
+        ),
       );
+      // Navigate back after short delay so user sees the success
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) Navigator.pop(context);
+      });
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

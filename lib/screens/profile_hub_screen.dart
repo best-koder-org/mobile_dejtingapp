@@ -285,7 +285,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const SparksStoreScreen()),
-          ),
+          ).then((_) => _loadProfileData()),
         ),
 
         const SizedBox(height: 16),
