@@ -1309,9 +1309,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _showPaywall();
       return;
     }
+    final candidate = _currentCandidate;
+    if (candidate == null) return;
+
+    // Show message input sheet before sending
+    final message = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _SparkMessageSheet(candidate: candidate),
+    );
+
+    if (message == null && !mounted) return; // User dismissed
+
     setState(() => _sparksLoading = true);
     try {
-      final result = await BillingService.spendSpark('spark_ping');
+      final result = await BillingServiceSparks.sendSpark(
+        candidate.userId,
+        message: message,
+      );
       if (!mounted) return;
       if (result.success) {
         setState(() {
@@ -1321,11 +1340,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _sparksLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Spark sent!')),
+          SnackBar(content: Text(message != null && message.isNotEmpty
+              ? 'Spark sent with message! ⚡'
+              : 'Spark sent! ⚡')),
         );
       } else {
         setState(() => _sparksLoading = false);
-        _showPaywall();
+        if (result.error == 'No Sparks available') {
+          _showPaywall();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result.error ?? 'Failed to send Spark')),
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -1387,6 +1414,112 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           fontWeight: FontWeight.w500,
         )),
       ],
+    );
+  }
+}
+
+// Spark Message Bottom Sheet — shown when user taps the ⚡ button
+class _SparkMessageSheet extends StatefulWidget {
+  final MatchCandidate candidate;
+  const _SparkMessageSheet({required this.candidate});
+
+  @override
+  State<_SparkMessageSheet> createState() => _SparkMessageSheetState();
+}
+
+class _SparkMessageSheetState extends State<_SparkMessageSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        24, 16, 24,
+        MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.dividerColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              const Icon(Icons.bolt, color: AppTheme.primaryColor, size: 28),
+              const SizedBox(width: 8),
+              Text(
+                'Send a Spark to ${widget.candidate.displayName}',
+                style: const TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'They\'ll see your profile in their Sparks tab. Add a message to stand out!',
+            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            maxLines: 3,
+            maxLength: 200,
+            decoration: InputDecoration(
+              hintText: 'Say something nice... (optional)',
+              counterStyle: const TextStyle(color: AppTheme.textTertiary),
+              filled: true,
+              fillColor: AppTheme.surfaceElevated,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            autofocus: true,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final msg = _controller.text.trim();
+                    Navigator.pop(context, msg.isEmpty ? null : msg);
+                  },
+                  icon: const Icon(Icons.bolt, size: 18),
+                  label: const Text('Send Spark'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

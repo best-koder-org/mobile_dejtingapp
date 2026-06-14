@@ -197,3 +197,114 @@ class BillingService {
     );
   }
 }
+
+/// Result of sending a Spark to another user.
+class SendSparkResult {
+  final bool success;
+  final int newBalance;
+  final int dailyRemaining;
+  final String? error;
+  final int? sparkRecordId;
+  SendSparkResult(this.success, this.newBalance, this.dailyRemaining, this.error, this.sparkRecordId);
+}
+
+/// A Spark received from another user (for Sparks tab).
+class SparkReceived {
+  final int id;
+  final String senderUserId;
+  final String recipientUserId;
+  final String? message;
+  final bool isRead;
+  final DateTime createdAt;
+  final String? senderDisplayName;
+  final String? senderPhotoUrl;
+
+  SparkReceived({
+    required this.id,
+    required this.senderUserId,
+    required this.recipientUserId,
+    this.message,
+    required this.isRead,
+    required this.createdAt,
+    this.senderDisplayName,
+    this.senderPhotoUrl,
+  });
+
+  factory SparkReceived.fromJson(Map<String, dynamic> json) => SparkReceived(
+    id: json['id'] as int? ?? 0,
+    senderUserId: json['senderUserId'] as String? ?? '',
+    recipientUserId: json['recipientUserId'] as String? ?? '',
+    message: json['message'] as String?,
+    isRead: json['isRead'] as bool? ?? false,
+    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    senderDisplayName: json['senderDisplayName'] as String?,
+    senderPhotoUrl: json['senderPhotoUrl'] as String?,
+  );
+}
+
+/// Result of fetching received/sent sparks.
+class SparksListResult {
+  final List<SparkReceived> sparks;
+  final int totalCount;
+  SparksListResult(this.sparks, this.totalCount);
+}
+
+extension BillingServiceSparks on BillingService {
+  /// Send a Spark to another user with an optional message.
+  /// Calls POST /api/billing/sparks/send
+  static Future<SendSparkResult> sendSpark(String recipientUserId, {String? message}) async {
+    await AppState().initialize();
+    final token = await AppState().getOrRefreshAuthToken();
+    if (token == null) throw Exception('Not authenticated');
+
+    final response = await http.post(
+      Uri.parse('${ApiUrls.gateway}/api/billing/sparks/send'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'recipientUserId': recipientUserId,
+        if (message != null && message.isNotEmpty) 'message': message,
+      }),
+    );
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200) {
+      final data = (body['data'] as Map<String, dynamic>?) ?? body;
+      return SendSparkResult(
+        data['success'] as bool? ?? false,
+        data['newBalance'] as int? ?? 0,
+        data['dailyRemaining'] as int? ?? 0,
+        null,
+        data['sparkRecordId'] as int?,
+      );
+    }
+
+    return SendSparkResult(
+      false, 0, 0,
+      (body['message'] as String?) ?? 'Failed to send Spark',
+      null,
+    );
+  }
+
+  /// Get Sparks received by the current user.
+  static Future<SparksListResult> getReceivedSparks({int page = 1, int pageSize = 50}) async {
+    await AppState().initialize();
+    final token = await AppState().getOrRefreshAuthToken();
+    if (token == null) throw Exception('Not authenticated');
+
+    final response = await http.get(
+      Uri.parse('${ApiUrls.gateway}/api/billing/sparks/received?page=$page&pageSize=$pageSize'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode != 200) throw Exception('Failed to load received sparks');
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final data = (body['data'] as Map<String, dynamic>?) ?? body;
+    final sparks = (data['sparks'] as List<dynamic>? ?? [])
+        .map((s) => SparkReceived.fromJson(s as Map<String, dynamic>))
+        .toList();
+    return SparksListResult(sparks, data['totalCount'] as int? ?? sparks.length);
+  }
+}
