@@ -1341,7 +1341,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       context: context,
       isScrollControlled: true,
       builder: (_) => const PaywallSheet(featureName: 'Sparks'),
-    );
+    ).then((_) => _loadSparks());
   }
 
   Widget _buildActionButton({
