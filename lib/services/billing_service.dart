@@ -147,10 +147,20 @@ class BillingService {
     if (response.statusCode != 200) throw Exception('Purchase failed');
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     final data = body['data'] as Map<String, dynamic>? ?? body;
+
+    // tier can be int (enum value: 1=Premium, 0=Free) or string
+    final tierValue = data['tier'];
+    final tierStr = tierValue is int
+        ? (tierValue == 1 ? 'Premium' : 'Free')
+        : tierValue?.toString();
+
+    // newBalance is present for spark purchases; sparksAwarded for bundles
+    final balance = data['newBalance'] as int? ?? data['sparksAwarded'] as int?;
+
     return PurchaseResult(
       body['message'] as String? ?? 'Purchase complete',
-      data['tier'] as String?,
-      data['newBalance'] as int?,
+      tierStr,
+      balance,
     );
   }
 
