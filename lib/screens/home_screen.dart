@@ -1323,7 +1323,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (ctx) => _SparkMessageSheet(candidate: candidate),
     );
 
-    if (message == null && !mounted) return; // User dismissed
+    if (message == null) return; // User cancelled (pressed Cancel or dismissed sheet)
 
     setState(() => _sparksLoading = true);
     try {
@@ -1510,7 +1510,7 @@ class _SparkMessageSheetState extends State<_SparkMessageSheet> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     final msg = _controller.text.trim();
-                    Navigator.pop(context, msg.isEmpty ? null : msg);
+                    Navigator.pop(context, msg.isEmpty ? '' : msg);
                   },
                   icon: const Icon(Icons.bolt, size: 18),
                   label: const Text('Send Spark'),
