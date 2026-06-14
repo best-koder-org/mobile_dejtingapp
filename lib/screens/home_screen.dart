@@ -1299,8 +1299,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final status = await BillingService.getStatus();
       if (!mounted) return;
       setState(() => _sparksRemaining = status.availableSparks);
-    } catch (_) {
-      // Billing not available — Sparks stay 0
+    } catch (e) {
+      debugPrint('❌ HomeScreen: BillingService.getStatus failed: $e');
     }
   }
 
