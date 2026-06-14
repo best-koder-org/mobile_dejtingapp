@@ -25,10 +25,15 @@ class EntitlementStatus {
     this.sparksDailyRemaining = 0,
   });
 
-  factory EntitlementStatus.fromJson(Map<String, dynamic> json) =>
-      EntitlementStatus(
+  factory EntitlementStatus.fromJson(Map<String, dynamic> json) {
+    // tier can be int (enum value: 1=Premium, 0=Free) or string
+    final tierValue = json['tier'];
+    final tierStr = tierValue is int
+        ? (tierValue == 1 ? 'Premium' : 'Free')
+        : tierValue?.toString() ?? 'Free';
+    return EntitlementStatus(
         userId: json['userId'] as String? ?? '',
-        tier: json['tier'] as String? ?? 'Free',
+        tier: tierStr,
         expiresAt: json['expiresAt'] != null
             ? DateTime.tryParse(json['expiresAt'] as String)
             : null,
@@ -38,6 +43,7 @@ class EntitlementStatus {
         sparksDailyMax: json['sparksDailyMax'] as int? ?? 0,
         sparksDailyRemaining: json['sparksDailyRemaining'] as int? ?? 0,
       );
+  }
 
   /// How many Sparks the user actually has available to spend right now.
   /// Takes into account daily allocation (if remaining) + purchased balance.
