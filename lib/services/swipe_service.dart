@@ -166,6 +166,31 @@ class SwipeService {
       return null;
     }
   }
+
+  /// Get the user's like history (outgoing swipes).
+  /// Calls GET /api/swipes/user/{profileId}?isLike=true
+  static Future<List<Map<String, dynamic>>> getLikesHistory(int profileId,
+      {int page = 1, int pageSize = 50}) async {
+    final token = await AppState().getOrRefreshAuthToken();
+    if (token == null) throw Exception('Not authenticated');
+
+    final response = await http.get(
+      Uri.parse(
+        '${ApiUrls.gateway}/api/swipes/user/$profileId?isLike=true&page=$page&pageSize=$pageSize'),
+      headers: {'Authorization': 'Bearer $token'},
+    ).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load swipe history (${response.statusCode})');
+    }
+
+    final body = json.decode(response.body) as Map<String, dynamic>;
+    final data = body['data'] as Map<String, dynamic>? ?? body;
+    final swipes = (data['swipes'] as List<dynamic>?)
+        ?.map((s) => s as Map<String, dynamic>)
+        .toList() ?? [];
+    return swipes;
+  }
 }
 
 /// Timeout exception for network operations
