@@ -114,7 +114,7 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
     setState(() => _connecting = true);
 
     try {
-      final result = await BillingService.spendSpark('spark_ping');
+      final result = await BillingServiceSparks.sendSpark(candidate.userId);
       if (!mounted) return;
 
       if (result.success) {
@@ -127,7 +127,7 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
         );
         _viewProfile(candidate);
       } else {
-        if (result.error == 'Insufficient sparks') {
+        if (result.error == 'No Sparks available') {
           _showNoSparksDialog();
         } else {
           _showNoSparksDialog();
