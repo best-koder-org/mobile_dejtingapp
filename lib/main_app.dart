@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -36,6 +37,9 @@ class _MainAppState extends State<MainApp> {
   // Match notifications
   StreamSubscription<MatchNotification>? _matchSubscription;
 
+  // Spark notifications
+  StreamSubscription<SparkNotificationReceived>? _sparkSubscription;
+
   final List<Widget> _screens = [
     const HomeScreen(),            // 0: Discover
     const TopPicksScreen(),        // 1: Top Picks ⚡
@@ -57,6 +61,7 @@ class _MainAppState extends State<MainApp> {
       await _pollUnreadCount();
       _startUnreadPolling();
       _startMatchListener();
+      _startSparkListener();
       // Update location in background (fire-and-forget)
       unawaited(LocationService.instance.updateBackendLocation());
     } catch (e) {
@@ -101,6 +106,7 @@ class _MainAppState extends State<MainApp> {
     _unreadPollTimer?.cancel();
     _newMessageSubscription?.cancel();
     _matchSubscription?.cancel();
+    _sparkSubscription?.cancel();
     // Disconnect SignalR services to prevent stale-token crashes
     try {
       MessagingService().disconnect();
@@ -148,6 +154,42 @@ class _MainAppState extends State<MainApp> {
       if (mounted) {
         _showMatchDialog(notification);
       }
+    });
+  }
+
+  /// Listen for incoming sparks — show a subtle snackbar (no full-screen dialog).
+  /// Sparks are one-way signals of interest, not mutual matches, so a
+  /// celebration dialog would be excessive (like Tinder super-likes).
+  void _startSparkListener() {
+    _sparkSubscription =
+        MatchmakingRealtimeService().sparkStream.listen((notification) {
+      if (!mounted) return;
+      if (kDebugMode) {
+        debugPrint('✨ Spark received from ${notification.senderUserId}');
+      }
+      // Show a brief, non-intrusive snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.bolt, color: Colors.amber, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  notification.message != null && notification.message!.isNotEmpty
+                      ? '✨ Spark received: "${notification.message}"'
+                      : '✨ Someone sent you a Spark!',
+                ),
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+        ),
+      );
+      // The EnhancedMatchesScreen will refresh when the user navigates to it
     });
   }
 

@@ -34,6 +34,10 @@ class MatchmakingRealtimeService {
       StreamController<MatchNotification>.broadcast();
   Stream<MatchNotification> get matchStream => _matchController.stream;
 
+  final StreamController<SparkNotificationReceived> _sparkController =
+      StreamController<SparkNotificationReceived>.broadcast();
+  Stream<SparkNotificationReceived> get sparkStream => _sparkController.stream;
+
   final StreamController<String> _statusController =
       StreamController<String>.broadcast();
   Stream<String> get statusStream => _statusController.stream;
@@ -90,6 +94,7 @@ class MatchmakingRealtimeService {
 
       // ── Server → Client events ──────────────────────────────────────
       _hubConnection!.on('MatchCreated', _onMatchCreated);
+      _hubConnection!.on('SparkReceived', _onSparkReceived);
       _hubConnection!.on('Subscribed', _onSubscribed);
       _hubConnection!.on('Error', _onHubError);
 
@@ -195,6 +200,20 @@ class MatchmakingRealtimeService {
     }
   }
 
+  void _onSparkReceived(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty) return;
+    try {
+      final data = parameters[0] as Map<String, dynamic>;
+      final notification = SparkNotificationReceived.fromJson(data);
+      _sparkController.add(notification);
+      if (kDebugMode) {
+        debugPrint('✨ SparkReceived from=${notification.senderUserId}');
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('❌ _onSparkReceived parse error: $e');
+    }
+  }
+
   void _onHubError(List<Object?>? parameters) {
     final error = parameters?.firstOrNull?.toString() ?? 'Unknown';
     if (kDebugMode) debugPrint('❌ MatchmakingHub error: $error');
@@ -226,6 +245,7 @@ class MatchmakingRealtimeService {
   void dispose() {
     _reconnectTimer?.cancel();
     _matchController.close();
+    _sparkController.close();
     _statusController.close();
     _hubConnection?.stop();
   }
@@ -274,5 +294,35 @@ class MatchNotification {
     if (v is int) return v;
     if (v is String) return int.tryParse(v) ?? 0;
     return 0;
+  }
+}
+
+/// Payload for a `SparkReceived` event from the MatchmakingHub.
+/// Lightweight — just enough to show a toast and update badge.
+class SparkNotificationReceived {
+  final String type;
+  final String recipientUserId;
+  final String senderUserId;
+  final String? message;
+  final DateTime timestamp;
+
+  SparkNotificationReceived({
+    required this.type,
+    required this.recipientUserId,
+    required this.senderUserId,
+    this.message,
+    required this.timestamp,
+  });
+
+  factory SparkNotificationReceived.fromJson(Map<String, dynamic> json) {
+    return SparkNotificationReceived(
+      type: json['Type'] as String? ?? json['type'] as String? ?? 'SparkReceived',
+      recipientUserId: (json['RecipientUserId'] ?? json['recipientUserId'] ?? '').toString(),
+      senderUserId: (json['SenderUserId'] ?? json['senderUserId'] ?? '').toString(),
+      message: json['Message']?.toString() ?? json['message']?.toString(),
+      timestamp: DateTime.tryParse(
+              (json['Timestamp'] ?? json['timestamp'] ?? '').toString()) ??
+          DateTime.now(),
+    );
   }
 }
