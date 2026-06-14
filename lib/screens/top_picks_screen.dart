@@ -43,7 +43,9 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
       EntitlementStatus? status;
       try {
         status = await BillingService.getStatus();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('❌ TopPicks: BillingService.getStatus failed: $e');
+      }
 
       // Try to fetch top picks from backend; fall back to mock data
       List<MatchCandidate> picks;
@@ -83,7 +85,9 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
         candidates.shuffle();
         return candidates.take(5).toList();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('❌ TopPicks: getCandidates failed: $e');
+    }
     return [];
   }
 
