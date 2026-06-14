@@ -122,8 +122,8 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           _sparksRemaining = billing.availableSparks;
           _sparksBalance = billing.sparksBalance;
           _sparksDailyMax = billing.sparksDailyMax;
-        } catch (_) {
-          // Billing service unavailable — use defaults
+        } catch (e) {
+          debugPrint('❌ ProfileHub: BillingService.getStatus failed: $e');
         }
       }
     } catch (e) {
