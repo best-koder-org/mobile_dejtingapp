@@ -16,12 +16,127 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _pushNotifications = true;
-  bool _showMeOnTinder = true;
-  bool _showAgeInProfile = true;
-  bool _showDistanceInProfile = true;
+  // --- Backend-synced state ---
+  bool _isLoading = true;
+  String? _loadError;
+
+  // Discovery preferences (from MatchPreferences)
   double _maxDistance = 50.0;
   RangeValues _ageRange = const RangeValues(18, 35);
+  bool _showMeOnDejting = true;
+
+  // Privacy display toggles (from UserProfile)
+  bool _showAgeInProfile = true;
+  bool _showDistanceInProfile = true;
+
+  // Notifications
+  bool _pushNotifications = true;
+
+  // Profile strength & account pause
+  int _profileStrength = 0;
+  String? _completenessSuggestion;
+  bool _isPaused = false;
+  bool _isPausing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+
+    try {
+      // Load discovery preferences from backend
+      final prefs = await UserService.getPreferences();
+      if (prefs != null && mounted) {
+        setState(() {
+          _maxDistance = (prefs['maxDistanceKm'] as num?)?.toDouble() ?? 50.0;
+          final minAge = (prefs['minAge'] as num?)?.toDouble() ?? 18.0;
+          final maxAge = (prefs['maxAge'] as num?)?.toDouble() ?? 35.0;
+          _ageRange = RangeValues(minAge, maxAge);
+          _showMeOnDejting = (prefs['showMeInDiscovery'] as bool?) ?? true;
+        });
+      }
+
+      // Load privacy settings from profile
+      final profile = await UserService.getUserProfile(
+        AppState().userId ?? '',
+      );
+      if (profile != null && mounted) {
+        setState(() {
+          _showAgeInProfile = (profile['showAge'] as bool?) ?? true;
+          _showDistanceInProfile = (profile['showDistance'] as bool?) ?? true;
+        });
+      }
+
+      // Load notification preferences
+      final notifPrefs = await UserService.getNotificationPreferences();
+      if (notifPrefs != null && mounted) {
+        final data = notifPrefs['data'] as Map<String, dynamic>? ?? notifPrefs;
+        setState(() {
+          _pushNotifications = (data['pushEnabled'] as bool?) ?? true;
+        });
+      }
+
+      // Load profile strength
+      final completeness = await UserService.getProfileCompleteness();
+      if (completeness != null && mounted) {
+        final data = completeness['data'] as Map<String, dynamic>? ?? completeness;
+        setState(() {
+          _profileStrength = (data['percentage'] as num?)?.toInt() ?? 0;
+          if (data['missingFields'] is List && (data['missingFields'] as List).isNotEmpty) {
+            final first = (data['missingFields'] as List).first;
+            _completenessSuggestion = first['fieldName']?.toString();
+          }
+        });
+      }
+
+      // Load account status
+      final status = await UserService.getAccountStatus();
+      if (status != null && mounted) {
+        final data = status['data'] as Map<String, dynamic>? ?? status;
+        final statusVal = data['status']?.toString() ?? 'Active';
+        setState(() => _isPaused = statusVal == 'Paused');
+      }
+    } catch (e) {
+      debugPrint('❌ Failed to load settings: $e');
+      if (mounted) {
+        setState(() => _loadError = 'Failed to load settings');
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    await UserService.updatePreferences({
+      'maxDistanceKm': _maxDistance.round(),
+      'minAge': _ageRange.start.round(),
+      'maxAge': _ageRange.end.round(),
+      'showMeInDiscovery': _showMeOnDejting,
+    });
+  }
+
+  Future<void> _savePrivacy() async {
+    await UserService.updatePrivacySettings({
+      'showAge': _showAgeInProfile,
+      'showDistance': _showDistanceInProfile,
+    });
+  }
+
+  Future<void> _saveNotificationPrefs() async {
+    await UserService.updateNotificationPreferences({
+      'pushEnabled': _pushNotifications,
+      'matchNotifications': _pushNotifications,
+      'messageNotifications': _pushNotifications,
+      'sparkNotifications': _pushNotifications,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,231 +145,217 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).settingsTitle),
-          // Uses theme default AppBar
-          // Uses theme default foreground
         ),
-        body: ListView(
-        children: [
-          // Account Section
-          _buildSectionHeader(AppLocalizations.of(context).sectionAccount),
-          ListTile(
-            leading: const Icon(Icons.person, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).editProfile),
-            subtitle: Text(AppLocalizations.of(context).editProfileSubtitle),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.verified_user, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).verifyAccount),
-            subtitle: Text(AppLocalizations.of(context).verificationSubtitle),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const VerificationSelfieScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.security, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).privacySecurity),
-            subtitle: Text(AppLocalizations.of(context).privacySecuritySubtitle),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PrivacySettingsScreen(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 32),
+        body: _buildBody(),
+      ),
+    );
+  }
 
-          // Discovery Settings
-          _buildSectionHeader(AppLocalizations.of(context).sectionDiscovery),
-          ListTile(
-            leading: const Icon(Icons.location_on, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).locationLabel),
-            subtitle: Text(AppLocalizations.of(context).locationSubtitle),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LocationSettingsScreen(),
-                ),
-              );
-            },
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Maximum Distance: ${_maxDistance.round()} km',
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                Slider(
-                  value: _maxDistance,
-                  min: 1,
-                  max: 100,
-                  divisions: 99,
-                  activeColor: AppTheme.primaryColor,
-                  onChanged: (value) {
-                    setState(() {
-                      _maxDistance = value;
-                    });
-                  },
-                ),
-              ],
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_loadError != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_loadError!, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadSettings,
+              child: const Text('Retry'),
             ),
-          ),
+          ],
+        ),
+      );
+    }
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Age Range: ${_ageRange.start.round()} - ${_ageRange.end.round()}',
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                RangeSlider(
-                  values: _ageRange,
-                  min: 18,
-                  max: 80,
-                  divisions: 62,
-                  activeColor: AppTheme.primaryColor,
-                  onChanged: (values) {
-                    setState(() {
-                      _ageRange = values;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      children: [
+        // ── Profile Strength Card (top) ──
+        _buildProfileStrengthCard(),
+        const SizedBox(height: 12),
 
-          SwitchListTile(
-            secondary: const Icon(Icons.visibility, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).showMeOnDejTing),
-            subtitle: Text(AppLocalizations.of(context).pauseAccountSubtitle),
-            value: _showMeOnTinder,
-            activeColor: AppTheme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                _showMeOnTinder = value;
-              });
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Notifications
-          _buildSectionHeader(AppLocalizations.of(context).sectionNotifications),
-          SwitchListTile(
-            secondary: const Icon(Icons.notifications, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).pushNotifications),
-            subtitle: Text(AppLocalizations.of(context).notificationsSubtitle),
-            value: _pushNotifications,
-            activeColor: AppTheme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                _pushNotifications = value;
-              });
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Profile Display
-          _buildSectionHeader(AppLocalizations.of(context).sectionProfileDisplay),
-          SwitchListTile(
-            secondary: const Icon(Icons.cake, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).showAge),
-            subtitle: Text(AppLocalizations.of(context).showAgeSubtitle),
-            value: _showAgeInProfile,
-            activeColor: AppTheme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                _showAgeInProfile = value;
-              });
-            },
-          ),
-          SwitchListTile(
-            secondary: const Icon(Icons.location_on, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).showDistance),
-            subtitle: Text(AppLocalizations.of(context).showDistanceSubtitle),
-            value: _showDistanceInProfile,
-            activeColor: AppTheme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                _showDistanceInProfile = value;
-              });
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Support & About
-          _buildSectionHeader(AppLocalizations.of(context).sectionSupportAbout),
-          ListTile(
-            leading: const Icon(Icons.help, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).helpSupport),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
+        // ── Discovery Card ──
+        _buildSettingsCard(
+          title: AppLocalizations.of(context).sectionDiscovery,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.location_on, color: AppTheme.primaryColor),
+              title: Text(AppLocalizations.of(context).locationLabel),
+              subtitle: Text(AppLocalizations.of(context).locationSubtitle),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const HelpScreen(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).aboutLabel),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              _showAboutDialog();
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.star, color: AppTheme.primaryColor),
-            title: Text(AppLocalizations.of(context).rateUs),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: _rateApp,
-          ),
-
-          const SizedBox(height: 32),
-
-          // Logout
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton(
-              onPressed: _showLogoutDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                // Uses theme default foreground
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
+                MaterialPageRoute(builder: (_) => const LocationSettingsScreen()),
               ),
-              child: Text(AppLocalizations.of(context).logoutButton),
             ),
-          ),
+            const Divider(height: 1),
+            _buildSliderTile(
+              'Maximum Distance: ${_maxDistance.round()} km',
+              Slider(
+                value: _maxDistance, min: 1, max: 100, divisions: 99,
+                activeColor: AppTheme.primaryColor,
+                onChanged: (v) => setState(() => _maxDistance = v),
+                onChangeEnd: (_) => _savePreferences(),
+              ),
+            ),
+            _buildSliderTile(
+              'Age Range: ${_ageRange.start.round()} - ${_ageRange.end.round()}',
+              RangeSlider(
+                values: _ageRange, min: 18, max: 80, divisions: 62,
+                activeColor: AppTheme.primaryColor,
+                onChanged: (v) => setState(() => _ageRange = v),
+                onChangeEnd: (_) => _savePreferences(),
+              ),
+            ),
+            SwitchListTile(
+              secondary: const Icon(Icons.visibility, color: AppTheme.primaryColor, size: 20),
+              title: const Text('Show me on DejTing', style: TextStyle(fontSize: 14)),
+              value: _showMeOnDejting,
+              activeColor: AppTheme.primaryColor,
+              onChanged: (v) { setState(() => _showMeOnDejting = v); _savePreferences(); },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
 
-          const SizedBox(height: 32),
-        ],
+        // ── Profile Display Card ──
+        _buildSettingsCard(
+          title: AppLocalizations.of(context).sectionProfileDisplay,
+          children: [
+            SwitchListTile(
+              secondary: const Icon(Icons.cake, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).showAge, style: const TextStyle(fontSize: 14)),
+              subtitle: Text(AppLocalizations.of(context).showAgeSubtitle, style: const TextStyle(fontSize: 12)),
+              value: _showAgeInProfile,
+              activeColor: AppTheme.primaryColor,
+              onChanged: (v) { setState(() => _showAgeInProfile = v); _savePrivacy(); },
+            ),
+            SwitchListTile(
+              secondary: const Icon(Icons.location_on, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).showDistance, style: const TextStyle(fontSize: 14)),
+              subtitle: Text(AppLocalizations.of(context).showDistanceSubtitle, style: const TextStyle(fontSize: 12)),
+              value: _showDistanceInProfile,
+              activeColor: AppTheme.primaryColor,
+              onChanged: (v) { setState(() => _showDistanceInProfile = v); _savePrivacy(); },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Privacy & Safety Card ──
+        _buildSettingsCard(
+          title: 'Privacy & Safety',
+          children: [
+            ListTile(
+              leading: const Icon(Icons.security, color: AppTheme.primaryColor, size: 20),
+              title: const Text('Privacy & Security', style: TextStyle(fontSize: 14)),
+              subtitle: const Text('Incognito, message filter, blocked users', style: TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PrivacySettingsScreen()),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Notifications Card ──
+        _buildSettingsCard(
+          title: AppLocalizations.of(context).sectionNotifications,
+          children: [
+            SwitchListTile(
+              secondary: const Icon(Icons.notifications, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).pushNotifications, style: const TextStyle(fontSize: 14)),
+              subtitle: Text(AppLocalizations.of(context).notificationsSubtitle, style: const TextStyle(fontSize: 12)),
+              value: _pushNotifications,
+              activeColor: AppTheme.primaryColor,
+              onChanged: (v) { setState(() => _pushNotifications = v); _saveNotificationPrefs(); },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Account Card ──
+        _buildSettingsCard(
+          title: AppLocalizations.of(context).sectionAccount,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).editProfile, style: const TextStyle(fontSize: 14)),
+              subtitle: const Text('Update your photos, bio, and preferences', style: TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.pushNamed(context, '/profile'),
+            ),
+            _buildPauseTile(),
+            ListTile(
+              leading: const Icon(Icons.verified_user, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).verifyAccount, style: const TextStyle(fontSize: 14)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const VerificationSelfieScreen()),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Support Card ──
+        _buildSettingsCard(
+          title: AppLocalizations.of(context).sectionSupportAbout,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.help, color: AppTheme.primaryColor, size: 20),
+              title: const Text('Help & FAQ', style: TextStyle(fontSize: 14)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => const HelpScreen()),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).aboutLabel, style: const TextStyle(fontSize: 14)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _showAboutDialog,
+            ),
+            ListTile(
+              leading: const Icon(Icons.star, color: AppTheme.primaryColor, size: 20),
+              title: Text(AppLocalizations.of(context).rateUs, style: const TextStyle(fontSize: 14)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _rateApp,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // ── Logout ──
+        ElevatedButton(
+          onPressed: _showLogoutDialog,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          ),
+          child: Text(AppLocalizations.of(context).logoutButton),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: AppTheme.primaryColor,
         ),
       ),
     );
@@ -284,75 +385,269 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSettingsCard({required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 0,
+      color: AppTheme.surfaceElevated,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        side: BorderSide(color: AppTheme.dividerColor.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+            child: Text(title,
+              style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w600,
+                color: AppTheme.primaryColor, letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSliderTile(String label, Widget slider) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: AppTheme.primaryColor,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+          slider,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileStrengthCard() {
+    final color = _profileStrength < 40
+        ? Colors.red
+        : _profileStrength < 70
+            ? Colors.orange
+            : Colors.green;
+    final message = _profileStrength < 40
+        ? 'Complete your profile to get more matches'
+        : _profileStrength < 70
+            ? 'Keep going! Add more details to stand out'
+            : 'Great profile! You\'re all set.';
+    return Card(
+      elevation: 0,
+      color: AppTheme.surfaceElevated,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        side: BorderSide(color: AppTheme.dividerColor.withValues(alpha: 0.5)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 48, height: 48,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: _profileStrength / 100.0,
+                    color: color,
+                    backgroundColor: AppTheme.dividerColor,
+                    strokeWidth: 4,
+                  ),
+                  Text('$_profileStrength%',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Profile Strength',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  const SizedBox(height: 2),
+                  Text(message,
+                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                  if (_completenessSuggestion != null && _profileStrength < 100)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text('Tip: Add ${_completenessSuggestion}',
+                          style: const TextStyle(fontSize: 11, color: AppTheme.primaryColor)),
+                    ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.edit, size: 18),
+              color: AppTheme.primaryColor,
+              onPressed: () => Navigator.pushNamed(context, '/profile'),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  Widget _buildPauseTile() {
+    return ListTile(
+      leading: Icon(
+        _isPaused ? Icons.play_arrow : Icons.pause,
+        color: AppTheme.primaryColor, size: 20,
+      ),
+      title: Text(
+        _isPaused ? 'Resume Account' : 'Pause Account',
+        style: const TextStyle(fontSize: 14),
+      ),
+      subtitle: Text(
+        _isPaused ? 'Your profile is hidden' : 'Temporarily hide your profile',
+        style: const TextStyle(fontSize: 12),
+      ),
+      trailing: _isPausing
+          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          : const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: _isPausing ? null : _isPaused ? _handleResume : _showPauseDialog,
+    );
+  }
+
+  void _showPauseDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Pause Account',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            const Text('Your profile will be hidden from everyone.',
+                style: TextStyle(color: Colors.grey)),
+            const SizedBox(height: 20),
+            _pauseOption('24 hours', 'Hours24'),
+            _pauseOption('72 hours', 'Hours72'),
+            _pauseOption('1 week', 'OneWeek'),
+            _pauseOption('Indefinitely', 'Indefinite'),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pauseOption(String label, String duration) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ElevatedButton(
+        onPressed: () async {
+          Navigator.pop(context); // close bottom sheet
+          setState(() => _isPausing = true);
+          final ok = await UserService.pauseAccount(duration: duration);
+          if (mounted) {
+            setState(() {
+              _isPausing = false;
+              _isPaused = ok;
+            });
+            if (ok) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Account paused for $label')),
+              );
+            }
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.surfaceElevated,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            side: BorderSide(color: AppTheme.dividerColor),
+          ),
+        ),
+        child: Text(label, style: const TextStyle(color: AppTheme.textPrimary)),
+      ),
+    );
+  }
+
+  Future<void> _handleResume() async {
+    setState(() => _isPausing = true);
+    final ok = await UserService.resumeAccount();
+    if (mounted) {
+      setState(() {
+        _isPausing = false;
+        _isPaused = !ok;
+      });
+      if (ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account resumed!')),
+        );
+      }
+    }
+  }
+
   void _showAboutDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).aboutApp),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(AppLocalizations.of(context).versionNumber),
-                const SizedBox(height: 8),
-                Text(AppLocalizations.of(context).aboutAppDescription),
-                const SizedBox(height: 16),
-                Text(AppLocalizations.of(context).madeByTeam),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context).okButton),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context).aboutApp),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context).versionNumber),
+            const SizedBox(height: 8),
+            Text(AppLocalizations.of(context).aboutAppDescription),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context).madeByTeam),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context).okButton),
           ),
+        ],
+      ),
     );
   }
 
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).logoutButton),
-            content: Text(AppLocalizations.of(context).logoutConfirmation),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context).cancelButton),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await AppState().logout();
-                  if (!context.mounted) return;
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/welcome',
-                    (route) => false,
-                  );
-                },
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: Text(AppLocalizations.of(context).logoutButton),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context).logoutButton),
+        content: Text(AppLocalizations.of(context).logoutConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context).cancelButton),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await AppState().logout();
+              if (!context.mounted) return;
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/welcome',
+                (route) => false,
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(AppLocalizations.of(context).logoutButton),
+          ),
+        ],
+      ),
     );
   }
 }

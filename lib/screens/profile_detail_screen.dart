@@ -122,6 +122,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   String? get _drinking => widget.profile?.drinking;
   String? get _smoking => widget.profile?.smoking;
   String? get _workout => widget.profile?.workout;
+  String? get _politicalViews => widget.profile?.politicalViews;
+  String? get _pets => widget.profile?.pets;
+  String? get _zodiacSign => widget.profile?.zodiacSign;
   List<String> get _languages => widget.profile?.languages ?? [];
 
   String? get _voicePromptUrl =>
@@ -620,7 +623,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
   // ─── Lifestyle ────────────────────────────────────────
   bool get _hasLifestyleData =>
-      _drinking != null || _smoking != null || _workout != null;
+      _drinking != null || _smoking != null || _workout != null ||
+      _politicalViews != null || _pets != null || _zodiacSign != null;
 
   Widget _buildLifestyleSection() {
     return _buildSectionCard(
@@ -634,6 +638,12 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
             _buildLifestyleRow(Icons.smoking_rooms_rounded, AppLocalizations.of(context).smokingLabel, _smoking!),
           if (_workout != null)
             _buildLifestyleRow(Icons.fitness_center_rounded, AppLocalizations.of(context).workoutLabel, _workout!),
+          if (_politicalViews != null)
+            _buildLifestyleRow(Icons.how_to_vote_rounded, "Political views", _politicalViews!),
+          if (_pets != null)
+            _buildLifestyleRow(Icons.pets_rounded, "Pets", _pets!),
+          if (_zodiacSign != null)
+            _buildLifestyleRow(Icons.auto_awesome_rounded, "Zodiac", _zodiacSign!),
         ],
       ),
     );

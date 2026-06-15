@@ -73,6 +73,55 @@ class _HelpScreenState extends State<HelpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ── FAQ Section ──
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Frequently Asked Questions',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+                      _buildFaqItem(
+                        'How does matching work?',
+                        "You'll see profiles in your Discover feed. Swipe right to like, left to pass. "
+                        "When two people like each other, it's a match! You can then start chatting.",
+                      ),
+                      _buildFaqItem(
+                        'What are Sparks?',
+                        "Sparks are special likes that include a personal message. "
+                        "They're more noticeable than regular likes and triple your chance of matching. "
+                        "You can buy Sparks in the Sparks Store.",
+                      ),
+                      _buildFaqItem(
+                        'How do I verify my profile?',
+                        'Go to Settings → Verify Account and take a selfie. '
+                        'Our system will check it against your profile photos. '
+                        'Verified profiles get more matches!',
+                      ),
+                      _buildFaqItem(
+                        'How do I block someone?',
+                        'Go to their profile or chat, tap the menu (⋮), and select Block. '
+                        'You can also manage blocked users in Settings → Privacy & Security.',
+                      ),
+                      _buildFaqItem(
+                        'How do I pause or delete my account?',
+                        'To take a break, use the Pause feature in Settings. '
+                        'To permanently delete your account, contact us through the feedback form below.',
+                      ),
+                      _buildFaqItem(
+                        'What does Premium include?',
+                        'Premium gives you: see who liked you, compatibility deep-dives, '
+                        'advanced filters, unlimited Sparks, and more. Check the Sparks Store for plans.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
               const Row(
                 children: [
                   Icon(Icons.support_agent,
@@ -158,6 +207,20 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFaqItem(String question, String answer) {
+    return ExpansionTile(
+      title: Text(question,
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Text(answer,
+              style: const TextStyle(color: Colors.grey, fontSize: 14)),
+        ),
+      ],
     );
   }
 }
