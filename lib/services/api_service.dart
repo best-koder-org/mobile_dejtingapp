@@ -276,6 +276,226 @@ class UserService {
       return false;
     }
   }
+  /// Get match preferences for the authenticated user.
+  /// GET /api/userprofiles/{userId}/preferences
+  static Future<Map<String, dynamic>?> getPreferences() async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      final userId = AppState().userId;
+      if (token == null || userId == null) {
+        debugPrint('❌ getPreferences aborted: no auth token or userId');
+        return null;
+      }
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/userprofiles/$userId/preferences'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+      debugPrint('❌ getPreferences failed: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      debugPrint('❌ getPreferences error: $e');
+      return null;
+    }
+  }
+
+  /// Update match preferences for the authenticated user.
+  /// PUT /api/userprofiles/{userId}/preferences
+  static Future<bool> updatePreferences(Map<String, dynamic> data) async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      final userId = AppState().userId;
+      if (token == null || userId == null) {
+        debugPrint('❌ updatePreferences aborted: no auth token or userId');
+        return false;
+      }
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/userprofiles/$userId/preferences'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+      debugPrint('❌ updatePreferences failed: ${response.statusCode} ${response.body}');
+      return false;
+    } catch (e) {
+      debugPrint('❌ updatePreferences error: $e');
+      return false;
+    }
+  }
+
+  /// Update privacy settings for the authenticated user.
+  /// PUT /api/userprofiles/{profileId}/privacy
+  static Future<bool> updatePrivacySettings(Map<String, dynamic> data) async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      final profileId = await AppState().getOrResolveProfileId();
+      if (token == null || profileId == null) {
+        debugPrint('❌ updatePrivacySettings aborted: no auth token or profileId');
+        return false;
+      }
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/userprofiles/$profileId/privacy'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      );
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+      debugPrint('❌ updatePrivacySettings failed: ${response.statusCode} ${response.body}');
+      return false;
+    } catch (e) {
+      debugPrint('❌ updatePrivacySettings error: $e');
+      return false;
+    }
+  }
+
+  /// Get notification preferences for the authenticated user.
+  /// GET /api/profiles/me/notifications
+  static Future<Map<String, dynamic>?> getNotificationPreferences() async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) {
+        debugPrint('❌ getNotificationPreferences aborted: no auth token');
+        return null;
+      }
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/profiles/me/notifications'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      }
+      debugPrint('❌ getNotificationPreferences failed: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      debugPrint('❌ getNotificationPreferences error: $e');
+      return null;
+    }
+  }
+
+  /// Update notification preferences for the authenticated user.
+  /// PUT /api/profiles/me/notifications
+  static Future<bool> updateNotificationPreferences(Map<String, dynamic> data) async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) {
+        debugPrint('❌ updateNotificationPreferences aborted: no auth token');
+        return false;
+      }
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/profiles/me/notifications'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(data),
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+      debugPrint('❌ updateNotificationPreferences failed: ${response.statusCode} ${response.body}');
+      return false;
+    } catch (e) {
+      debugPrint('❌ updateNotificationPreferences error: $e');
+      return false;
+    }
+  }
+
+  /// Pause (snooze) the authenticated user's account.
+  /// POST /api/account/pause
+  static Future<bool> pauseAccount({
+    required String duration,
+    String? reason,
+  }) async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) {
+        debugPrint('❌ pauseAccount aborted: no auth token');
+        return false;
+      }
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/account/pause'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'duration': duration,
+          if (reason != null) 'reason': reason,
+        }),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('❌ pauseAccount error: $e');
+      return false;
+    }
+  }
+
+  /// Resume a paused account.
+  /// POST /api/account/resume
+  static Future<bool> resumeAccount() async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) {
+        debugPrint('❌ resumeAccount aborted: no auth token');
+        return false;
+      }
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/account/resume'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('❌ resumeAccount error: $e');
+      return false;
+    }
+  }
+
+  /// Check account status.
+  /// GET /api/account/status
+  static Future<Map<String, dynamic>?> getAccountStatus() async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) return null;
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/account/status'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) return json.decode(response.body);
+      return null;
+    } catch (e) {
+      debugPrint('❌ getAccountStatus error: $e');
+      return null;
+    }
+  }
+
+  /// Get profile completeness score.
+  /// GET /api/profiles/me/completeness
+  static Future<Map<String, dynamic>?> getProfileCompleteness() async {
+    try {
+      final token = await AppState().getOrRefreshAuthToken();
+      if (token == null) return null;
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/profiles/me/completeness'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) return json.decode(response.body);
+      return null;
+    } catch (e) {
+      debugPrint('❌ getProfileCompleteness error: $e');
+      return null;
+    }
+  }
 }
 
 // Singleton class to manage app state

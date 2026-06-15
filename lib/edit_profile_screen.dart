@@ -49,6 +49,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedDrinking;
   String? _selectedSmoking;
   String? _selectedWorkout;
+  String? _selectedPoliticalViews;
+  String? _selectedPets;
   List<String> _interests = [];
   List<String> _languages = [];
   List<String> _photoUrls = [];
@@ -129,6 +131,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'Often',
     'Sometimes',
     'Never',
+  ];
+
+  final List<String> _politicalViewsOptions = [
+    'Liberal',
+    'Moderate',
+    'Conservative',
+    'Apolitical',
+    'Other',
+    'Prefer not to say',
+  ];
+
+  final List<String> _petsOptions = [
+    'Dog',
+    'Cat',
+    'Dog & Cat',
+    'Bird',
+    'Other pet',
+    'No pets',
+    'Pet-free',
+    'Prefer not to say',
   ];
 
   final List<String> _availableInterests = [
@@ -222,6 +244,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _selectedDrinking = profile.drinking;
       _selectedSmoking = profile.smoking;
       _selectedWorkout = profile.workout;
+      _selectedPoliticalViews = profile.politicalViews;
+      _selectedPets = profile.pets;
       _languages = List.from(profile.languages);
 
       if (profile.photoUrls.isNotEmpty) {
@@ -1115,6 +1139,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           options: _workoutOptions,
           onChanged: (value) {
             setState(() => _selectedWorkout = value);
+            _calculateProfileCompletion();
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildDropdown(
+          value: _selectedPoliticalViews,
+          label: 'Political views',
+          options: _politicalViewsOptions,
+          onChanged: (value) {
+            setState(() => _selectedPoliticalViews = value);
+            _calculateProfileCompletion();
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildDropdown(
+          value: _selectedPets,
+          label: 'Pets',
+          options: _petsOptions,
+          onChanged: (value) {
+            setState(() => _selectedPets = value);
             _calculateProfileCompletion();
           },
         ),

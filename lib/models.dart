@@ -74,6 +74,9 @@ class UserProfile {
   final String? workout;
   final List<String> languages;
   final String? voicePromptUrl;
+  final String? politicalViews;
+  final String? pets;
+  final String? zodiacSign;
 
   UserProfile({
     this.id,
@@ -105,6 +108,9 @@ class UserProfile {
     this.workout,
     this.languages = const [],
     this.voicePromptUrl,
+    this.politicalViews,
+    this.pets,
+    this.zodiacSign,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -163,6 +169,9 @@ class UserProfile {
           ? languagesList.map((e) => e.toString()).toList()
           : const [],
       voicePromptUrl: json['voicePromptUrl'] ?? json['VoicePromptUrl'],
+      politicalViews: json['politicalViews'] ?? json['PoliticalViews'],
+      pets: json['pets'] ?? json['Pets'],
+      zodiacSign: json['zodiacSign'] ?? json['ZodiacSign'],
     );
   }
 
@@ -259,6 +268,9 @@ class UserProfile {
       'smoking': smoking,
       'workout': workout,
       'languages': languages,
+      'politicalViews': politicalViews,
+      'pets': pets,
+      'zodiacSign': zodiacSign,
     };
   }
 

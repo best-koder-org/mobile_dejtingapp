@@ -498,7 +498,7 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           iconColor: AppTheme.warningColor,
           title: AppLocalizations.of(context).datingTips,
           subtitle: 'Expert-backed advice for better dates',
-          onTap: () => _showComingSoon('Dating tips'),
+          onTap: _showDatingTips,
         ),
 
         const SizedBox(height: 12),
@@ -1219,6 +1219,42 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context).featureComingSoon(feature))),
+    );
+  }
+
+  void _showDatingTips() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Dating Tips'),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('1. Be authentic — your real self is your best self.'),
+              SizedBox(height: 8),
+              Text('2. Use clear, recent photos that show your face and smile.'),
+              SizedBox(height: 8),
+              Text('3. Write a bio that sparks conversation — share a fun fact or question.'),
+              SizedBox(height: 8),
+              Text('4. Be specific about your interests — it gives people an opening line.'),
+              SizedBox(height: 8),
+              Text('5. Ask open-ended questions in chats instead of just "hey".'),
+              SizedBox(height: 8),
+              Text('6. Try to move to a real date within a few days of matching.'),
+              SizedBox(height: 8),
+              Text('7. Trust your instincts — if something feels off, unmatch and move on.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
