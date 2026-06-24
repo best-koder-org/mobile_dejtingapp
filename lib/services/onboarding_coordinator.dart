@@ -21,6 +21,7 @@ class OnboardingCoordinator {
     '/onboarding/lifestyle',
     '/onboarding/interests',
     '/onboarding/about-me',
+    '/onboarding/compatibility-questions',
     '/onboarding/photos',
     '/onboarding/location',
     '/onboarding/notifications',

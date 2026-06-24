@@ -7,6 +7,7 @@ import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dejtingapp/main.dart' show setAppLocale, appLocale;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -299,6 +300,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const VerificationSelfieScreen()),
+              ),
+            ),
+            // ── Language toggle ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.language, color: AppTheme.primaryColor, size: 20),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Text('Language / Språk', style: TextStyle(fontSize: 14)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ValueListenableBuilder<Locale>(
+                    valueListenable: appLocale,
+                    builder: (context, locale, _) {
+                      return SegmentedButton<String>(
+                        style: SegmentedButton.styleFrom(
+                          backgroundColor: AppTheme.surfaceColor,
+                          selectedBackgroundColor: AppTheme.primaryColor,
+                          selectedForegroundColor: Colors.white,
+                          foregroundColor: AppTheme.textSecondary,
+                          side: const BorderSide(color: AppTheme.dividerColor),
+                        ),
+                        segments: const [
+                          ButtonSegment(value: 'en', label: Text('🇬🇧 English')),
+                          ButtonSegment(value: 'sv', label: Text('🇸🇪 Svenska')),
+                        ],
+                        selected: {locale.languageCode},
+                        onSelectionChanged: (sel) => setAppLocale(Locale(sel.first)),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],

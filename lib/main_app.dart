@@ -8,6 +8,7 @@ import 'screens/top_picks_screen.dart';
 import 'screens/enhanced_matches_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/profile_hub_screen.dart';
+import 'screens/forum_feed_screen.dart';
 import 'services/app_initialization_service.dart';
 import 'services/api_service.dart' hide PhotoService;
 import 'services/photo_service.dart';
@@ -46,6 +47,7 @@ class _MainAppState extends State<MainApp> {
     const EnhancedMatchesScreen(), // 2: Matches ❤️
     const MessagesScreen(),        // 3: Messages 💬
     const ProfileHubScreen(),      // 4: Profile 👤
+    const ForumFeedScreen(),       // 5: Community 🏘️
   ];
 
   @override
@@ -344,6 +346,7 @@ class _MainAppState extends State<MainApp> {
             if (index == 3) {
               _pollUnreadCount();
             }
+            // Community tab index updated (profile stays at 4)
             setState(() {
               _currentIndex = index;
             });
@@ -383,6 +386,11 @@ class _MainAppState extends State<MainApp> {
             BottomNavigationBarItem(
               icon: _buildProfileNavIcon(isSelected: _currentIndex == 4),
               label: 'Profile',
+            ),
+            // 5: Community
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.forum_outlined),
+              label: 'Community',
             ),
           ],
         ),

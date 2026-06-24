@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dejtingapp/screens/match_insight_screen.dart';
 import 'package:dejtingapp/services/match_insight_service.dart';
+import 'package:dejtingapp/widgets/radar_chart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -184,6 +185,125 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Match with Maja'), findsOneWidget);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Radar section (T591)
+  // -------------------------------------------------------------------------
+
+  const _radarPayload = {
+    'mine': {
+      'keycloakId': 'user-a',
+      'confidence': 0.9,
+      'axes': {
+        'emotionalStability': 0.8,
+        'socialEnergy': 0.6,
+        'openness': 0.7,
+        'warmth': 0.9,
+        'lifeStructure': 0.5,
+        'intimacyComfort': 0.6,
+        'conflictStyle': 0.4,
+      },
+    },
+    'theirs': {
+      'keycloakId': 'user-b',
+      'confidence': 0.85,
+      'axes': {
+        'emotionalStability': 0.5,
+        'socialEnergy': 0.8,
+        'openness': 0.6,
+        'warmth': 0.7,
+        'lifeStructure': 0.7,
+        'intimacyComfort': 0.5,
+        'conflictStyle': 0.6,
+      },
+    },
+  };
+
+  http.Client _radarClientReturning(Map<String, dynamic> body, {int status = 200}) {
+    return MockClient((req) async => http.Response(
+          jsonEncode(body),
+          status,
+          headers: {'content-type': 'application/json'},
+        ));
+  }
+
+  group('_RadarSection (T591)', () {
+    testWidgets('radar section absent when otherKeycloakId is null',
+        (tester) async {
+      final service = _serviceReturning(body: _fullPayload);
+
+      await tester.pumpWidget(_wrap(
+        MatchInsightScreen(matchId: 42, insightService: service),
+      ));
+      await tester.pumpAndSettle();
+
+      // No radar title or chart
+      expect(find.text('Kompatibilitetsprofil'), findsNothing);
+      expect(find.byType(RadarChartWidget), findsNothing);
+    });
+
+    testWidgets('radar section shows chart when API returns data', (tester) async {
+      final insightService = _serviceReturning(body: _fullPayload);
+      final radarClient = _radarClientReturning(_radarPayload);
+
+      await tester.pumpWidget(_wrap(
+        MatchInsightScreen(
+          matchId: 42,
+          insightService: insightService,
+          otherKeycloakId: 'user-b',
+          radarHttpClient: radarClient,
+          radarTokenProvider: () async => 'test-token',
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Kompatibilitetsprofil'), findsOneWidget);
+      expect(find.byType(RadarChartWidget), findsOneWidget);
+      expect(find.text('Visa mer'), findsOneWidget);
+    });
+
+    testWidgets('radar section is hidden when API returns 404', (tester) async {
+      final insightService = _serviceReturning(body: _fullPayload);
+      final radarClient = _radarClientReturning({}, status: 404);
+
+      await tester.pumpWidget(_wrap(
+        MatchInsightScreen(
+          matchId: 42,
+          insightService: insightService,
+          otherKeycloakId: 'user-b',
+          radarHttpClient: radarClient,
+          radarTokenProvider: () async => 'test-token',
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Kompatibilitetsprofil'), findsNothing);
+      expect(find.byType(RadarChartWidget), findsNothing);
+    });
+
+    testWidgets('radar section is hidden when token is null', (tester) async {
+      final insightService = _serviceReturning(body: _fullPayload);
+      bool clientCalled = false;
+      final radarClient = MockClient((req) async {
+        clientCalled = true;
+        return http.Response('', 200);
+      });
+
+      await tester.pumpWidget(_wrap(
+        MatchInsightScreen(
+          matchId: 42,
+          insightService: insightService,
+          otherKeycloakId: 'user-b',
+          radarHttpClient: radarClient,
+          radarTokenProvider: () async => null,
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(clientCalled, isFalse);
+      expect(find.text('Kompatibilitetsprofil'), findsNothing);
     });
   });
 }

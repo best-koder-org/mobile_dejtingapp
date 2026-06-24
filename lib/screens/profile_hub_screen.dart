@@ -14,6 +14,9 @@ import 'verification_selfie_screen.dart';
 import 'settings_screen.dart';
 import 'voice_prompt_screen.dart';
 import 'sparks_store_screen.dart';
+import 'psykolog_home_screen.dart';
+import 'radar_profile_screen.dart';
+import 'compatibility_settings_screen.dart';
 
 /// DejTing profile hub — inspired by Hinge but branded for DejTing.
 ///
@@ -510,6 +513,60 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
           title: AppLocalizations.of(context).helpCentre,
           subtitle: 'FAQs, safety and account support',
           onTap: () => _showComingSoon('Help centre'),
+        ),
+
+        const SizedBox(height: 12),
+
+        // AI Psykolog
+        _buildFeatureCard(
+          icon: Icons.psychology,
+          iconColor: const Color(0xFF6B4EFF),
+          title: 'AI Psykolog',
+          subtitle: 'Utforska dina relationsmönster',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PsykologHomeScreen()),
+            );
+          },
+        ),
+
+        const SizedBox(height: 12),
+
+        // Kompatibilitetsprofil (Radar)
+        _buildFeatureCard(
+          icon: Icons.radar,
+          iconColor: AppTheme.primaryColor,
+          title: 'Kompatibilitetsprofil',
+          subtitle: 'Se ditt 7-axliga personlighetsmönster',
+          onTap: () {
+            final myId = AppState().userId ?? '';
+            if (myId.isEmpty) return;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RadarProfileScreen(keycloakId: myId),
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 12),
+
+        // Kompatibilitetsfrågor (T517 — re-answerable from settings)
+        _buildFeatureCard(
+          icon: Icons.quiz_outlined,
+          iconColor: const Color(0xFF26C6DA),
+          title: 'Kompatibilitetsfrågor',
+          subtitle: 'Svara på frågor för bättre matchningar',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CompatibilitySettingsScreen(),
+              ),
+            );
+          },
         ),
 
         const SizedBox(height: 12),
