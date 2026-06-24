@@ -75,12 +75,67 @@ class _CompatibilityQuestionsScreenState
     setState(() => _submitting = true);
     try {
       await widget.service.submitAnswers(Map<String, String>.from(_answers));
-    } finally {
       if (mounted) {
         setState(() => _submitting = false);
-        _goNext();
+        _showConfidenceDialog();
       }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  void _showConfidenceDialog() {
+    final answered = _answers.length;
+    final total = _questions?.length ?? 1;
+    final pct = ((answered / total) * 60).clamp(10, 60).toInt();
+    final nextPct = (pct + 20).clamp(30, 80);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.auto_awesome, color: AppTheme.primaryColor, size: 24),
+            const SizedBox(width: 8),
+            const Text('Din profil växer',
+                style: TextStyle(color: AppTheme.textPrimary, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Text(
+              'Din matchningskonfidens är nu $pct%.\n'
+              'Gör en session med AI Psykolog för att nå $nextPct% 🚀',
+              style: const TextStyle(color: AppTheme.textSecondary, height: 1.5, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            LinearProgressIndicator(
+              value: pct / 100.0,
+              backgroundColor: AppTheme.scaffoldDark,
+              color: AppTheme.primaryColor,
+              minHeight: 8,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _goNext();
+            },
+            style: TextButton.styleFrom(foregroundColor: AppTheme.primaryColor),
+            child: const Text('Fortsätt'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _skip() {

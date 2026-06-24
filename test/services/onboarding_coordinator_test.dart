@@ -10,14 +10,14 @@ void main() {
       FlavorConfig.current = DejtingFlavorConfig();
       final steps = OnboardingCoordinator.steps;
       expect(steps.contains('/onboarding/voice-answers'), isFalse);
-      expect(steps.length, 17); // base step count
+      expect(steps.length, 18); // base step count
     });
 
     test('voice flavor includes voice-answers step after photos', () {
       FlavorConfig.current = VoiceFlavorConfig();
       final steps = OnboardingCoordinator.steps;
       expect(steps.contains('/onboarding/voice-answers'), isTrue);
-      expect(steps.length, 18); // base + 1
+      expect(steps.length, 19); // base + 1
 
       final photosIdx = steps.indexOf('/onboarding/photos');
       final voiceIdx = steps.indexOf('/onboarding/voice-answers');

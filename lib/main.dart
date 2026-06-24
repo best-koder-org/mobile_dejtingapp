@@ -1,11 +1,11 @@
 import "package:dejtingapp/l10n/generated/app_localizations.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:dejtingapp/flavors/dejting_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main_app.dart';
 import 'screens/auth_screens.dart';
 import 'screens/photo_upload_screen.dart';
@@ -28,6 +28,7 @@ import 'screens/wizard/aboutme_screen.dart';
 import 'screens/wizard/location_permission_screen.dart';
 import 'screens/wizard/notification_permission_screen.dart';
 import 'screens/wizard/onboarding_complete_screen.dart';
+import 'screens/wizard/compatibility_questions_screen.dart';
 import 'screens/voice_onboarding_screen.dart';
 
 import 'edit_profile_screen.dart';
@@ -112,32 +113,57 @@ Future<void> _runApp() async {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
+  // Load persisted locale choice before first frame
+  await _loadLocale();
+
   runApp(const DatingApp());
+}
+
+// Helper to persist locale choice.
+Future<void> setAppLocale(Locale locale) async {
+  appLocale.value = locale;
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(_kAppLanguageKey, locale.languageCode);
 }
 
 /// Shared wizard data for the entire onboarding flow.
 /// Reset when wizard starts, persists across all screens.
 final OnboardingData _onboardingData = OnboardingData();
 
+/// Global locale notifier — settings screen writes here, MaterialApp listens.
+final appLocale = ValueNotifier<Locale>(const Locale('sv'));
+
+const _kAppLanguageKey = 'app_language';
+
+/// Load saved locale preference and seed [appLocale] before runApp.
+Future<void> _loadLocale() async {
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getString(_kAppLanguageKey);
+  if (saved != null) appLocale.value = Locale(saved);
+}
+
 class DatingApp extends StatelessWidget {
   const DatingApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: rootNavigatorKey,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      title: FlavorConfig.current.appName,
-      debugShowCheckedModeBanner: false,
-      theme: FlavorConfig.current.theme,
-      initialRoute: _getInitialRoute(),
-      builder: (context, child) {
-        // Overlay the dev-only feedback FAB above every screen.
-        return Stack(
-          children: [
-            child ?? const SizedBox.shrink(),
-            if (feedbackFabEnabled) const FeedbackFab(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: appLocale,
+      builder: (context, locale, _) => MaterialApp(
+        navigatorKey: rootNavigatorKey,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
+        title: FlavorConfig.current.appName,
+        debugShowCheckedModeBanner: false,
+        theme: FlavorConfig.current.theme,
+        initialRoute: _getInitialRoute(),
+        builder: (context, child) {
+          // Overlay the dev-only feedback FAB above every screen.
+          return Stack(
+            children: [
+              child ?? const SizedBox.shrink(),
+              if (feedbackFabEnabled) const FeedbackFab(),
           ],
         );
       },
@@ -166,6 +192,7 @@ class DatingApp extends StatelessWidget {
         '/onboarding/photos': (context) => OnboardingProvider(data: _onboardingData, child: const PhotosScreen()),
         '/onboarding/voice-answers': (context) => OnboardingProvider(data: _onboardingData, child: const VoiceOnboardingScreen()),
         '/onboarding/verify-code': (context) => OnboardingProvider(data: _onboardingData, child: const SmsCodeScreen()),
+        '/onboarding/compatibility-questions': (context) => OnboardingProvider(data: _onboardingData, child: const CompatibilityQuestionsScreen()),
         '/onboarding/lifestyle': (context) => OnboardingProvider(data: _onboardingData, child: const LifestyleScreen()),
         '/onboarding/interests': (context) => OnboardingProvider(data: _onboardingData, child: const InterestsScreen()),
         '/onboarding/about-me': (context) => OnboardingProvider(data: _onboardingData, child: const AboutMeScreen()),
@@ -193,6 +220,7 @@ class DatingApp extends StatelessWidget {
           );
         },
       },
+      ),
     );
   }
 

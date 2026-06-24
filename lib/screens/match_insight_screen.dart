@@ -1,9 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+import '../backend_url.dart';
 import '../models/match_insight.dart';
+import '../services/api_service.dart' show AppState;
 import '../services/match_insight_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/compatibility_badge.dart';
+import '../widgets/radar_chart_widget.dart';
+import 'radar_profile_screen.dart' show RadarProfileScreen;
 
 /// Match Insight Card screen (T543)
 ///
@@ -20,8 +26,11 @@ class MatchInsightScreen extends StatefulWidget {
     super.key,
     required this.matchId,
     this.otherUserName,
+    this.otherKeycloakId,
     MatchInsightService? insightService,
     this.isPremium = false,
+    this.radarHttpClient,
+    this.radarTokenProvider,
   }) : _injectedService = insightService;
 
   /// Backend match id (int — see [MatchInsight.matchId]).
@@ -30,8 +39,17 @@ class MatchInsightScreen extends StatefulWidget {
   /// Optional display name to title the screen ("Match with Maja").
   final String? otherUserName;
 
+  /// Optional keycloak ID of the other user, used to render the radar comparison.
+  final String? otherKeycloakId;
+
   /// When false (default) the premium section renders locked.
   final bool isPremium;
+
+  /// Optional HTTP client for radar section (testing).
+  final http.Client? radarHttpClient;
+
+  /// Optional token provider for radar section (testing).
+  final Future<String?> Function()? radarTokenProvider;
 
   final MatchInsightService? _injectedService;
 
@@ -77,6 +95,9 @@ class _MatchInsightScreenState extends State<MatchInsightScreen> {
           return _InsightBody(
             insight: insight,
             isPremium: widget.isPremium,
+            otherKeycloakId: widget.otherKeycloakId,
+            radarHttpClient: widget.radarHttpClient,
+            radarTokenProvider: widget.radarTokenProvider,
           );
         },
       ),
@@ -91,10 +112,19 @@ class _MatchInsightScreenState extends State<MatchInsightScreen> {
 }
 
 class _InsightBody extends StatelessWidget {
-  const _InsightBody({required this.insight, required this.isPremium});
+  const _InsightBody({
+    required this.insight,
+    required this.isPremium,
+    this.otherKeycloakId,
+    this.radarHttpClient,
+    this.radarTokenProvider,
+  });
 
   final MatchInsight insight;
   final bool isPremium;
+  final String? otherKeycloakId;
+  final http.Client? radarHttpClient;
+  final Future<String?> Function()? radarTokenProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +176,13 @@ class _InsightBody extends StatelessWidget {
           semanticsKey: 'section-growth',
         ),
         const SizedBox(height: 16),
+        if (otherKeycloakId != null)
+          _RadarSection(
+            otherKeycloakId: otherKeycloakId!,
+            httpClient: radarHttpClient,
+            tokenProvider: radarTokenProvider,
+          ),
+        if (otherKeycloakId != null) const SizedBox(height: 16),
         _PremiumSection(isPremium: isPremium),
         const SizedBox(height: 32),
       ],
@@ -227,6 +264,154 @@ class _InsightSection extends StatelessWidget {
                     ),
                   ),
                 ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact radar compatibility card for the match insight screen (T591).
+///
+/// Loads the compare radar profile and shows a mini [RadarChartWidget].
+/// Tapping navigates to the full [RadarProfileScreen].
+class _RadarSection extends StatefulWidget {
+  const _RadarSection({
+    required this.otherKeycloakId,
+    this.httpClient,
+    this.tokenProvider,
+  });
+
+  final String otherKeycloakId;
+  final http.Client? httpClient;
+  final Future<String?> Function()? tokenProvider;
+
+  @override
+  State<_RadarSection> createState() => _RadarSectionState();
+}
+
+class _RadarSectionState extends State<_RadarSection> {
+  RadarProfileData? _mine;
+  RadarProfileData? _theirs;
+  bool _loading = true;
+  bool _hasData = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final tokenFn = widget.tokenProvider ?? AppState().getOrRefreshAuthToken;
+      final token = await tokenFn();
+      if (token == null) {
+        if (mounted) setState(() { _loading = false; });
+        return;
+      }
+      final client = widget.httpClient ?? http.Client();
+      final base = ApiUrls.matchmakingService;
+      final resp = await client.get(
+        Uri.parse(
+            '$base/api/compatibility/radar/compare/${Uri.encodeComponent(widget.otherKeycloakId)}'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (resp.statusCode == 200) {
+        final body = json.decode(resp.body) as Map<String, dynamic>;
+        final mine = _parse(body['mine'] as Map<String, dynamic>?);
+        final theirs = _parse(body['theirs'] as Map<String, dynamic>?);
+        if (mounted) {
+          setState(() {
+            _mine = mine;
+            _theirs = theirs;
+            _hasData = mine != null || theirs != null;
+            _loading = false;
+          });
+        }
+        return;
+      }
+    } catch (_) {}
+    if (mounted) setState(() { _loading = false; });
+  }
+
+  static RadarProfileData? _parse(Map<String, dynamic>? data) {
+    if (data == null) return null;
+    final axes = data['axes'] as Map<String, dynamic>? ?? {};
+    return RadarProfileData(
+      emotionalStability: (axes['emotionalStability'] as num?)?.toDouble() ?? 0.5,
+      socialEnergy: (axes['socialEnergy'] as num?)?.toDouble() ?? 0.5,
+      openness: (axes['openness'] as num?)?.toDouble() ?? 0.5,
+      warmth: (axes['warmth'] as num?)?.toDouble() ?? 0.5,
+      lifeStructure: (axes['lifeStructure'] as num?)?.toDouble() ?? 0.5,
+      intimacyComfort: (axes['intimacyComfort'] as num?)?.toDouble() ?? 0.5,
+      conflictStyle: (axes['conflictStyle'] as num?)?.toDouble() ?? 0.5,
+      confidence: (data['confidence'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const SizedBox(
+        height: 60,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+    if (!_hasData) return const SizedBox.shrink();
+
+    return Semantics(
+      identifier: 'section-radar',
+      container: true,
+      child: Card(
+        color: AppTheme.surfaceElevated,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.radar, size: 20, color: AppTheme.primaryColor),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Kompatibilitetsprofil',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => RadarProfileScreen(
+                          keycloakId: AppState().userId ?? '',
+                          compareKeycloakId: widget.otherKeycloakId,
+                        ),
+                      ),
+                    ),
+                    child: const Text('Visa mer'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: RadarChartWidget(
+                  profile: _mine ??
+                      RadarProfileData(
+                        emotionalStability: 0.5, socialEnergy: 0.5,
+                        openness: 0.5, warmth: 0.5, lifeStructure: 0.5,
+                        intimacyComfort: 0.5, conflictStyle: 0.5, confidence: 0,
+                      ),
+                  compareProfile: _theirs,
+                  size: 200,
+                  showLabels: true,
+                ),
+              ),
             ],
           ),
         ),
