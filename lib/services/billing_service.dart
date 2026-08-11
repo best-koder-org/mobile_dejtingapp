@@ -57,7 +57,8 @@ class PremiumPlan {
   final String name;
   final String description;
   final int durationDays;
-  PremiumPlan(this.sku, this.name, this.description, this.durationDays);
+  final int priceSparks;
+  PremiumPlan(this.sku, this.name, this.description, this.durationDays, {this.priceSparks = 0});
 }
 
 class SparksBundle {
@@ -122,8 +123,7 @@ class BillingService {
                 p['sku'] as String? ?? '',
                 p['name'] as String? ?? '',
                 p['description'] as String? ?? '',
-                p['durationDays'] as int? ?? 0,
-              ))
+                p['durationDays'] as int? ?? 0,                priceSparks: p['priceSparks'] as int? ?? 0,              ))
           .toList(),
       (body['bundles'] as List<dynamic>? ?? [])
           .map((b) => SparksBundle(

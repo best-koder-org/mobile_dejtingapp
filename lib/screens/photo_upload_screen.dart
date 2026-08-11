@@ -10,6 +10,7 @@ import '../services/photo_service.dart';
 import '../services/cached_photo_service.dart';
 import '../services/api_service.dart' show AppState;
 import '../utils/jwt_utils.dart';
+import 'video_recorder_screen.dart';
 
 class PhotoUploadScreen extends StatefulWidget {
   final String? authToken;
@@ -612,6 +613,9 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             child: _buildPhotoGrid(),
           ),
 
+          // Video clip button
+          _buildVideoButton(),
+
           // Guidelines and tips
           _buildPhotoGuidelines(),
 
@@ -1097,6 +1101,30 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  Widget _buildVideoButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: OutlinedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const VideoRecorderScreen()),
+          );
+        },
+        icon: const Icon(Icons.videocam, color: AppTheme.primaryColor),
+        label: const Text('Add a profile video (optional)'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.primaryColor,
+          side: const BorderSide(color: AppTheme.primaryColor),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildPhotoGuidelines() {

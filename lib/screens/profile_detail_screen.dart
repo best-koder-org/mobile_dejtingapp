@@ -10,6 +10,8 @@ import 'package:dejtingapp/widgets/connection_insight_card.dart';
 import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/backend_url.dart';
+import 'package:dejtingapp/widgets/reputation/trait_badges_widget.dart';
+import 'package:dejtingapp/widgets/media/media_tile.dart';
 import 'package:http/http.dart' as http;
 
 /// Full-profile detail screen — Hinge-style scrollable view.
@@ -94,11 +96,16 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   double? get _distanceKm => widget.candidate?.distanceKm;
 
   List<String> get _photoUrls {
+    final urls = <String>[];
     if (widget.candidate != null) {
-      final urls = <String>[];
       if (widget.candidate!.photoUrl != null) urls.add(widget.candidate!.photoUrl!);
       for (final url in widget.candidate!.photoUrls) {
         if (!urls.contains(url)) urls.add(url);
+      }
+      // Add profile video URL at the end of the gallery
+      if (widget.candidate!.profileVideoUrl != null &&
+          widget.candidate!.profileVideoUrl!.isNotEmpty) {
+        urls.add(widget.candidate!.profileVideoUrl!);
       }
       return urls;
     }
@@ -257,16 +264,10 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           itemCount: photos.length,
           onPageChanged: (index) => setState(() => _currentPhotoIndex = index),
           itemBuilder: (context, index) {
-            return CachedNetworkImage(
-              imageUrl: photos[index],
+            return MediaTile(
+              url: photos[index],
+              imageHeaders: null,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
-                color: AppTheme.surfaceDark,
-                child: const Center(
-                  child: CircularProgressIndicator(color: AppTheme.primaryColor),
-                ),
-              ),
-              errorWidget: (_, __, ___) => _buildPhotoPlaceholder(),
             );
           },
         ),
@@ -421,6 +422,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 fontSize: 17, color: AppTheme.textPrimary, height: 1.5,
               ),
             ),
+          ),
+
+        // Trait badges (reputation)
+        if (widget.candidate != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: TraitBadgesWidget(keycloakId: widget.candidate!.userId),
           ),
 
         // Voice Prompt (only if flavor has prominent voice prompts)

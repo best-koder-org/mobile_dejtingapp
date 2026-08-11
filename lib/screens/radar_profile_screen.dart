@@ -70,16 +70,39 @@ class _RadarProfileScreenState extends State<RadarProfileScreen> {
                   // Radar chart
                   Center(
                     child: RadarChartWidget(
-                      data: RadarChartData(
-                        labels: const [
-                          'Trygghet', 'Energi', 'Öppenhet', 'Värme',
-                          'Struktur', 'Intimitet', 'Konflikt',
-                        ],
-                        values: _profile!.values,
-                      ),
+                      data: RadarChartData.fromRadarProfile({
+                        'axes': {
+                          'emotionalStability': _profile!.emotionalStability,
+                          'socialEnergy': _profile!.socialEnergy,
+                          'openness': _profile!.openness,
+                          'warmth': _profile!.warmth,
+                          'lifeStructure': _profile!.lifeStructure,
+                          'intimacyComfort': _profile!.intimacyComfort,
+                          'conflictStyle': _profile!.conflictStyle,
+                        },
+                        'previousAxes': _profile!.previousAxes,
+                      }),
+                      comparisonData: _profile!.previousAxes != null
+                          ? RadarChartData(
+                              labels: const [
+                                'Trygghet', 'Energi', 'Öppenhet', 'Värme',
+                                'Struktur', 'Intimitet', 'Konflikt',
+                              ],
+                              values: [
+                                (_profile!.previousAxes!['emotionalStability'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['socialEnergy'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['openness'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['warmth'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['lifeStructure'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['intimacyComfort'] as num?)?.toDouble() ?? 0.5,
+                                (_profile!.previousAxes!['conflictStyle'] as num?)?.toDouble() ?? 0.5,
+                              ],
+                            )
+                          : null,
                       fillColor: _accent,
                       strokeColor: _accent,
                       size: 300,
+                      confidence: _profile!.confidence,
                     ),
                   ),
                   const SizedBox(height: 16),

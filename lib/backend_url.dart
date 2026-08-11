@@ -1,14 +1,19 @@
 import 'config/environment.dart';
 
-// Service-specific URLs using environment configuration
+// Service-specific URLs using environment configuration.
+//
+// ⚠️ ALL services route through the YARP gateway (port 8080) for stability.
+//    Direct service ports may bind to 127.0.0.1 and be unreachable from
+//    a physical device on the same network. YARP binds to 0.0.0.0 and
+//    proxies all /api/* paths to the correct backend service.
 class ApiUrls {
-  static String get userService => EnvironmentConfig.settings.userServiceUrl;
+  static String get userService => EnvironmentConfig.settings.gatewayUrl;
   static String get matchmakingService =>
-      EnvironmentConfig.settings.matchmakingServiceUrl;
-  static String get photoService => EnvironmentConfig.settings.photoServiceUrl;
+      EnvironmentConfig.settings.gatewayUrl;
+  static String get photoService => EnvironmentConfig.settings.gatewayUrl;
   static String get messagingService =>
-      EnvironmentConfig.settings.messagingServiceUrl;
-  static String get swipeService => EnvironmentConfig.settings.swipeServiceUrl;
+      EnvironmentConfig.settings.gatewayUrl;
+  static String get swipeService => EnvironmentConfig.settings.gatewayUrl;
   static String get gateway => EnvironmentConfig.settings.gatewayUrl;
 }
 

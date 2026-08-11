@@ -17,6 +17,7 @@ import 'sparks_store_screen.dart';
 import 'psykolog_home_screen.dart';
 import 'radar_profile_screen.dart';
 import 'compatibility_settings_screen.dart';
+import 'package:dejtingapp/widgets/reputation/trait_badges_widget.dart';
 
 /// DejTing profile hub — inspired by Hinge but branded for DejTing.
 ///
@@ -545,10 +546,18 @@ class _ProfileHubScreenState extends State<ProfileHubScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => RadarProfileScreen(keycloakId: myId),
+                builder: (_) => RadarProfileScreen(),
               ),
             );
           },
+        ),
+
+        const SizedBox(height: 12),
+
+        // Omdömen från matchningar (trait badges)
+        Padding(
+          padding: const EdgeInsets.only(left: 24),
+          child: TraitBadgesWidget(keycloakId: AppState().userId ?? ''),
         ),
 
         const SizedBox(height: 12),
