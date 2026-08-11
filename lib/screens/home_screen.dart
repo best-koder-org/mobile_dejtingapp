@@ -265,13 +265,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       child: Row(
         children: [
-          Text(
-            AppLocalizations.of(context).discoverTitle,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.bold,
+          Flexible(
+            child: Text(
+              AppLocalizations.of(context).discoverTitle,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           if (_candidates.isNotEmpty)
             Text(
               '${_currentIndex + 1}/${_candidates.length}',
@@ -615,7 +618,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                ListView(
+                Positioned.fill(
+                  child: ListView(
                   controller: _scrollController,
                   padding: const EdgeInsets.only(bottom: 140),
             children: [
@@ -647,6 +651,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ..._buildInterleavedContent(candidate),
               const SizedBox(height: 24),
             ],
+        ),
           ),
                 Positioned(
                   left: 0, right: 0, bottom: 0,
@@ -1212,7 +1217,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // ─── Sticky Action Bar ────────────────────────────────
   Widget _buildActionBar() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -1226,11 +1231,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Spark button (left)
           _buildSparkButton(),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _buildActionButton(
             icon: Icons.close_rounded,
             color: AppTheme.textTertiary,
@@ -1239,7 +1243,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             onTap: _passProfile,
             label: AppLocalizations.of(context).skipAction,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _buildActionButton(
             icon: Icons.favorite_rounded,
             color: Colors.white,

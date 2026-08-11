@@ -15,6 +15,7 @@ class RadarProfileData {
   final double conflictStyle;
   final double confidence;
   final DateTime updatedAt;
+  final Map<String, dynamic>? previousAxes; // T631: before/after comparison
 
   const RadarProfileData({
     required this.keycloakId,
@@ -27,21 +28,23 @@ class RadarProfileData {
     required this.conflictStyle,
     required this.confidence,
     required this.updatedAt,
+    this.previousAxes,
   });
 
   factory RadarProfileData.fromJson(Map<String, dynamic> j) => RadarProfileData(
     keycloakId: j['keycloakId'] as String? ?? '',
-    emotionalStability: (j['emotionalStability'] as num?)?.toDouble() ?? 0.5,
-    socialEnergy: (j['socialEnergy'] as num?)?.toDouble() ?? 0.5,
-    openness: (j['openness'] as num?)?.toDouble() ?? 0.5,
-    warmth: (j['warmth'] as num?)?.toDouble() ?? 0.5,
-    lifeStructure: (j['lifeStructure'] as num?)?.toDouble() ?? 0.5,
-    intimacyComfort: (j['intimacyComfort'] as num?)?.toDouble() ?? 0.5,
-    conflictStyle: (j['conflictStyle'] as num?)?.toDouble() ?? 0.5,
+    emotionalStability: (j['axes']['emotionalStability'] as num?)?.toDouble() ?? 0.5,
+    socialEnergy: (j['axes']['socialEnergy'] as num?)?.toDouble() ?? 0.5,
+    openness: (j['axes']['openness'] as num?)?.toDouble() ?? 0.5,
+    warmth: (j['axes']['warmth'] as num?)?.toDouble() ?? 0.5,
+    lifeStructure: (j['axes']['lifeStructure'] as num?)?.toDouble() ?? 0.5,
+    intimacyComfort: (j['axes']['intimacyComfort'] as num?)?.toDouble() ?? 0.5,
+    conflictStyle: (j['axes']['conflictStyle'] as num?)?.toDouble() ?? 0.5,
     confidence: (j['confidence'] as num?)?.toDouble() ?? 0.3,
     updatedAt: j['updatedAt'] != null
         ? DateTime.parse(j['updatedAt'] as String)
         : DateTime.now(),
+    previousAxes: j['previousAxes'] as Map<String, dynamic>?,
   );
 
   List<double> get values => [

@@ -2,11 +2,15 @@ import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/screens/help_screen.dart';
 import 'package:dejtingapp/screens/location_settings_screen.dart';
+import 'package:dejtingapp/screens/premium_comparison_screen.dart';
 import 'package:dejtingapp/screens/privacy_settings_screen.dart';
 import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import 'package:dejtingapp/services/api_service.dart';
+import 'package:dejtingapp/services/billing_service.dart';
+import 'package:dejtingapp/widgets/premium_feature_tile.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dejtingapp/config/environment.dart';
 import 'package:dejtingapp/main.dart' show setAppLocale, appLocale;
 
 class SettingsScreen extends StatefulWidget {
@@ -29,6 +33,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Privacy display toggles (from UserProfile)
   bool _showAgeInProfile = true;
   bool _showDistanceInProfile = true;
+
+  // Premium features
+  bool _isPremium = false;
+  bool _privacyReadReceipts = false;
 
   // Notifications
   bool _pushNotifications = true;
@@ -72,8 +80,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         setState(() {
           _showAgeInProfile = (profile['showAge'] as bool?) ?? true;
           _showDistanceInProfile = (profile['showDistance'] as bool?) ?? true;
+          _privacyReadReceipts = (profile['readReceiptsEnabled'] as bool?) ?? false;
         });
       }
+
+      // Load premium status
+      try {
+        final status = await BillingService.getStatus();
+        if (mounted) {
+          setState(() => _isPremium = status.isPremium);
+        }
+      } catch (_) {}
 
       // Load notification preferences
       final notifPrefs = await UserService.getNotificationPreferences();
@@ -127,6 +144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await UserService.updatePrivacySettings({
       'showAge': _showAgeInProfile,
       'showDistance': _showDistanceInProfile,
+      'readReceiptsEnabled': _privacyReadReceipts,
     });
   }
 
@@ -242,6 +260,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _showDistanceInProfile,
               activeColor: AppTheme.primaryColor,
               onChanged: (v) { setState(() => _showDistanceInProfile = v); _savePrivacy(); },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Premium Features Card ──
+        if (!_isPremium)
+          PremiumUpgradeBanner(onUpgrade: _showUpgradePrompt),
+        _buildSettingsCard(
+          title: 'Premium-funktioner',
+          leadingIcon: Icons.diamond,
+          leadingColor: Colors.amber.shade700,
+          children: [
+            PremiumFeatureTile(
+              title: 'Läskvitton',
+              subtitle: 'Se när dina meddelanden har lästs',
+              icon: Icons.done_all,
+              isPremium: _isPremium,
+              value: _privacyReadReceipts,
+              onChanged: (v) {
+                setState(() => _privacyReadReceipts = v);
+                _savePrivacy();
+              },
+              onUpgrade: _showUpgradePrompt,
+            ),
+            const Divider(height: 1),
+            PremiumFeatureTile(
+              title: 'Dold surfning',
+              subtitle: 'Ingen ser att du besökt deras profil',
+              icon: Icons.visibility_off,
+              isPremium: _isPremium,
+              value: false,
+              onChanged: null,
+              onUpgrade: _showUpgradePrompt,
             ),
           ],
         ),
@@ -371,6 +423,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 8),
+
+        // ── Developer Settings ──
+        _buildSettingsCard(
+          title: 'Developer Settings',
+          leadingIcon: Icons.developer_mode,
+          leadingColor: Colors.purple,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Backend Server',
+                      style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                  const SizedBox(height: 8),
+                  ...DevServer.values.map((server) {
+                    final labels = {
+                      DevServer.local: 'Laptop (dev)',
+                      DevServer.server: 'Same WiFi (LAN)',
+                      DevServer.funnel: 'Server (always-on)',
+                      DevServer.custom: 'Custom IP',
+                    };
+                    return RadioListTile<DevServer>(
+                      title: Text(labels[server] ?? server.name,
+                          style: const TextStyle(fontSize: 13)),
+                      subtitle: Text(_devServerUrl(server),
+                          style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+                      value: server,
+                      groupValue: EnvironmentConfig.devServer,
+                      activeColor: AppTheme.primaryColor,
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      onChanged: (val) async {
+                        if (val == null) return;
+                        if (val == DevServer.custom) {
+                          final ctrl = TextEditingController(text: EnvironmentConfig.customHost);
+                          final host = await showDialog<String>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Custom Server'),
+                              content: TextField(
+                                controller: ctrl,
+                                decoration: const InputDecoration(
+                                  hintText: 'e.g. 192.168.1.100',
+                                  labelText: 'IP or hostname',
+                                ),
+                                autofocus: true,
+                              ),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+                                  child: const Text('Save'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (host != null && host.isNotEmpty) {
+                            await EnvSwitcher.switchDevServer(val, customHost: host);
+                          }
+                        } else {
+                          await EnvSwitcher.switchDevServer(val);
+                        }
+                        setState(() {});
+                      },
+                    );
+                  }),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: AppTheme.primaryColor, size: 20),
+              title: const Text('Gateway URL', style: TextStyle(fontSize: 13)),
+              subtitle: Text(EnvironmentConfig.settings.gatewayUrl,
+                  style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
 
         // ── Logout ──
@@ -401,6 +532,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+
+  String _devServerUrl(DevServer server) {
+    switch (server) {
+      case DevServer.local:
+        return 'http://localhost:8080 (USB/adb reverse)';
+      case DevServer.server:
+        return 'http://100.86.173.9:8080';
+      case DevServer.funnel:
+        return 'https://a.tail45c6a7.ts.net';
+      case DevServer.custom:
+        final h = EnvironmentConfig.customHost;
+        return h.isNotEmpty ? 'http://$h:8080' : 'Enter host';
+    }
+  }
+
+  void _showUpgradePrompt() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.diamond, color: Colors.amber.shade700, size: 32),
+        title: const Text('Bli Premium'),
+        content: const Text(
+          'Premium-medlemmar får tillgång till:\n\n'
+          '• Läskvitton – se när dina meddelanden har lästs\n'
+          '• Dold surfning – ingen ser att du besökt deras profil\n'
+          '• Fler premium-funktioner kommer snart',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Senare'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(context, MaterialPageRoute(
+                builder: (_) => const PremiumComparisonScreen(),
+              ));
+            },
+            child: const Text('Se Premium-planer'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _rateApp() async {
     final uri = Uri.parse(
       'https://play.google.com/store/apps/details?id=com.dejting.app',
@@ -425,7 +606,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildSettingsCard({required String title, required List<Widget> children}) {
+  Widget _buildSettingsCard({
+    required String title,
+    required List<Widget> children,
+    IconData? leadingIcon,
+    Color? leadingColor,
+  }) {
     return Card(
       elevation: 0,
       color: AppTheme.surfaceElevated,
@@ -438,11 +624,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-            child: Text(title,
-              style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600,
-                color: AppTheme.primaryColor, letterSpacing: 0.5,
-              ),
+            child: Row(
+              children: [
+                if (leadingIcon != null) ...[
+                  Icon(leadingIcon, color: leadingColor ?? AppTheme.primaryColor, size: 18),
+                  const SizedBox(width: 6),
+                ],
+                Text(title,
+                    style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600,
+                      color: leadingColor ?? AppTheme.primaryColor, letterSpacing: 0.5,
+                    ),
+                ),
+              ],
             ),
           ),
           ...children,

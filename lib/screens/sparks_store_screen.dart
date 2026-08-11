@@ -13,9 +13,9 @@ class SparksStoreScreen extends StatefulWidget {
 
 class _SparksStoreScreenState extends State<SparksStoreScreen> {
   List<PremiumPlan> _plans = [
-    PremiumPlan('premium_month', 'Premium Month', 'Full access for 30 days', 30),
-    PremiumPlan('premium_3months', 'Premium Quarter', 'Full access for 90 days', 90),
-    PremiumPlan('premium_year', 'Premium Year', 'Full access for 365 days — best value', 365),
+    PremiumPlan('premium_month', 'Premium Månad', 'Full tillgång i 30 dagar', 30, priceSparks: 149),
+    PremiumPlan('premium_3months', 'Premium Kvartal', 'Full tillgång i 90 dagar — spara 20%', 90, priceSparks: 299),
+    PremiumPlan('premium_year', 'Premium År', 'Full tillgång i 365 dagar — bästa värdet', 365, priceSparks: 599),
   ];
   List<SparksBundle> _bundles = [
     SparksBundle('sparks_100', 'Starter Pack', 100, 99),
@@ -85,19 +85,29 @@ class _SparksStoreScreenState extends State<SparksStoreScreen> {
               child: ListTile(
                 title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(p.description),
-                trailing: SizedBox(
-                  width: 100,
-                  child: OutlinedButton(
-                    onPressed: _purchasing ? null : () => _purchase(p.sku, p.name),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppTheme.primaryColor),
-                      foregroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (p.priceSparks > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text('${p.priceSparks} ⚡', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    SizedBox(
+                      width: 100,
+                      child: OutlinedButton(
+                        onPressed: _purchasing ? null : () => _purchase(p.sku, p.name),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.primaryColor),
+                          foregroundColor: AppTheme.primaryColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        ),
+                        child: _purchasing
+                            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Text(p.durationDays >= 365 ? 'Bästa värdet' : 'Välj', style: const TextStyle(fontSize: 12)),
+                      ),
                     ),
-                    child: _purchasing
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text(p.durationDays >= 365 ? 'Best value' : 'Subscribe', style: const TextStyle(fontSize: 12)),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -122,7 +132,7 @@ class _SparksStoreScreenState extends State<SparksStoreScreen> {
                     ),
                     child: _purchasing
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text('\$${(b.priceUsdCents / 100).toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+                        : Text('${(b.priceUsdCents * 0.1).round()} kr', style: const TextStyle(fontSize: 12)),
                   ),
                 ),
               ),

@@ -57,7 +57,7 @@ class EnvironmentConfig {
   static bool get isProduction => _currentEnvironment == Environment.production;
 
   // ── Dev server hosts ──────────────────────────────────────────────────────
-  static const String _devMachineLanIp = '192.168.1.103';
+  static const String _devMachineLanIp = '100.86.173.9';
   static const String _funnelHost = 'a.tail45c6a7.ts.net';
 
   /// The active hostname/IP for the current dev server choice.
@@ -71,8 +71,9 @@ class EnvironmentConfig {
         return _customHost.isNotEmpty ? _customHost : _devMachineLanIp;
       case DevServer.local:
         if (_isRunningOnEmulator) return '10.0.2.2';
-        // Physical Android device → use dev machine LAN IP
-        if (Platform.isAndroid) return _devMachineLanIp;
+        // Desktop AND physical Android → localhost.
+        // On a phone this reaches the dev laptop via `adb reverse`
+        // (see scripts/adb-reverse-laptop.sh), so no LAN IP is needed.
         return 'localhost';
     }
   }
@@ -87,13 +88,13 @@ class EnvironmentConfig {
   static String get devServerLabel {
     switch (_devServer) {
       case DevServer.server:
-        return 'Server ($_devMachineLanIp)';
+        return 'Same WiFi ($_devMachineLanIp)';
       case DevServer.funnel:
-        return 'Funnel ($_funnelHost)';
+        return 'Server always-on ($_funnelHost)';
       case DevServer.custom:
         return 'Custom (${_customHost.isNotEmpty ? _customHost : "not set"})';
       case DevServer.local:
-        return 'Local (${_isRunningOnEmulator ? "10.0.2.2" : "localhost"})';
+        return 'Laptop dev (${_isRunningOnEmulator ? "10.0.2.2" : "localhost"})';
     }
   }
 
@@ -122,12 +123,12 @@ class EnvironmentConfig {
   // ── Development settings ──────────────────────────────────────────────────
   static EnvironmentSettings get _developmentSettings => EnvironmentSettings(
     name: _devServer == DevServer.funnel ? 'Dev (Funnel)' : 'Development',
-    userServiceUrl: _devUrl(8082),
-    matchmakingServiceUrl: _devUrl(8083),
-    photoServiceUrl: _devUrl(8085),
-    messagingServiceUrl: _devUrl(8086),
-    swipeServiceUrl: _devUrl(8087),
-    gatewayUrl: _devUrl(8080),
+    userServiceUrl: _funnelAwareUrl(8082),
+    matchmakingServiceUrl: _funnelAwareUrl(8083),
+    photoServiceUrl: _funnelAwareUrl(8085),
+    messagingServiceUrl: _funnelAwareUrl(8086),
+    swipeServiceUrl: _funnelAwareUrl(8087),
+    gatewayUrl: _funnelAwareUrl(8080),
     keycloakUrl: _devServer == DevServer.funnel ? 'https://$_funnelHost/auth' : _devUrl(8090), // local/server/custom all use direct Keycloak port
     keycloakRealm: 'DatingApp',
     keycloakClientId: 'dejtingapp-flutter',
@@ -181,6 +182,13 @@ class EnvironmentConfig {
 
   /// Build a dev-mode URL using the active dev host + scheme.
   static String _devUrl(int port) => '$_activeDevScheme://$_activeDevHost:$port';
+
+  /// Build a dev-mode service URL. In Funnel mode all services are reached via
+  /// the single public HTTPS endpoint (port 443), so no service port is appended —
+  /// YARP routes by path internally. Non-funnel modes use the per-service port.
+  static String _funnelAwareUrl(int port) => _devServer == DevServer.funnel
+      ? '$_activeDevScheme://$_activeDevHost'
+      : _devUrl(port);
 
   /// Whether the app is running on an Android emulator.
   static bool _isRunningOnEmulator = true;

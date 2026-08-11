@@ -54,15 +54,19 @@ class DevAutoLogin {
     final appState = AppState();
     await appState.initialize();
 
-    // Only clear the session if we can't refresh the token.
-    // Otherwise reuse the existing session to avoid login failures
-    // when backend is temporarily unreachable.
-    if (appState.hasValidAuthSession()) {
-      if (kDebugMode) debugPrint('✅ Dev auto-login: existing session still valid, reusing');
-      return;
-    }
-
     try {
+      // Always refresh profileId on startup, even if session is still valid.
+      // This handles cases where the backend was fixed or IP changed.
+      if (appState.hasValidAuthSession()) {
+        if (kDebugMode) debugPrint('✅ Dev auto-login: existing session valid, re-resolving profile...');
+        final profileId = await appState.getOrResolveProfileId();
+        if (profileId != null) {
+          if (kDebugMode) debugPrint('✅ Dev auto-login: profileId=$profileId resolved successfully');
+          return;
+        }
+        if (kDebugMode) debugPrint('⚠️ Dev auto-login: profile still null, proceeding with full login');
+      }
+
       if (kDebugMode) debugPrint('🔐 Dev auto-login: ROPC for $_demoUsername...');
 
       // ── 1. Get tokens via ROPC ──

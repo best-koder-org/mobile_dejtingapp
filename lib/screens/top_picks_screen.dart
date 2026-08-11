@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:dejtingapp/backend_url.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
 import 'package:dejtingapp/models.dart';
 import 'package:dejtingapp/api_services.dart';
+import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/services/billing_service.dart';
 import 'sparks_store_screen.dart';
 
@@ -73,9 +77,35 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
   }
 
   Future<List<MatchCandidate>> _fetchTopPicksFromBackend() async {
-    // In production, this calls GET api/matchmaking/top-picks
-    // For now, fall through to mock data via the discovery API
-    throw UnimplementedError('Backend endpoint not wired yet');
+    final userId = AppState().userId;
+    if (userId == null) throw Exception('Not authenticated');
+
+    final token = await AppState().getOrRefreshAuthToken();
+    final url = Uri.parse(
+        '${ApiUrls.matchmakingService}/api/matchmaking/top-picks/$userId');
+
+    final resp = await http.get(url, headers: {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    });
+
+    if (resp.statusCode != 200) {
+      throw Exception('Top picks API returned ${resp.statusCode}');
+    }
+
+    final body = jsonDecode(resp.body) as Map<String, dynamic>;
+    final picks = body['topPicks'] as List<dynamic>;
+
+    return picks.map((p) {
+      final pMap = p as Map<String, dynamic>;
+      return MatchCandidate(
+        userId: (pMap['userId'] as num?)?.toInt().toString() ?? '0',
+        displayName: 'Användare ${pMap['userId']}',
+        age: (pMap['age'] as num?)?.toInt() ?? 0,
+        photoUrl: null,
+        city: pMap['city'] as String?,
+      );
+    }).toList();
   }
 
   Future<List<MatchCandidate>> _generateMockTopPicks() async {

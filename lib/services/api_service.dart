@@ -721,7 +721,10 @@ class AppState {
         headers: {'Authorization': 'Bearer $token'},
       );
       debugPrint('\ud83d\udd0d getOrResolveProfileId: status=${response.statusCode}');
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200) {
+        debugPrint("Profile fetch failed body: ${response.body}");
+        return null;
+      }
       final body = json.decode(response.body) as Map<String, dynamic>;
       final data = body['data'] as Map<String, dynamic>? ?? body;
       final id = data['id'];

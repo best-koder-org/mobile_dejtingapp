@@ -16,6 +16,9 @@ import '../widgets/connection_insight_card.dart';
 import '../services/api_service.dart';
 import '../services/match_insight_service.dart';
 
+import 'package:dejtingapp/widgets/reputation/chat_feedback_prompt.dart';
+import 'post_date_feedback_screen.dart';
+
 class EnhancedChatScreen extends StatefulWidget {
   final Match match;
 
@@ -250,6 +253,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     if (otherUserId != null) {
       await _messagingService.refreshConversation(otherUserId);
     }
+    _checkFeedbackPrompt();
   }
 
   void _scrollToBottom() {
@@ -846,6 +850,26 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     );
   }
 
+  /// Check if user has exchanged enough messages to trigger feedback prompt.
+  void _checkFeedbackPrompt() {
+    final exchanged = _messages.length >= 10;
+    if (!exchanged) return;
+    final otherUser = widget.match.otherUserProfile;
+    if (otherUser == null) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: ChatFeedbackPrompt(
+          targetKeycloakId: otherUser.userId,
+          targetName: otherUser.firstName ?? "din match",
+          matchId: widget.match.id,
+          onSubmitted: () => Navigator.of(ctx).pop(),
+        ),
+      ),
+    );
+  }
+
   void _showOptions() {
     showModalBottomSheet(
       context: context,
@@ -867,6 +891,22 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
               onTap: () {
                 Navigator.pop(context);
                 _showBlockDialog();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.star_outline),
+              title: const Text('Betygsätt er dejt'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostDateFeedbackScreen(
+                      matchId: widget.match.id,
+                      matchedPersonName: widget.match.otherUserProfile?.firstName,
+                    ),
+                  ),
+                );
               },
             ),
             ListTile(

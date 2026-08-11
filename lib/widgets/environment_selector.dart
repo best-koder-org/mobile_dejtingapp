@@ -5,12 +5,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../config/environment.dart';
 
-/// Compact environment + dev server selector for debug overlays.
+/// Connection scenario description for a dev server option.
+class _ServerOption {
+  final String label;
+  final String scenario;
+  final IconData icon;
+  final String url;
+
+  const _ServerOption({
+    required this.label,
+    required this.scenario,
+    required this.icon,
+    required this.url,
+  });
+}
+
+/// Scenario-based environment + server selector.
 ///
-/// Shows as a collapsed expansion tile by default (single line with gear icon
-/// and current server). Expands inline to reveal environment buttons and
-/// server radio options. Designed to fit in tight spaces like the welcome
-/// screen dev panel without causing overflow.
+/// Labels describe real connection setups (USB/hotspot, same WiFi, etc.)
+/// so it's clear which option matches your current hardware setup.
+/// Shown as a collapsed bar; expands inline on the welcome screen dev panel.
 class EnvironmentSelector extends StatefulWidget {
   const EnvironmentSelector({super.key});
 
@@ -26,136 +40,236 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
     if (!kDebugMode) return const SizedBox.shrink();
 
     return Container(
-      constraints: const BoxConstraints(maxHeight: 340),
       decoration: BoxDecoration(
-        color: Colors.black.withAlpha(15),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.black.withAlpha(190),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withAlpha(40), width: 1),
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.black12),
-        child: ExpansionTile(
-          initiallyExpanded: false,
-          onExpansionChanged: (v) => setState(() => _expanded = v),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-          childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-          visualDensity: VisualDensity.compact,
-          iconColor: Colors.black54,
-          collapsedIconColor: Colors.black38,
-          title: Row(
-            children: [
-              Icon(Icons.settings, size: 16, color: Colors.orange[300]),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  _expanded ? 'Server Settings' : 'Server: ${_currentLabel()}',
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        onExpansionChanged: (v) => setState(() => _expanded = v),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+        childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        visualDensity: VisualDensity.compact,
+        iconColor: Colors.orangeAccent,
+        collapsedIconColor: Colors.orangeAccent,
+        title: Row(
           children: [
-            // ── Current info ──
-            Text(
-              'Gateway: ${EnvironmentConfig.settings.gatewayUrl}',
-              style: TextStyle(fontSize: 10, color: Colors.grey[700]),
-            ),
-            const SizedBox(height: 4),
-            // ── Environment buttons ──
-            Row(
-              children: [
-                const SizedBox(width: 8),
-                Text('Env:', style: TextStyle(fontSize: 11, color: Colors.black54)),
-                const SizedBox(width: 6),
-                _EnvChip(
-                  label: 'Dev',
-                  isSelected: EnvironmentConfig.isDevelopment,
-                  onTap: () { EnvSwitcher.useDevelopment(); setState(() {}); },
+            Icon(Icons.settings, size: 15, color: Colors.orangeAccent),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                _expanded ? '⚙️ Connection Settings' : '⚙️ ${_currentLabel()}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(width: 4),
-                _EnvChip(
-                  label: 'Staging',
-                  isSelected: EnvironmentConfig.isStaging,
-                  onTap: () { EnvSwitcher.useStaging(); setState(() {}); },
-                ),
-                const SizedBox(width: 4),
-                _EnvChip(
-                  label: 'Prod',
-                  isSelected: EnvironmentConfig.isProduction,
-                  onTap: () { EnvSwitcher.useProduction(); setState(() {}); },
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            // ── Dev server picker ──
-            Text('Dev Server:', style: TextStyle(fontSize: 11, color: Colors.black54)),
-            const SizedBox(height: 2),
-            ...DevServer.values.map((server) => _CompactRadio(
-              label: _serverLabel(server),
-              subtitle: _serverUrl(server),
-              value: server,
-              groupValue: EnvironmentConfig.devServer,
-              enabled: EnvironmentConfig.isDevelopment,
-              onChanged: (val) async {
-                await EnvSwitcher.switchDevServer(val);
-                setState(() {});
-              },
-            )),
-            // ── Custom host input ──
-            if (EnvironmentConfig.isDevelopment && EnvironmentConfig.devServer == DevServer.custom)
-              Padding(
-                padding: const EdgeInsets.only(top: 4, left: 8, right: 8),
-                child: SizedBox(
-                  height: 32,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'host:port',
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      border: OutlineInputBorder(),
-                    ),
-                    style: const TextStyle(fontSize: 12, color: Colors.black87),
-                    controller: TextEditingController(text: EnvironmentConfig.customHost),
-                    onSubmitted: (val) async {
-                      if (val.trim().isNotEmpty) {
-                        await EnvSwitcher.switchDevServer(DevServer.custom, customHost: val.trim());
-                        setState(() {});
-                      }
-                    },
-                  ),
-                ),
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
           ],
         ),
+        children: [
+          // ── Scrollable content (max 280px, scrolls if taller) ──
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 280),
+            child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Current gateway ──
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(100),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.link, size: 12, color: Colors.green[300]),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Gateway: ${EnvironmentConfig.settings.gatewayUrl}',
+                          style: TextStyle(fontSize: 10, color: Colors.green[200]),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // ── Environment chips ──
+                Row(
+                  children: [
+                    const SizedBox(width: 4),
+                    Text('Env:', style: TextStyle(fontSize: 11, color: Colors.grey[400])),
+                    const SizedBox(width: 6),
+                    _EnvChip(
+                      label: 'Dev',
+                      isSelected: EnvironmentConfig.isDevelopment,
+                      onTap: () { EnvSwitcher.useDevelopment(); setState(() {}); },
+                    ),
+                    const SizedBox(width: 4),
+                    _EnvChip(
+                      label: 'Staging',
+                      isSelected: EnvironmentConfig.isStaging,
+                      onTap: () { EnvSwitcher.useStaging(); setState(() {}); },
+                    ),
+                    const SizedBox(width: 4),
+                    _EnvChip(
+                      label: 'Prod',
+                      isSelected: EnvironmentConfig.isProduction,
+                      onTap: () { EnvSwitcher.useProduction(); setState(() {}); },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+
+                // ── Divider ──
+                Divider(color: Colors.white.withAlpha(30), height: 1),
+                const SizedBox(height: 6),
+
+                // ── Scenario radio options (main two backends) ──
+                Text(
+                  'Which backend?',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ..._mainServers.map((server) {
+                  final opt = _optionFor(server);
+                  return _ScenarioRadio(
+                    icon: opt.icon,
+                    label: opt.label,
+                    scenario: opt.scenario,
+                    url: opt.url,
+                    value: server,
+                    groupValue: EnvironmentConfig.devServer,
+                    enabled: EnvironmentConfig.isDevelopment,
+                    onChanged: (val) async {
+                      await EnvSwitcher.switchDevServer(val);
+                      setState(() {});
+                    },
+                    isSelected: EnvironmentConfig.devServer == server,
+                  );
+                }),
+
+                // ── Advanced options (collapsed) ──
+                if (EnvironmentConfig.isDevelopment)
+                  ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    childrenPadding: const EdgeInsets.only(left: 4),
+                    visualDensity: VisualDensity.compact,
+                    iconColor: Colors.grey[500],
+                    collapsedIconColor: Colors.grey[500],
+                    title: Text(
+                      'Advanced…',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    children: [
+                      ..._advancedServers.map((server) {
+                        final opt = _optionFor(server);
+                        return _ScenarioRadio(
+                          icon: opt.icon,
+                          label: opt.label,
+                          scenario: opt.scenario,
+                          url: opt.url,
+                          value: server,
+                          groupValue: EnvironmentConfig.devServer,
+                          enabled: EnvironmentConfig.isDevelopment,
+                          onChanged: (val) async {
+                            await EnvSwitcher.switchDevServer(val);
+                            setState(() {});
+                          },
+                          isSelected: EnvironmentConfig.devServer == server,
+                        );
+                      }),
+                      // ── Custom host input (advanced) ──
+                      if (EnvironmentConfig.devServer == DevServer.custom)
+                        const _CustomHostInput(),
+                    ],
+                  ),
+
+                // ── Custom host input when Custom IP selected ──
+                if (EnvironmentConfig.isDevelopment &&
+                    EnvironmentConfig.devServer == DevServer.custom)
+                  const _CustomHostInput(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  String _currentLabel() {
-    final env = EnvironmentConfig.isDevelopment ? 'Dev' : EnvironmentConfig.isStaging ? 'Staging' : 'Prod';
-    return '$env · ${_serverLabel(EnvironmentConfig.devServer)}';
-  }
+  /// The two main backends most users need. Everything else goes under Advanced.
+  static const List<DevServer> _mainServers = [
+    DevServer.local, // Laptop (dev machine) via USB
+    DevServer.funnel, // Always-on server, works from anywhere
+  ];
 
-  String _serverLabel(DevServer s) {
-    switch (s) {
-      case DevServer.server: return 'LAN';
-      case DevServer.funnel: return 'Funnel';
-      case DevServer.custom: return 'Custom';
-      case DevServer.local: return 'Local';
-    }
-  }
+  /// Secondary options — hidden under "Advanced" (Custom IP, Same WiFi LAN).
+  static const List<DevServer> _advancedServers = [
+    DevServer.custom,
+    DevServer.server,
+  ];
 
-  String _serverUrl(DevServer s) {
+  _ServerOption _optionFor(DevServer s) {
     switch (s) {
-      case DevServer.server: return '192.168.1.103:8080';
-      case DevServer.funnel: return 'a.tail45c6a7.ts.net';
-      case DevServer.custom:
-        return EnvironmentConfig.customHost.isNotEmpty
-            ? '${EnvironmentConfig.customHost}:8080'
-            : 'Enter host:port';
       case DevServer.local:
-        return '10.0.2.2:8080 (emu) / localhost (web)';
+        return _ServerOption(
+          label: 'Laptop (dev)',
+          scenario: 'Your dev laptop via USB cable (adb reverse)',
+          icon: Icons.laptop,
+          url: EnvironmentConfig.isEmulator
+              ? '10.0.2.2:8080 (emulator)'
+              : 'localhost:8080 (adb reverse)',
+        );
+      case DevServer.server:
+        return _ServerOption(
+          label: 'Same WiFi (LAN)',
+          scenario: 'Phone & laptop on the same WiFi network',
+          icon: Icons.wifi,
+          url: EnvironmentConfig.settings.gatewayUrl,
+        );
+      case DevServer.funnel:
+        return _ServerOption(
+          label: 'Server (always-on)',
+          scenario: 'The little computer — works from any network',
+          icon: Icons.dns,
+          url: 'a.tail45c6a7.ts.net',
+        );
+      case DevServer.custom:
+        return _ServerOption(
+          label: 'Custom IP',
+          scenario: 'Enter server address manually',
+          icon: Icons.edit,
+          url: EnvironmentConfig.customHost.isNotEmpty
+              ? '${EnvironmentConfig.customHost}:8080'
+              : 'Enter host or IP',
+        );
     }
+  }
+
+  String _currentLabel() {
+    final env = EnvironmentConfig.isDevelopment
+        ? 'Dev'
+        : EnvironmentConfig.isStaging
+            ? 'Staging'
+            : 'Prod';
+    final opt = _optionFor(EnvironmentConfig.devServer);
+    return '$env · ${opt.label}';
   }
 }
 
@@ -164,25 +278,32 @@ class _EnvChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  const _EnvChip({required this.label, required this.isSelected, required this.onTap});
+  const _EnvChip(
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.orange.withAlpha(179) : Colors.black.withAlpha(30),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isSelected ? Colors.orange : Colors.black26, width: 1),
+          color: isSelected
+              ? Colors.orange.withAlpha(200)
+              : Colors.white.withAlpha(25),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.orangeAccent : Colors.white.withAlpha(40),
+            width: 1,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 10,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.black87 : Colors.black54,
+            color: isSelected ? Colors.black : Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -190,58 +311,168 @@ class _EnvChip extends StatelessWidget {
   }
 }
 
-/// A compact radio button row for the dev server picker.
-class _CompactRadio extends StatelessWidget {
+/// Text input for the Custom IP host, shown when Custom IP is selected.
+class _CustomHostInput extends StatefulWidget {
+  const _CustomHostInput();
+
+  @override
+  State<_CustomHostInput> createState() => _CustomHostInputState();
+}
+
+class _CustomHostInputState extends State<_CustomHostInput> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: EnvironmentConfig.customHost);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: SizedBox(
+        height: 34,
+        child: TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: 'e.g. 192.168.1.100',
+            hintStyle: TextStyle(fontSize: 11, color: Colors.grey[500]),
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            filled: true,
+            fillColor: Colors.black.withAlpha(80),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.orangeAccent.withAlpha(100)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.white.withAlpha(30)),
+            ),
+          ),
+          style: const TextStyle(fontSize: 12, color: Colors.white),
+          onSubmitted: (val) async {
+            if (val.trim().isNotEmpty) {
+              await EnvSwitcher.switchDevServer(
+                  DevServer.custom, customHost: val.trim());
+              if (mounted) setState(() {});
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Radio row with icon, scenario description, and URL.
+class _ScenarioRadio extends StatelessWidget {
+  final IconData icon;
   final String label;
-  final String subtitle;
+  final String scenario;
+  final String url;
   final DevServer value;
   final DevServer groupValue;
   final bool enabled;
   final ValueChanged<DevServer> onChanged;
+  final bool isSelected;
 
-  const _CompactRadio({
+  const _ScenarioRadio({
+    required this.icon,
     required this.label,
-    required this.subtitle,
+    required this.scenario,
+    required this.url,
     required this.value,
     required this.groupValue,
     required this.enabled,
     required this.onChanged,
+    required this.isSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    final selected = value == groupValue;
     return InkWell(
       onTap: enabled ? () => onChanged(value) : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.orange.withAlpha(50)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          border: isSelected
+              ? Border.all(color: Colors.orangeAccent.withAlpha(120), width: 1)
+              : null,
+        ),
         child: Row(
           children: [
+            // Radio button
             SizedBox(
-              width: 20, height: 20,
+              width: 22,
               child: Radio<DevServer>(
                 value: value,
                 groupValue: groupValue,
                 onChanged: enabled ? (v) => onChanged(v!) : null,
                 visualDensity: VisualDensity.compact,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                activeColor: Colors.orangeAccent,
+                fillColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.orangeAccent;
+                  }
+                  return Colors.white54;
+                }),
               ),
             ),
             const SizedBox(width: 4),
+            // Icon
+            Icon(icon, size: 16, color: isSelected ? Colors.orangeAccent : Colors.white70),
+            const SizedBox(width: 6),
+            // Label + scenario
             Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: selected ? Colors.black87 : Colors.black54,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected ? Colors.orangeAccent : Colors.white,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    scenario,
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
               ),
             ),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 10, color: Colors.black45),
-              overflow: TextOverflow.ellipsis,
+            // URL
+            Flexible(
+              child: Text(
+                url,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: isSelected ? Colors.green[300] : Colors.grey[600],
+                  fontFamily: 'monospace',
+                ),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+              ),
             ),
           ],
         ),

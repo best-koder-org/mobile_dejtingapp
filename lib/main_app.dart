@@ -14,6 +14,7 @@ import 'services/api_service.dart' hide PhotoService;
 import 'services/photo_service.dart';
 import 'services/messaging_service.dart';
 import 'services/matchmaking_realtime_service.dart';
+import 'services/spark_notification_service.dart';
 import 'services/location_service.dart';
 import 'models.dart' show Message;
 import 'widgets/connectivity_banner.dart';
@@ -39,7 +40,9 @@ class _MainAppState extends State<MainApp> {
   StreamSubscription<MatchNotification>? _matchSubscription;
 
   // Spark notifications
+  int _unreadSparkCount = 0;
   StreamSubscription<SparkNotificationReceived>? _sparkSubscription;
+  final SparkNotificationService _sparkService = SparkNotificationService();
 
   final List<Widget> _screens = [
     const HomeScreen(),            // 0: Discover
@@ -64,11 +67,24 @@ class _MainAppState extends State<MainApp> {
       _startUnreadPolling();
       _startMatchListener();
       _startSparkListener();
+      // Fetch initial unread spark count from backend (covers cold start)
+      _fetchSparkCount();
       // Update location in background (fire-and-forget)
       unawaited(LocationService.instance.updateBackendLocation());
     } catch (e) {
       debugPrint('App initialization error: $e');
     }
+  }
+
+  Future<void> _fetchSparkCount() async {
+    try {
+      final count = await _sparkService.fetchUnreadCount();
+      if (mounted && count > _unreadSparkCount) {
+        setState(() {
+          _unreadSparkCount = count;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadProfilePhoto() async {
@@ -109,6 +125,7 @@ class _MainAppState extends State<MainApp> {
     _newMessageSubscription?.cancel();
     _matchSubscription?.cancel();
     _sparkSubscription?.cancel();
+    _unreadSparkCount = 0;
     // Disconnect SignalR services to prevent stale-token crashes
     try {
       MessagingService().disconnect();
@@ -169,6 +186,9 @@ class _MainAppState extends State<MainApp> {
       if (kDebugMode) {
         debugPrint('✨ Spark received from ${notification.senderUserId}');
       }
+      setState(() {
+        _unreadSparkCount++;
+      });
       // Show a brief, non-intrusive snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -345,6 +365,9 @@ class _MainAppState extends State<MainApp> {
             // Refresh messages count when tapping Messages tab
             if (index == 3) {
               _pollUnreadCount();
+              setState(() {
+                _unreadSparkCount = 0;
+              });
             }
             // Community tab index updated (profile stays at 4)
             setState(() {
@@ -367,14 +390,17 @@ class _MainAppState extends State<MainApp> {
               icon: const Icon(Icons.favorite),
               label: 'Matches',
             ),
-            // 3: Messages (with unread badge)
+            // 3: Messages (with unread + spark badge)
             BottomNavigationBarItem(
-              icon: _totalUnreadCount > 0
+              icon: _totalUnreadCount > 0 || _unreadSparkCount > 0
                   ? Badge(
                       backgroundColor: Colors.red,
                       smallSize: 10,
                       label: Text(
-                        _totalUnreadCount > 99 ? '99+' : '$_totalUnreadCount',
+                        () {
+                          final total = _totalUnreadCount + _unreadSparkCount;
+                          return total > 99 ? '99+' : '$total';
+                        }(),
                         style: const TextStyle(fontSize: 8, color: Colors.white),
                       ),
                       child: const Icon(Icons.chat_bubble_outline),

@@ -520,6 +520,7 @@ class MatchCandidate {
   final String? occupation;
   final List<PromptAnswer> prompts;
   final String? voicePromptUrl;
+  final String? profileVideoUrl;
   final int? height;
   final String? education;
   final String? gender;
@@ -539,6 +540,7 @@ class MatchCandidate {
     this.occupation,
     this.prompts = const [],
     this.voicePromptUrl,
+    this.profileVideoUrl,
     this.height,
     this.education,
     this.gender,
@@ -584,6 +586,7 @@ class MatchCandidate {
       occupation: json['occupation'],
       prompts: promptsList,
       voicePromptUrl: json['voicePromptUrl'],
+      profileVideoUrl: json['profileVideoUrl'],
       height: json['height'] is num ? (json['height'] as num).toInt() : null,
       education: json['education'],
       gender: json['gender'],
