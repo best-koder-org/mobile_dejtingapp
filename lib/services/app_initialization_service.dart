@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
 import '../services/messaging_service.dart';
 import '../services/matchmaking_realtime_service.dart';
+import '../services/app_update_service.dart';
 
 class AppInitializationService {
   static final AppInitializationService _instance =
@@ -27,6 +28,9 @@ class AppInitializationService {
       final authToken = AppState().authToken;
 
       if (userId != null && authToken != null) {
+        // ── Version reporting (fire-and-forget: which tester runs what) ──
+        AppUpdateService.reportVersion(keycloakId: userId);
+
         // ── Messaging service ──────────────────────────────────────────
         final messagingAvailable = await _isMessagingServiceAvailable();
         if (messagingAvailable) {

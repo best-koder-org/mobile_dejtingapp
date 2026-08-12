@@ -7,6 +7,7 @@ import 'package:dejtingapp/screens/privacy_settings_screen.dart';
 import 'package:dejtingapp/screens/verification_selfie_screen.dart';
 import 'package:dejtingapp/services/api_service.dart';
 import 'package:dejtingapp/services/billing_service.dart';
+import 'package:dejtingapp/services/app_update_service.dart';
 import 'package:dejtingapp/widgets/premium_feature_tile.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,6 +47,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? _completenessSuggestion;
   bool _isPaused = false;
   bool _isPausing = false;
+  // Version & updates
+  String _appVersion = '';
+  bool _checkingUpdate = false;
 
   @override
   void initState() {
@@ -60,6 +64,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
+      final installed = await AppUpdateService.installedVersion();
+      if (mounted) setState(() => _appVersion = installed);
+
       // Load discovery preferences from backend
       final prefs = await UserService.getPreferences();
       if (prefs != null && mounted) {
@@ -420,6 +427,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: Text(AppLocalizations.of(context).rateUs, style: const TextStyle(fontSize: 14)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _rateApp,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // ── Version & Updates ──
+        _buildSettingsCard(
+          title: 'Version & Updates',
+          leadingIcon: Icons.system_update_alt,
+          leadingColor: AppTheme.primaryColor,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: AppTheme.primaryColor, size: 20),
+              title: const Text('App version', style: TextStyle(fontSize: 14)),
+              trailing: Text(_appVersion.isEmpty ? '…' : _appVersion, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download, color: AppTheme.primaryColor, size: 20),
+              title: const Text('Check for updates', style: TextStyle(fontSize: 14)),
+              trailing: _checkingUpdate
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _checkForUpdate,
             ),
           ],
         ),
@@ -827,6 +857,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     }
+  }
+
+  Future<void> _checkForUpdate() async {
+    setState(() => _checkingUpdate = true);
+    final hasUpdate = await AppUpdateService.isUpdateAvailable();
+    final latest = await AppUpdateService.fetchLatest();
+    if (!mounted) return;
+    setState(() => _checkingUpdate = false);
+
+    if (latest == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not reach the update server.')),
+      );
+      return;
+    }
+    final downloadUrl = latest['downloadUrl'] as String? ?? '';
+    final versionName = latest['versionName'] as String? ?? '?';
+    final notes = latest['releaseNotes'] as String? ?? '';
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(hasUpdate ? 'Update available' : 'You are up to date'),
+        content: Text(
+          hasUpdate
+              ? 'A new version ($versionName) is available.\n\n$notes'
+              : 'You are running the latest version ($versionName).',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Later')),
+          if (hasUpdate && downloadUrl.isNotEmpty)
+            FilledButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final ok = await launchUrl(Uri.parse(downloadUrl), mode: LaunchMode.externalApplication);
+                if (!ok && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Could not open download.')),
+                  );
+                }
+              },
+              child: const Text('Download'),
+            ),
+        ],
+      ),
+    );
   }
 
   void _showAboutDialog() {
