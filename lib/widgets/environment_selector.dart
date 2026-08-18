@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import '../config/environment.dart';
+import '../config/dev_mode.dart';
 
 /// Connection scenario description for a dev server option.
 class _ServerOption {
@@ -37,7 +37,7 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
 
   @override
   Widget build(BuildContext context) {
-    if (!kDebugMode) return const SizedBox.shrink();
+    if (!DevMode.enabled) return const SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -528,7 +528,7 @@ class _EnvironmentInfoState extends State<EnvironmentInfo>
 
   @override
   Widget build(BuildContext context) {
-    if (!kDebugMode) return const SizedBox.shrink();
+    if (!DevMode.enabled) return const SizedBox.shrink();
 
     final Color bgColor;
     if (EnvironmentConfig.isDevelopment) {
