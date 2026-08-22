@@ -92,6 +92,14 @@ class PsykologMessageInfo {
       );
 }
 
+/// Result of the bio-audit (recommendation only).
+class BioAuditResult {
+  final List<String> suggestions;
+  final String? note;
+
+  const BioAuditResult({required this.suggestions, this.note});
+}
+
 /// Flutter API client for the AI Psykolog feature.
 class PsykologService {
   PsykologService._();
@@ -195,6 +203,27 @@ class PsykologService {
       return list
           .map((e) => PsykologMessageInfo.fromJson(e as Map<String, dynamic>))
           .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Compare the user's bio against their extracted themes (recommendation only).
+  Future<BioAuditResult?> bioAudit() async {
+    try {
+      final resp = await http.post(
+        Uri.parse('$_base/bio-audit'),
+        headers: await _headers(),
+      );
+      if (resp.statusCode != 200) return null;
+      final body = jsonDecode(resp.body) as Map<String, dynamic>;
+      final suggestions = (body['suggestions'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList();
+      return BioAuditResult(
+        suggestions: suggestions,
+        note: body['note'] as String?,
+      );
     } catch (_) {
       return null;
     }
