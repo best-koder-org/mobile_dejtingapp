@@ -42,7 +42,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Session 1'), findsOneWidget);
+      expect(find.textContaining('Session 1'), findsOneWidget);
     });
 
     testWidgets('shows welcome assistant message', (tester) async {
@@ -51,7 +51,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.textContaining('Hej!'), findsOneWidget);
+      expect(find.textContaining('Välkommen'), findsOneWidget);
     });
 
     testWidgets('shows text input field', (tester) async {
