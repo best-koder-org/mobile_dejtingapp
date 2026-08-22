@@ -90,6 +90,55 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows auto-detected host note when discovery is active',
+        (tester) async {
+      EnvironmentConfig.debugSetAutoLocalHost('localhost');
+      addTearDown(() => EnvironmentConfig.debugSetAutoLocalHost(null));
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: const Scaffold(body: EnvironmentSelector()),
+        ),
+      );
+      // Expand the collapsed connection-settings panel.
+      await tester.tap(find.byType(ExpansionTile).first);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Auto-detected host: localhost'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('DEV-only'), findsWidgets);
+    });
+
+    testWidgets('hides auto-detected note when discovery is inactive',
+        (tester) async {
+      EnvironmentConfig.debugSetAutoLocalHost(null);
+      addTearDown(() => EnvironmentConfig.debugSetAutoLocalHost(null));
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: const Scaffold(body: EnvironmentSelector()),
+        ),
+      );
+      await tester.tap(find.byType(ExpansionTile).first);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Auto-detected host'), findsNothing);
+    });
+
+    testWidgets('shows no-backend guidance when auto host is not reachable',
+        (tester) async {
+      EnvironmentConfig.debugSetAutoLocalHost(null);
+      addTearDown(() => EnvironmentConfig.debugSetAutoLocalHost(null));
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(
+          home: const Scaffold(body: EnvironmentSelector()),
+        ),
+      );
+      await tester.tap(find.byType(ExpansionTile).first);
+      await tester.pumpAndSettle();
+      expect(find.text('No laptop backend reachable'), findsOneWidget);
+      expect(find.textContaining('adb-reverse-laptop.sh'), findsOneWidget);
+      expect(find.textContaining('same WiFi'), findsWidgets);
+    });
   });
 
   group('EnvironmentInfo', () {

@@ -412,6 +412,7 @@ class Message {
   final DateTime? readAt;
   final String? moderationFlag;
   final double? audioDurationSeconds;
+  final bool likedByMe;
 
   Message({
     required this.id,
@@ -424,6 +425,7 @@ class Message {
     this.readAt,
     this.moderationFlag,
     this.audioDurationSeconds,
+    this.likedByMe = false,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -439,6 +441,7 @@ class Message {
       readAt: json['readAt'] != null ? DateTime.tryParse(json['readAt']) : null,
       moderationFlag: json['moderationFlag'] as String?,
       audioDurationSeconds: (json['audioDurationSeconds'] as num?)?.toDouble(),
+      likedByMe: json['likedByMe'] ?? false,
     );
   }
 
@@ -468,6 +471,7 @@ class Message {
     DateTime? readAt,
     String? moderationFlag,
     double? audioDurationSeconds,
+    bool? likedByMe,
   }) {
     return Message(
       id: id ?? this.id,
@@ -480,6 +484,7 @@ class Message {
       readAt: readAt ?? this.readAt,
       moderationFlag: moderationFlag ?? this.moderationFlag,
       audioDurationSeconds: audioDurationSeconds ?? this.audioDurationSeconds,
+      likedByMe: likedByMe ?? this.likedByMe,
     );
   }
 }

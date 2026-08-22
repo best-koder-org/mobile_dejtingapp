@@ -1,5 +1,6 @@
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/widgets/skeleton_loaders.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/widgets/authenticated_avatar.dart';
@@ -74,6 +75,7 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     _loadMatchInsight();
     _loadCurrentUserProfile();
     _startAutoRefresh();
+    _loadLikedMessages();
   }
 
   @override
@@ -225,6 +227,9 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         final messages = await _messagingService.getConversation(otherUserId);
         setState(() {
           _messages = messages.reversed.toList(); // Most recent at bottom
+          _likedMessageIds
+            ..clear()
+            ..addAll(_messages.where((m) => m.likedByMe).map((m) => m.id));
           _isLoading = false;
         });
         _scrollToBottom();
@@ -253,7 +258,9 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     if (otherUserId != null) {
       await _messagingService.refreshConversation(otherUserId);
     }
-    _checkFeedbackPrompt();
+    // Feedback prompt is intentionally DISABLED for now (user request).
+    // Re-enable by uncommenting: await _checkFeedbackPrompt();
+    // await _checkFeedbackPrompt();
   }
 
   void _scrollToBottom() {
@@ -437,9 +444,81 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     }
   }
 
+  static const _likedMessagesKey = 'liked_message_ids';
+  final Set<String> _likedMessageIds = <String>{};
+
+  /// Hinge-style: double-tap a bubble to like it (shows a small heart on it).
+  /// Persisted locally so the heart stays part of the conversation after
+  /// leaving and returning to the chat (and across app restarts).
+  void _toggleLike(String messageId) {
+    final liked = !_likedMessageIds.contains(messageId);
+    setState(() {
+      if (liked) {
+        _likedMessageIds.add(messageId);
+      } else {
+        _likedMessageIds.remove(messageId);
+      }
+    });
+    _persistLikedMessages();
+    // Persist to the backend too (survives app reinstall / other devices).
+    _messagingService.likeMessage(messageId, liked);
+  }
+
+  Future<void> _loadLikedMessages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_likedMessagesKey) ?? [];
+      if (mounted) {
+        setState(() {
+          _likedMessageIds
+            ..clear()
+            ..addAll(list);
+        });
+      }
+    } catch (_) {
+      // Ignore persistence errors.
+    }
+  }
+
+  Future<void> _persistLikedMessages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_likedMessagesKey, _likedMessageIds.toList());
+    } catch (_) {
+      // Ignore persistence errors.
+    }
+  }
+
+  /// Whether this message was sent by the logged-in user. A 1:1 chat has only
+  /// two participants, so any message whose senderId isn't the current user's
+  /// Keycloak id belongs to the other person.
+  ///
+  /// NOTE: do NOT fall back to comparing against otherUserProfile.userId — that
+  /// field is empty/null after match enrichment fallback, which misclassified
+  /// the other person's messages as "mine" (all bubbles one color).
+  bool _isFromMe(Message message) {
+    final currentUserId = AppState().userId;
+    // In production the session userId is always set — compare directly. Do NOT
+    // fall back to otherUserProfile.userId when we HAVE a session: that field
+    // is empty after match enrichment, which misclassified the other person's
+    // messages as "mine" (all bubbles one color).
+    if (currentUserId != null) {
+      return message.senderId == currentUserId;
+    }
+    // No session (e.g. widget tests): compare against the other user's id.
+    final otherId = widget.match.otherUserProfile?.userId;
+    if (otherId != null && otherId.isNotEmpty) {
+      return message.senderId != otherId;
+    }
+    return false;
+  }
+
   Widget _buildMessage(Message message) {
-    final isMe = message.senderId != widget.match.otherUserProfile?.userId;
+    final isMe = _isFromMe(message);
     final profile = widget.match.otherUserProfile;
+    final liked = _likedMessageIds.contains(message.id);
+    debugPrint('🔵 BUBBLE msg=${message.id} sender=${message.senderId} '
+        'me=${AppState().userId} isMe=$isMe');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -457,30 +536,62 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
               crossAxisAlignment:
                   isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isMe ? AppTheme.primaryColor : AppTheme.surfaceElevated,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: message.type == MessageType.audio
-                      ? VoiceMessageBubble(
-                          audioUrl: message.content,
-                          durationSeconds: message.audioDurationSeconds ?? 0,
-                          timestamp: message.timestamp,
-                          isSender: isMe,
-                        )
-                      : Text(
-                          message.content,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                GestureDetector(
+                  // Only the other person's messages can be liked (Hinge-style).
+                  onDoubleTap: isMe ? null : () => _toggleLike(message.id),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isMe
+                              ? AppTheme.chatBubbleMe
+                              : AppTheme.chatBubbleOther,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isMe
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : Colors.black.withValues(alpha: 0.06),
                           ),
                         ),
+                        child: message.type == MessageType.audio
+                            ? VoiceMessageBubble(
+                                audioUrl: message.content,
+                                durationSeconds: message.audioDurationSeconds ?? 0,
+                                timestamp: message.timestamp,
+                                isSender: isMe,
+                              )
+                            : Text(
+                                message.content,
+                                style: TextStyle(
+                                  color: isMe
+                                      ? Colors.white
+                                      : const Color(0xFF1A1A2E),
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
+                      if (liked)
+                        Positioned(
+                          bottom: -9,
+                          right: isMe ? 10 : null,
+                          left: isMe ? null : 10,
+                          child: Icon(
+                            Icons.favorite,
+                            size: 16,
+                            color: AppTheme.primaryColor,
+                            shadows: const [
+                              Shadow(color: Colors.black45, blurRadius: 4),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 if (message.moderationFlag != null) ...[
                   const SizedBox(height: 4),
@@ -495,9 +606,13 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                       children: [
                         Icon(Icons.warning_amber_rounded, size: 14, color: Colors.amber),
                         const SizedBox(width: 4),
-                        Text(
-                          'This message may violate community guidelines',
-                          style: TextStyle(color: Colors.amber, fontSize: 11),
+                        Flexible(
+                          child: Text(
+                            'This message may violate community guidelines',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: Colors.amber, fontSize: 11),
+                          ),
                         ),
                       ],
                     ),
@@ -535,20 +650,72 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
     );
   }
 
+  /// Clock time, e.g. "14:32" (shown under each bubble).
   String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) {
-      return AppLocalizations.of(context).timeNow;
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else {
-      return '${difference.inDays}d';
-    }
+    final local = dateTime.toLocal();
+    final h = local.hour.toString().padLeft(2, '0');
+    final m = local.minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
+
+  /// A message starts a new "turn" when it's the first message, the sender
+  /// changes, or there was a silence of 10+ minutes since the previous one.
+  bool _isNewTurn(int index) {
+    if (index <= 0) return true;
+    final prev = _messages[index - 1];
+    final cur = _messages[index];
+    if (prev.senderId != cur.senderId) return true;
+    final gap = cur.timestamp.difference(prev.timestamp);
+    return gap.inMinutes >= 10;
+  }
+
+  /// Hinge-style day divider above each turn: "Today · 14:32",
+  /// "Yesterday · 21:05", or "18 August · 09:12" for older messages.
+  Widget _buildTurnHeader(Message message) {
+    final t = message.timestamp.toLocal();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(t.year, t.month, t.day);
+    final diffDays = today.difference(day).inDays;
+
+    final String dayLabel;
+    if (diffDays == 0) {
+      dayLabel = 'Today';
+    } else if (diffDays == 1) {
+      dayLabel = 'Yesterday';
+    } else {
+      dayLabel = '${t.day} ${_monthName(t.month)}'
+          '${t.year != now.year ? ' ${t.year}' : ''}';
+    }
+
+    final time = _formatTime(message.timestamp);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceElevated,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '$dayLabel · $time',
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppTheme.textTertiary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static const _monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+  String _monthName(int month) => _monthNames[month - 1];
 
 
 
@@ -582,12 +749,16 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
         children: [
           Icon(statusIcon, size: 12, color: statusColor),
           const SizedBox(width: 4),
-          Text(
-            _connectionStatus,
-            style: TextStyle(
-              fontSize: 10,
-              color: statusColor,
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              _connectionStatus,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                color: statusColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -737,7 +908,14 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           itemCount: _messages.length,
                           itemBuilder: (context, index) {
-                            return _buildMessage(_messages[index]);
+                            final message = _messages[index];
+                            return Column(
+                              children: [
+                                if (_isNewTurn(index))
+                                  _buildTurnHeader(message),
+                                _buildMessage(message),
+                              ],
+                            );
                           },
                         ),
                       ),
@@ -851,11 +1029,22 @@ class _EnhancedChatScreenState extends State<EnhancedChatScreen>
   }
 
   /// Check if user has exchanged enough messages to trigger feedback prompt.
-  void _checkFeedbackPrompt() {
+  /// Shows the prompt at most ONCE per conversation (persisted per matchId) so
+  /// it stops nagging every time the chat is reopened with 10+ messages.
+  Future<void> _checkFeedbackPrompt() async {
     final exchanged = _messages.length >= 10;
     if (!exchanged) return;
     final otherUser = widget.match.otherUserProfile;
     if (otherUser == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final shownKey = 'chat_feedback_shown_${widget.match.id}';
+      if (prefs.getBool(shownKey) ?? false) return;
+      await prefs.setBool(shownKey, true); // mark offered before showing
+    } catch (_) {
+      // Persistence failure should not block the prompt.
+    }
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => Dialog(

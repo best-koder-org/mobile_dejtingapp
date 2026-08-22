@@ -526,6 +526,7 @@ class AppState {
   bool _initialized = false;
   bool _onboardingComplete = false;
   int? _profileId;
+  String? _profileIdForUserId;
 
   String? get userId => _userId;
   int? get profileId => _profileId;
@@ -603,6 +604,9 @@ class AppState {
   }) async {
     _userId = userId;
     _userProfile = profile;
+    // Fresh identity — invalidate any profileId cached for a previous user.
+    _profileId = null;
+    _profileIdForUserId = null;
     _initialized = true;
 
     await _saveTokens(
@@ -619,6 +623,7 @@ class AppState {
         _storage.write(key: _userProfileKey, value: json.encode(profile))
       else
         _storage.delete(key: _userProfileKey),
+      _storage.delete(key: _profileIdKey),
     ]);
   }
 
@@ -687,6 +692,7 @@ class AppState {
     _userId = null;
     _userProfile = null;
     _profileId = null;
+    _profileIdForUserId = null;
     _initialized = false;
 
     await Future.wait([
@@ -707,7 +713,11 @@ class AppState {
   /// Returns the backend integer profile ID, resolving via /api/profiles/me.
   /// Cached in secure storage. Matchmaking/swipe backends need this int, not UUID.
   Future<int?> getOrResolveProfileId() async {
-    if (_profileId != null) return _profileId;
+    // The profileId is owned by a specific Keycloak user. If a different user
+    // logged in since it was cached (stale persisted value from a prior
+    // session), re-resolve from the backend instead of returning the wrong
+    // profile id.
+    if (_profileId != null && _profileIdForUserId == _userId) return _profileId;
     try {
       final token = await getOrRefreshAuthToken();
       if (token == null) {
@@ -734,6 +744,7 @@ class AppState {
         _profileId = int.tryParse(id.toString());
       }
       if (_profileId != null) {
+        _profileIdForUserId = _userId;
         await _storage.write(key: _profileIdKey, value: _profileId.toString());
         debugPrint('\u2705 Resolved profileId=$_profileId for userId=$_userId');
       }

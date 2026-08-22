@@ -168,7 +168,11 @@ class MessagingService {
                 if (fresh != null) _authToken = fresh;
                 return _authToken ?? '';
               },
-              transport: HttpTransportType.WebSockets,
+              transport: HttpTransportType.LongPolling,
+              // NOTE: WebSockets upgrade through the YARP gateway is rejected
+              // ("Invalid query parameters"), so we use Long Polling — plain
+              // HTTP requests that the gateway forwards fine, with near-real-time
+              // delivery. The server also offers SSE; switch if needed.
               skipNegotiation: false,
               logMessageContent: kDebugMode,
               requestTimeout: 15000,
@@ -770,6 +774,25 @@ class MessagingService {
       if (isNew && message.senderId != _currentUserId) {
         _messageController.add(message);
       }
+    }
+  }
+
+  /// Like (heart) or unlike a message on the backend. Returns true on success.
+  Future<bool> likeMessage(String messageId, bool like) async {
+    await _refreshAuthToken();
+    try {
+      final uri = Uri.parse('$baseUrl/api/messages/$messageId/like');
+      final headers = {
+        'Authorization': 'Bearer $_authToken',
+        'Content-Type': 'application/json',
+      };
+      final resp = like
+          ? await http.put(uri, headers: headers)
+          : await http.delete(uri, headers: headers);
+      return resp.statusCode < 400;
+    } catch (e) {
+      if (kDebugMode) debugPrint('⚠️ likeMessage error: $e');
+      return false;
     }
   }
 

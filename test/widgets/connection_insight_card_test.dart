@@ -58,7 +58,6 @@ void main() {
       // Should render evidence chips
       expect(find.text('Dance'), findsOneWidget);
       expect(find.text('Music'), findsOneWidget);
-
       // Should render confidence label
       expect(find.text('Strong signal'), findsOneWidget);
 
@@ -125,6 +124,39 @@ void main() {
       expect(find.text('What brings you together'), findsOneWidget);
       expect(find.text('You both enjoy dance'), findsOneWidget);
       expect(find.text('Dance'), findsOneWidget);
+    });
+
+    testWidgets('no overflow at narrow width with long confidence badge',
+        (tester) async {
+      // Regression: the header Row ("What brings you together" + badge) used to
+      // overflow by ~25px on the right at phone widths with a wide badge.
+      final longHook = ConnectionHook(
+        headline: 'You both enjoy dance',
+        body: '',
+        evidenceChips: ['Dance', 'Music'],
+        suggestedPrompt: 'Ask what song always gets them moving',
+        tone: 'warm',
+        confidenceLabel: 'Highly compatible pairing',
+      );
+
+      await tester.pumpWidget(buildTestApp(
+        Center(
+          child: SizedBox(
+            width: 320,
+            child: ConnectionInsightCard(
+              hook: longHook,
+              matchProfile: _testMatchProfile,
+              currentUserProfile: _testCurrentProfile,
+            ),
+          ),
+        ),
+      ));
+
+      // No RenderFlex overflow exception should be thrown.
+      final exception = tester.takeException();
+      expect(exception, isNull);
+      expect(find.text('What brings you together'), findsOneWidget);
+      expect(find.text('Highly compatible pairing'), findsOneWidget);
     });
   });
 }

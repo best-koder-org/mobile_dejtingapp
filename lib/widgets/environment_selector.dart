@@ -160,6 +160,12 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
                   );
                 }),
 
+                // ── Auto host discovery status (DEV-only) ──
+                if (EnvironmentConfig.isDevelopment &&
+                    EnvironmentConfig.autoHostProbed &&
+                    EnvironmentConfig.devServer == DevServer.local)
+                  const _AutoHostStatusCard(),
+
                 // ── Advanced options (collapsed) ──
                 if (EnvironmentConfig.isDevelopment)
                   ExpansionTile(
@@ -232,9 +238,11 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
           label: 'Laptop (dev)',
           scenario: 'Your dev laptop via USB cable (adb reverse)',
           icon: Icons.laptop,
-          url: EnvironmentConfig.isEmulator
-              ? '10.0.2.2:8080 (emulator)'
-              : 'localhost:8080 (adb reverse)',
+          url: EnvironmentConfig.isAutoHostDiscoveryActive
+              ? '${EnvironmentConfig.autoDetectedLocalHost}:8080 (auto)'
+              : EnvironmentConfig.isEmulator
+                  ? '10.0.2.2:8080 (emulator)'
+                  : 'localhost:8080 (adb reverse)',
         );
       case DevServer.server:
         return _ServerOption(
@@ -270,6 +278,81 @@ class _EnvironmentSelectorState extends State<EnvironmentSelector> {
             : 'Prod';
     final opt = _optionFor(EnvironmentConfig.devServer);
     return '$env · ${opt.label}';
+  }
+}
+
+/// DEV-only status card for the auto host discovery (see EnvironmentConfig).
+///
+/// Surfaces what the app picked for "Laptop (dev)" — or why it couldn't
+/// connect — so the option is self-explanatory. Remove together with the
+/// auto-detection feature before production release.
+class _AutoHostStatusCard extends StatelessWidget {
+  const _AutoHostStatusCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final host = EnvironmentConfig.autoDetectedLocalHost;
+    final isConnected = host != null;
+    final Color fg = isConnected ? Colors.amber[200]! : Colors.red[200]!;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: isConnected ? Colors.amber.withAlpha(25) : Colors.red.withAlpha(30),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isConnected
+              ? Colors.amber.withAlpha(120)
+              : Colors.red.withAlpha(140),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isConnected ? Icons.travel_explore : Icons.error_outline,
+                size: 13,
+                color: fg,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  isConnected
+                      ? 'Auto-detected host: $host'
+                      : 'No laptop backend reachable',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: fg,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isConnected
+                ? '⚠️ DEV-only convenience: the app probes localhost / LAN '
+                      'automatically so USB & emulator setups "just work". '
+                      'Remove this auto-detection before release.'
+                : 'The app could not reach the dev laptop. Enable adb reverse '
+                      '(USB): run scripts/adb-reverse-laptop.sh — or connect '
+                      'to the same WiFi, or pick Server (always-on).',
+            style: TextStyle(
+              fontSize: 9.5,
+              color: isConnected
+                  ? Colors.amber[100]?.withAlpha(220)
+                  : Colors.red[100]?.withAlpha(230),
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

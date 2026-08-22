@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:record/record.dart';
 
 import 'package:dejtingapp/services/feedback_service.dart';
 import 'package:dejtingapp/widgets/feedback_fab.dart';
@@ -48,7 +50,47 @@ Widget _wrap(Widget child) {
   );
 }
 
+void _noop() {}
+
+class _FakeFeedbackRecorder implements FeedbackRecorder {
+  bool recording = false;
+  bool started = false;
+
+  @override
+  Future<bool> hasPermission() async => true;
+
+  @override
+  Future<void> start(RecordConfig config, {required String path}) async {
+    started = true;
+    recording = true;
+  }
+
+  @override
+  Future<String?> stop() async {
+    recording = false;
+    return '/tmp/fake_feedback_audio.m4a';
+  }
+
+  @override
+  Stream<Amplitude> onAmplitudeChanged(Duration interval) =>
+      const Stream<Amplitude>.empty();
+
+  @override
+  void dispose() {}
+}
+
 void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (MethodCall call) async {
+        if (call.method == 'getTemporaryDirectory') return '/tmp';
+        return null;
+      },
+    );
+  });
   testWidgets('FeedbackFab is visible in debug mode', (tester) async {
     await tester.pumpWidget(_wrap(const FeedbackFab()));
     expect(find.byKey(const Key('feedback-fab')), findsOneWidget);
@@ -62,6 +104,75 @@ void main() {
     expect(find.byKey(const Key('feedback-mic-toggle')), findsOneWidget);
     expect(find.byKey(const Key('feedback-note-input')), findsOneWidget);
     expect(find.byKey(const Key('feedback-send-button')), findsOneWidget);
+  });
+
+  testWidgets('Play/Delete controls hidden until a recording exists',
+      (tester) async {
+    await tester.pumpWidget(_wrap(const FeedbackFab()));
+    await tester.tap(find.byKey(const Key('feedback-fab')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('feedback-play-button')), findsNothing);
+    expect(find.byKey(const Key('feedback-delete-button')), findsNothing);
+  });
+
+  testWidgets('record then stop shows Play/Delete controls', (tester) async {
+    final recorder = _FakeFeedbackRecorder();
+    await tester.pumpWidget(_wrap(FeedbackSheet(recorder: recorder)));
+
+    // Controls hidden before recording.
+    expect(find.byKey(const Key('feedback-play-button')), findsNothing);
+    expect(find.byKey(const Key('feedback-delete-button')), findsNothing);
+
+    // Start recording.
+    await tester.tap(find.byKey(const Key('feedback-mic-toggle')));
+    await tester.pump();
+    expect(recorder.started, isTrue);
+    expect(recorder.recording, isTrue);
+
+    // Stop recording — controls must appear.
+    await tester.tap(find.byKey(const Key('feedback-mic-toggle')));
+    await tester.pumpAndSettle();
+    expect(recorder.recording, isFalse);
+    expect(find.byKey(const Key('feedback-play-button')), findsOneWidget);
+    expect(find.byKey(const Key('feedback-delete-button')), findsOneWidget);
+  });
+
+  group('FeedbackRecordingControls', () {
+    testWidgets('renders Play and Delete buttons', (tester) async {
+      await tester.pumpWidget(_wrap(const FeedbackRecordingControls(
+        isPlaying: false,
+        onPlay: _noop,
+        onDelete: _noop,
+      )));
+      expect(find.byKey(const Key('feedback-play-button')), findsOneWidget);
+      expect(find.byKey(const Key('feedback-delete-button')), findsOneWidget);
+      expect(find.text('Play'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
+    });
+
+    testWidgets('shows Stop while playing', (tester) async {
+      await tester.pumpWidget(_wrap(const FeedbackRecordingControls(
+        isPlaying: true,
+        onPlay: _noop,
+        onDelete: _noop,
+      )));
+      expect(find.text('Stop'), findsOneWidget);
+      expect(find.byIcon(Icons.stop), findsOneWidget);
+    });
+
+    testWidgets('tapping buttons fires callbacks', (tester) async {
+      var playCalls = 0;
+      var deleteCalls = 0;
+      await tester.pumpWidget(_wrap(FeedbackRecordingControls(
+        isPlaying: false,
+        onPlay: () => playCalls++,
+        onDelete: () => deleteCalls++,
+      )));
+      await tester.tap(find.byKey(const Key('feedback-play-button')));
+      await tester.tap(find.byKey(const Key('feedback-delete-button')));
+      expect(playCalls, 1);
+      expect(deleteCalls, 1);
+    });
   });
 
   testWidgets('Sheet shows anonymous identity hint when not logged in',
