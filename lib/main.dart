@@ -45,15 +45,22 @@ import 'widgets/error_boundary.dart';
 import 'models/onboarding_data.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   // Route every http.Client() construction (including all top-level
   // http.get/post calls) through our Cronet-on-Android factory so TLS uses
   // the Android system trust store. See [createPlatformHttpClient].
+  //
+  // NOTE: http.runWithClient runs _runApp inside its OWN Zone, so
+  // WidgetsFlutterBinding.ensureInitialized() MUST happen inside _runApp
+  // (first statement) — otherwise Flutter throws "It is important to use the
+  // same zone when calling ensureInitialized on the binding as when calling
+  // runApp later" and the UI never renders (happens on desktop).
   await http.runWithClient(_runApp, createPlatformHttpClient);
 }
 
 Future<void> _runApp() async {
+  // Same zone as runApp below — required (see main() note).
+  WidgetsFlutterBinding.ensureInitialized();
+
   // Default to Dejting flavor if not set by a flavor-specific entry point
   try {
     // ignore: unnecessary_statements
@@ -83,6 +90,12 @@ Future<void> _runApp() async {
       break;
     default:
       EnvSwitcher.useDevelopment();
+  }
+
+  // DEV-only: probe emulator / USB / LAN to auto-pick the local backend host.
+  // ⚠️ Remove this before production release (see EnvironmentConfig.discoverDevHost).
+  if (EnvironmentConfig.isDevelopment) {
+    await EnvironmentConfig.discoverDevHost();
   }
 
   if (kDebugMode) {

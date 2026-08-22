@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
@@ -35,6 +36,39 @@ bool get feedbackFabEnabled =>
 /// MaterialApp's Navigator (where Navigator.of(context) would be null).
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Minimal recorder surface used by the feedback sheet, so it can be faked in
+/// widget tests without a real microphone.
+abstract class FeedbackRecorder {
+  Future<bool> hasPermission();
+  Future<void> start(RecordConfig config, {required String path});
+  Future<String?> stop();
+  Stream<Amplitude> onAmplitudeChanged(Duration interval);
+  void dispose();
+}
+
+/// Adapter over the `record` package's [AudioRecorder].
+class RecordAudioRecorder implements FeedbackRecorder {
+  final AudioRecorder _impl;
+  RecordAudioRecorder([AudioRecorder? impl]) : _impl = impl ?? AudioRecorder();
+
+  @override
+  Future<bool> hasPermission() => _impl.hasPermission();
+
+  @override
+  Future<void> start(RecordConfig config, {required String path}) =>
+      _impl.start(config, path: path);
+
+  @override
+  Future<String?> stop() => _impl.stop();
+
+  @override
+  Stream<Amplitude> onAmplitudeChanged(Duration interval) =>
+      _impl.onAmplitudeChanged(interval);
+
+  @override
+  void dispose() => _impl.dispose();
+}
+
 /// Draggable mini-FAB that records a short voice memo and uploads it to
 /// bot-service. Tap = open sheet (record/text). Hidden in production by default.
 class FeedbackFab extends StatefulWidget {
@@ -55,10 +89,16 @@ class FeedbackFab extends StatefulWidget {
 
 class _FeedbackFabState extends State<FeedbackFab> {
   late final FeedbackService _service = widget.service ?? FeedbackService();
-  late final AudioRecorder _recorder = widget.recorder ?? AudioRecorder();
+  late final FeedbackRecorder _recorder = RecordAudioRecorder(widget.recorder);
 
   Offset _position = const Offset(16, 240);
   bool _isUploading = false;
+
+  @override
+  void dispose() {
+    _recorder.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +166,7 @@ class _FeedbackFabState extends State<FeedbackFab> {
     final result = await showModalBottomSheet<_FeedbackResult>(
       context: navCtx,
       isScrollControlled: true,
-      builder: (ctx) => _FeedbackSheet(
+      builder: (ctx) => FeedbackSheet(
         recorder: _recorder,
         screenLabel: widget.currentScreenLabel,
       ),
@@ -255,21 +295,23 @@ class _FeedbackResult {
   _FeedbackResult({this.audioPath, this.durationSec = 0, this.noteText});
 }
 
-class _FeedbackSheet extends StatefulWidget {
-  final AudioRecorder recorder;
+class FeedbackSheet extends StatefulWidget {
+  final FeedbackRecorder recorder;
   final String? screenLabel;
-  const _FeedbackSheet({required this.recorder, this.screenLabel});
+  const FeedbackSheet({super.key, required this.recorder, this.screenLabel});
 
   @override
-  State<_FeedbackSheet> createState() => _FeedbackSheetState();
+  State<FeedbackSheet> createState() => _FeedbackSheetState();
 }
 
-class _FeedbackSheetState extends State<_FeedbackSheet> {
+class _FeedbackSheetState extends State<FeedbackSheet> {
   final TextEditingController _noteCtl = TextEditingController();
   bool _isRecording = false;
   String? _recordedPath;
   DateTime? _recordingStart;
   int _durationSec = 0;
+  AudioPlayer? _player;
+  bool _isPlaying = false;
 
   // Live waveform: a sliding window of normalized amplitudes (0..1).
   final List<double> _amps = List<double>.filled(40, 0.0, growable: true);
@@ -280,12 +322,20 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
   void dispose() {
     _ampSub?.cancel();
     _tickTimer?.cancel();
+    _player?.dispose();
     _noteCtl.dispose();
     super.dispose();
   }
 
   Future<void> _startRecording() async {
-    final hasPerm = await widget.recorder.hasPermission();
+    if (_isRecording) return;
+
+    bool hasPerm = false;
+    try {
+      hasPerm = await widget.recorder.hasPermission();
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FeedbackFab] permission check failed: $e');
+    }
     if (!hasPerm) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -297,10 +347,20 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
     final dir = await getTemporaryDirectory();
     final path = p.join(dir.path,
         'feedback_${DateTime.now().millisecondsSinceEpoch}.m4a');
-    await widget.recorder.start(
-      const RecordConfig(encoder: AudioEncoder.aacLc),
-      path: path,
-    );
+    try {
+      await widget.recorder.start(
+        const RecordConfig(encoder: AudioEncoder.aacLc),
+        path: path,
+      );
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FeedbackFab] start failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not start recording — try again')),
+        );
+      }
+      return;
+    }
     // Stream amplitudes ~10x/s for the waveform UI.
     _ampSub = widget.recorder
         .onAmplitudeChanged(const Duration(milliseconds: 100))
@@ -331,14 +391,24 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
   }
 
   Future<void> _stopRecording() async {
-    await _ampSub?.cancel();
+    // Stop the waveform stream + timer first (never block on cancellation).
+    unawaited(_ampSub?.cancel());
     _ampSub = null;
     _tickTimer?.cancel();
     _tickTimer = null;
-    final path = await widget.recorder.stop();
+
+    String? path;
+    try {
+      path = await widget.recorder.stop().timeout(const Duration(seconds: 5));
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FeedbackFab] stop failed: $e');
+      path = null;
+    }
+
     final ms = _recordingStart == null
         ? 0
         : DateTime.now().difference(_recordingStart!).inMilliseconds;
+    if (!mounted) return;
     setState(() {
       _isRecording = false;
       _recordedPath = path;
@@ -348,6 +418,12 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
         _amps[i] = _amps[i] * 0.3;
       }
     });
+
+    if (path == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Recording failed — please try again')),
+      );
+    }
   }
 
   Future<void> _toggleRecording() async {
@@ -355,6 +431,58 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
       await _stopRecording();
     } else {
       await _startRecording();
+    }
+  }
+
+  Future<void> _ensurePlayer() async {
+    if (_player != null) return;
+    _player = AudioPlayer();
+    _player!.playerStateStream.listen((state) {
+      if (!mounted) return;
+      setState(() => _isPlaying = state.playing);
+    });
+  }
+
+  /// Play/pause the recorded memo so the tester can preview it before sending.
+  Future<void> _togglePlayback() async {
+    final path = _recordedPath;
+    if (path == null || _isRecording) return;
+    if (_isPlaying) {
+      await _player?.pause();
+      return; // playerStateStream flips _isPlaying
+    }
+    await _ensurePlayer();
+    try {
+      await _player!.setFilePath(path);
+      await _player!.play();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Playback failed: $e')),
+        );
+      }
+    }
+  }
+
+  /// Delete the current recording so the tester can record a fresh one.
+  Future<void> _deleteRecording() async {
+    await _player?.stop();
+    _isPlaying = false;
+    final path = _recordedPath;
+    if (path != null) {
+      try {
+        final f = File(path);
+        if (await f.exists()) await f.delete();
+      } catch (_) {/* best-effort cleanup */}
+    }
+    if (mounted) {
+      setState(() {
+        _recordedPath = null;
+        _durationSec = 0;
+        for (var i = 0; i < _amps.length; i++) {
+          _amps[i] = 0.0;
+        }
+      });
     }
   }
 
@@ -381,18 +509,21 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.of(context).viewInsets;
-    final viewPadding = MediaQuery.of(context).viewPadding;
+    final media = MediaQuery.of(context);
+    final viewInsets = media.viewInsets;
+    final viewPadding = media.viewPadding;
     final bottomInset = viewInsets.bottom + viewPadding.bottom;
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16, right: 16, top: 16,
-        bottom: 16 + bottomInset,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    // Cap the sheet height (minus keyboard) and make the content scrollable so
+    // the play/delete controls stay reachable on small phone screens instead of
+    // throwing a RenderFlex overflow when the extra controls appear.
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           Text(
             'Send feedback${widget.screenLabel != null ? ' • ${widget.screenLabel}' : ''}',
             style: Theme.of(context).textTheme.titleMedium,
@@ -436,13 +567,17 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
                 const _BlinkingDot(),
                 const SizedBox(width: 8),
               ],
-              Text(
-                _isRecording
-                    ? 'Recording • ${_formatDuration(_durationSec)}'
-                    : (_recordedPath == null
-                        ? 'Tap mic to start'
-                        : 'Saved ${_formatDuration(_durationSec)} • tap mic to redo'),
-                style: Theme.of(context).textTheme.bodyMedium,
+              Flexible(
+                child: Text(
+                  _isRecording
+                      ? 'Recording • ${_formatDuration(_durationSec)}'
+                      : (_recordedPath == null
+                          ? 'Tap mic to start'
+                          : 'Saved ${_formatDuration(_durationSec)} — play/delete below, or tap mic to redo'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             ],
           ),
@@ -476,6 +611,15 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
               ),
             ),
           ),
+          // Preview & redo controls — visible once a recording exists.
+          if (_recordedPath != null && !_isRecording) ...[
+            const SizedBox(height: 12),
+            FeedbackRecordingControls(
+              isPlaying: _isPlaying,
+              onPlay: _togglePlayback,
+              onDelete: _deleteRecording,
+            ),
+          ],
           const SizedBox(height: 16),
           TextField(
             key: const Key('feedback-note-input'),
@@ -502,8 +646,48 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
               ),
             ],
           ),
-        ],
-      ),
+            ],
+          ),
+        ),
+      );
+  }
+}
+
+/// Play / Delete controls shown after a voice memo has been recorded so the
+/// tester can preview it before sending, or discard it and record a new one.
+class FeedbackRecordingControls extends StatelessWidget {
+  final bool isPlaying;
+  final VoidCallback onPlay;
+  final VoidCallback onDelete;
+
+  const FeedbackRecordingControls({
+    super.key,
+    required this.isPlaying,
+    required this.onPlay,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        OutlinedButton.icon(
+          key: const Key('feedback-play-button'),
+          onPressed: onPlay,
+          icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow),
+          label: Text(isPlaying ? 'Stop' : 'Play'),
+        ),
+        OutlinedButton.icon(
+          key: const Key('feedback-delete-button'),
+          onPressed: onDelete,
+          icon: const Icon(Icons.delete_outline),
+          label: const Text('Delete'),
+          style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+        ),
+      ],
     );
   }
 }

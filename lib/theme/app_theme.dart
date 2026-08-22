@@ -22,6 +22,10 @@ class AppTheme {
   static const surfaceDark = Color(0xFF1A1A2E);         // Deep navy — immersive bg
   static const surfaceDarkAlt = Color(0xFF16213E);      // Slightly lighter navy
   static const surfaceElevated = Color(0xFF252540);     // Elevated cards/modals
+
+  // ─── Chat bubbles (Hinge-style) ───────────────────────
+  static const chatBubbleMe = Color(0xFFFF7F50);        // Coral — my messages
+  static const chatBubbleOther = Color(0xFFF1F3F5);      // Light (Hinge-style) — other person's bubbles
   static const dividerColor = Color(0xFF2A2A45);        // Subtle dark dividers
 
   // ─── Text Colors ──────────────────────────────────────

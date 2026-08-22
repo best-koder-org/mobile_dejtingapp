@@ -60,6 +60,83 @@ class EnvironmentConfig {
   static const String _devMachineLanIp = '100.86.173.9';
   static const String _funnelHost = 'a.tail45c6a7.ts.net';
 
+  // ── Auto host discovery (DEV-only convenience) ────────────────────────────
+  /// Auto-detected host for [DevServer.local] (emulator / USB / LAN probing).
+  static String? _autoLocalHost;
+
+  /// True once a probe has completed (success or failure) this session.
+  static bool _autoHostProbed = false;
+
+  /// The host auto-detected this session, or null if none/unused.
+  static String? get autoDetectedLocalHost => _autoLocalHost;
+  static bool get isAutoHostDiscoveryActive => _autoLocalHost != null;
+  static bool get autoHostProbed => _autoHostProbed;
+
+  /// Test-only hook so widget tests can simulate a discovered host.
+  @visibleForTesting
+  static void debugSetAutoLocalHost(String? host) {
+    _autoLocalHost = host;
+    _autoHostProbed = true;
+  }
+
+  /// Probes candidate backends and remembers the first reachable host.
+  ///
+  /// DEV-ONLY convenience so emulator / USB (adb reverse) / same-WiFi setups
+  /// "just work" without manual `adb reverse` steps. The result is only used
+  /// by [DevServer.local]; other dev servers are unaffected.
+  ///
+  /// Re-runs on every switch to [DevServer.local] so the choice is fresh.
+  /// ⚠️ Remove (or gate behind --dart-define) before production release.
+  static Future<void> discoverDevHost() async {
+    if (kIsWeb) return;
+    _autoLocalHost = null;
+    _autoHostProbed = false;
+
+    // Priority order: emulator alias → adb-reverse localhost → LAN/Tailscale.
+    final candidates = <String>[
+      if (_isRunningOnEmulator) '10.0.2.2',
+      'localhost',
+      _devMachineLanIp,
+    ];
+
+    // Probe all candidates in parallel; keep the first that responds.
+    final results = await Future.wait(candidates.map(_probeGateway));
+    for (var i = 0; i < candidates.length; i++) {
+      if (results[i]) {
+        _autoLocalHost = candidates[i];
+        break;
+      }
+    }
+    _autoHostProbed = true;
+
+    debugPrint(
+      _autoLocalHost != null
+          ? '🔎 Auto host: $_autoLocalHost (DEV-only, remove before release)'
+          : '🔎 Auto host: none reachable — check adb reverse / WiFi, '
+                'or use Same WiFi / Server (always-on)',
+    );
+  }
+
+  /// True if the gateway on [host]:8080 answers /health within the timeout.
+  static Future<bool> _probeGateway(String host) async {
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(milliseconds: 900);
+    try {
+      final request = await client
+          .getUrl(Uri.parse('http://$host:8080/health'))
+          .timeout(const Duration(milliseconds: 900));
+      request.headers.set(HttpHeaders.userAgentHeader, 'dejtingapp-host-probe');
+      final response = await request
+          .close()
+          .timeout(const Duration(milliseconds: 900));
+      return response.statusCode < 500; // any live server response counts
+    } catch (_) {
+      return false;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
   /// The active hostname/IP for the current dev server choice.
   static String get _activeDevHost {
     switch (_devServer) {
@@ -70,6 +147,8 @@ class EnvironmentConfig {
       case DevServer.custom:
         return _customHost.isNotEmpty ? _customHost : _devMachineLanIp;
       case DevServer.local:
+        // Auto-detected host wins (emulator / adb-reverse / LAN).
+        if (_autoLocalHost != null) return _autoLocalHost!;
         if (_isRunningOnEmulator) return '10.0.2.2';
         // Desktop AND physical Android → localhost.
         // On a phone this reaches the dev laptop via `adb reverse`
@@ -94,6 +173,7 @@ class EnvironmentConfig {
       case DevServer.custom:
         return 'Custom (${_customHost.isNotEmpty ? _customHost : "not set"})';
       case DevServer.local:
+        if (_autoLocalHost != null) return 'Laptop dev (auto: $_autoLocalHost)';
         return 'Laptop dev (${_isRunningOnEmulator ? "10.0.2.2" : "localhost"})';
     }
   }
@@ -304,6 +384,11 @@ class EnvSwitcher {
   /// Switch dev server (LAN server / Funnel / custom) without changing env.
   static Future<void> switchDevServer(DevServer server, {String? customHost}) async {
     await EnvironmentConfig.setDevServer(server, customHost: customHost);
+    // Picking "Laptop (dev)" re-probes so the auto-detected host is fresh —
+    // otherwise it would stay whatever was found (or missed) at startup.
+    if (server == DevServer.local && EnvironmentConfig.isDevelopment) {
+      await EnvironmentConfig.discoverDevHost();
+    }
     // Re-apply current env so URLs recalculate
     useDevelopment();
   }
