@@ -29,6 +29,11 @@ class _PsykologHomeScreenState extends State<PsykologHomeScreen>
   bool _starting = false;
   late TabController _tabController;
 
+  // Bio audit (dating coach — recommendation only)
+  List<String> _bioSuggestions = [];
+  String? _bioNote;
+  bool _bioAuditing = false;
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +81,20 @@ class _PsykologHomeScreenState extends State<PsykologHomeScreen>
       MaterialPageRoute(builder: (_) => PsykologChatScreen(session: session!)),
     );
     _load();
+  }
+
+  Future<void> _runBioAudit() async {
+    setState(() {
+      _bioAuditing = true;
+      _bioNote = null;
+    });
+    final result = await _svc.bioAudit();
+    if (!mounted) return;
+    setState(() {
+      _bioAuditing = false;
+      _bioSuggestions = result?.suggestions ?? [];
+      _bioNote = result?.note;
+    });
   }
 
   String _journeySummary() {
@@ -339,6 +358,61 @@ class _PsykologHomeScreenState extends State<PsykologHomeScreen>
                     _StatItem(icon: Icons.lightbulb_outline, value: '${_themes.length}', label: 'Insikter'),
                     _StatItem(icon: Icons.auto_awesome, value: '${_sessions.where((s) => s.status == PsykologSessionStatus.completed).length}', label: 'Genomförda'),
                   ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Bio-matchning card (dating coach — recommendation only)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(Icons.article_outlined, color: accent, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Speglar din bio vem du är?',
+                      style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
+                ]),
+                const SizedBox(height: 8),
+                Text('Jämför dina teman med din profilbio och få konkreta, vänliga tips.',
+                    style: TextStyle(color: textSecondary, fontSize: 13, height: 1.4)),
+                const SizedBox(height: 12),
+                if (_bioAuditing)
+                  Center(child: CircularProgressIndicator(color: accent))
+                else if (_bioNote != null)
+                  Text(_bioNote!,
+                      style: TextStyle(color: textSecondary, fontSize: 13, height: 1.4))
+                else if (_bioSuggestions.isNotEmpty)
+                  ..._bioSuggestions.map((s) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('• ',
+                                style: TextStyle(
+                                    color: accent, fontWeight: FontWeight.bold, fontSize: 14)),
+                            Expanded(
+                              child: Text(s,
+                                  style: TextStyle(
+                                      color: textPrimary, fontSize: 13, height: 1.4)),
+                            ),
+                          ],
+                        ),
+                      )),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _bioAuditing ? null : _runBioAudit,
+                  icon: Icon(Icons.auto_awesome, size: 16, color: accent),
+                  label: Text(
+                      _bioSuggestions.isEmpty && _bioNote == null ? 'Jämför min bio' : 'Jämför igen',
+                      style: TextStyle(color: accent, fontSize: 13)),
+                  style: OutlinedButton.styleFrom(side: BorderSide(color: accent)),
                 ),
               ],
             ),
