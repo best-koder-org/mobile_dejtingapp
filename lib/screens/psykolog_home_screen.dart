@@ -3,6 +3,7 @@ import 'package:dejtingapp/services/psykolog_service.dart';
 import 'package:dejtingapp/services/feedback_trends_service.dart';
 import 'package:dejtingapp/widgets/theme_visualization_widget.dart';
 import 'psykolog_chat_screen.dart';
+import 'psykolog_transcript_screen.dart';
 
 /// Entry point for AI Psykolog — "Reflektionsrummet".
 ///
@@ -134,8 +135,15 @@ class _PsykologHomeScreenState extends State<PsykologHomeScreen>
       appBar: AppBar(
         backgroundColor: surface,
         elevation: 0,
-        title: const Text('Reflektionsrummet',
-            style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 20)),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.psychology, color: accent, size: 22),
+            SizedBox(width: 8),
+            Text('Reflektionsrummet',
+                style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 20)),
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: textSecondary),
           onPressed: () => Navigator.pop(context),
@@ -376,7 +384,13 @@ class _PsykologHomeScreenState extends State<PsykologHomeScreen>
                       Navigator.push(context,
                           MaterialPageRoute(builder: (_) => PsykologChatScreen(session: s)));
                     }
-                  : null,
+                  : () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => PsykologTranscriptScreen(
+                                  sessionId: s.id, title: 'Session ${s.sessionNumber}')));
+                    },
             ),
           );
         },

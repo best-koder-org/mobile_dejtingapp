@@ -13,6 +13,7 @@ import 'package:dejtingapp/flavors/flavor_config.dart';
 import 'package:dejtingapp/widgets/discovery/voice_discovery_card.dart';
 import 'package:dejtingapp/services/billing_service.dart';
 import 'package:dejtingapp/screens/sparks_store_screen.dart';
+import 'package:dejtingapp/screens/psykolog_home_screen.dart';
 import 'dart:convert';
 import 'package:dejtingapp/models/match_insight.dart';
 import 'package:dejtingapp/widgets/connection_insight_card.dart';
@@ -281,6 +282,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'AI Psykolog',
+            icon: const Icon(Icons.psychology_alt_outlined, size: 22),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PsykologHomeScreen()),
+              );
+            },
+            style: IconButton.styleFrom(
+              backgroundColor: const Color(0xFFEDE4FF),
+              foregroundColor: const Color(0xFF6B4EFF),
+            ),
+          ),
+          const SizedBox(width: 4),
           IconButton(
             tooltip: 'Discovery Filters',
             icon: const Icon(Icons.tune_rounded, size: 22),

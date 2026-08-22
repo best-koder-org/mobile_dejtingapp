@@ -68,6 +68,30 @@ class PsykologTheme {
       );
 }
 
+/// A single transcript message used to re-read a past session.
+class PsykologMessageInfo {
+  final int id;
+  final String role; // 'User' | 'Assistant'
+  final String content;
+  final DateTime createdAt;
+
+  const PsykologMessageInfo({
+    required this.id,
+    required this.role,
+    required this.content,
+    required this.createdAt,
+  });
+
+  factory PsykologMessageInfo.fromJson(Map<String, dynamic> j) =>
+      PsykologMessageInfo(
+        id: j['id'] as int,
+        role: j['role'] as String? ?? 'User',
+        content: j['content'] as String? ?? '',
+        createdAt:
+            DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+      );
+}
+
 /// Flutter API client for the AI Psykolog feature.
 class PsykologService {
   PsykologService._();
@@ -155,6 +179,24 @@ class PsykologService {
       return list.map((e) => PsykologTheme.fromJson(e as Map<String, dynamic>)).toList();
     } catch (_) {
       return [];
+    }
+  }
+
+  /// Fetch a session's full transcript for re-reading (owner only).
+  /// Returns null on error; empty list if the session has no messages.
+  Future<List<PsykologMessageInfo>?> getMessages(int sessionId) async {
+    try {
+      final resp = await http.get(
+        Uri.parse('$_base/sessions/$sessionId/messages'),
+        headers: await _headers(),
+      );
+      if (resp.statusCode != 200) return null;
+      final list = jsonDecode(resp.body) as List;
+      return list
+          .map((e) => PsykologMessageInfo.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
     }
   }
 }

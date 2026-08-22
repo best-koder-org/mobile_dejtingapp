@@ -128,8 +128,8 @@ class _PsykologChatScreenState extends State<PsykologChatScreen> {
         ),
         content: const Text(
           '🌱 Vad tar du med dig från dagens reflektion?\n\n'
-          'Dina meddelanden analyseras anonymt för att uppdatera dina teman, '
-          'sedan raderas de av integritetsskäl.',
+          'Dina meddelanden sparas så du kan gå tillbaka och läsa dina reflektioner. '
+          'Teman analyseras anonymt för att uppdatera ditt kompatibilitetsmönster.',
           style: TextStyle(color: _textSecondary, fontSize: 13, height: 1.5),
         ),
         actions: [

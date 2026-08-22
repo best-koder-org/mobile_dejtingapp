@@ -33,7 +33,7 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('AI Psykolog'), findsOneWidget);
+      expect(find.text('Reflektionsrummet'), findsOneWidget);
     });
 
     testWidgets('shows start session button', (tester) async {
