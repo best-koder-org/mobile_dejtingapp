@@ -6,6 +6,7 @@ import '../services/dev_auto_login.dart';
 import '../theme/app_theme.dart';
 import '../flavors/flavor_config.dart';
 import '../widgets/environment_selector.dart';
+import '../services/api_service.dart';
 
 /// Welcome Screen — Two clear paths:
 /// 1. "I'm ready to match" → registration/onboarding flow
@@ -23,6 +24,20 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool _devLoggingIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Safety net: if a valid session already exists (cold start where the
+    // token finished loading just before the route was chosen), skip the
+    // welcome screen and go straight into the app.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (AppState().hasValidAuthSession(gracePeriod: const Duration(minutes: 1))) {
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

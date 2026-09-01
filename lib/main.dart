@@ -239,18 +239,17 @@ class DatingApp extends StatelessWidget {
 
   String _getInitialRoute() {
     final appState = AppState();
-    
-    // In dev/staging: always start at welcome screen so the user can press "Dev Sign In"
-    if (EnvironmentConfig.isDevelopment || EnvironmentConfig.isStaging) {
-      return '/welcome';
-    }
-    
-    // If we have a valid session, go straight to home (Discover)
+
+    // If we have a valid session, go straight into the app. This MUST be
+    // checked before any dev/staging "always show welcome" shortcut, otherwise
+    // returning to the app after the OS killed the backgrounded process (Home
+    // / phone call) always lands on the welcome/login screen even though the
+    // session is valid. See SessionRestore for last-screen restoration.
     if (appState.hasValidAuthSession(gracePeriod: const Duration(minutes: 1))) {
       return '/home';
     }
-    
-    // Otherwise show login screen (with pre-filled demo credentials in dev mode)
+
+    // No valid session: dev/staging → welcome (Dev Sign In / login entry).
     return '/welcome';
   }
 }

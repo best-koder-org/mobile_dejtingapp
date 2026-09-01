@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'session_restore.dart';
 import 'package:http/http.dart' as http;
 
 import '../backend_url.dart';
@@ -703,6 +704,10 @@ class AppState {
 
     await _clearTokenStorage();
     _initialized = false;
+
+    // Forget the last tab/conversation so a fresh login doesn't restore a
+    // previous user's position (see SessionRestore).
+    await SessionRestore.clear();
   }
 
   Future<void> updateProfile(Map<String, dynamic> profile) async {

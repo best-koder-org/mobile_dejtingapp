@@ -6,6 +6,7 @@ import 'package:dejtingapp/theme/app_theme.dart';
 import 'package:dejtingapp/services/billing_service.dart';
 import 'package:dejtingapp/services/swipe_service.dart';
 import 'package:dejtingapp/services/api_service.dart';
+import 'package:dejtingapp/services/session_restore.dart';
 import '../models.dart';
 import '../api_services.dart';
 import 'enhanced_chat_screen.dart';
@@ -288,6 +289,12 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
   }
 
   void _openChat(UserProfile profile) {
+    // Remember this conversation for cold-restart restore (SessionRestore).
+    SessionRestore.saveLastChat(
+      userId: profile.userId,
+      name: profile.firstName,
+      photoUrl: profile.primaryPhotoUrl,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(

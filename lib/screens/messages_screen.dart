@@ -5,6 +5,7 @@ import 'dart:async';
 import '../models.dart';
 import '../api_services.dart';
 import '../services/messaging_service.dart';
+import '../services/session_restore.dart';
 import '../services/api_service.dart' show AppState;
 import 'enhanced_chat_screen.dart';
 
@@ -453,6 +454,13 @@ class _MessagesScreenState extends State<MessagesScreen>
 
   void _openChat(
       String name, String? photoUrl, String otherUserId) {
+    // Remember this conversation so returning to the app after a background
+    // kill can reopen it (see SessionRestore / MainApp._restorePosition).
+    SessionRestore.saveLastChat(
+      userId: otherUserId,
+      name: name,
+      photoUrl: photoUrl,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(

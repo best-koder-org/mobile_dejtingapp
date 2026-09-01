@@ -8,15 +8,17 @@ import 'screens/top_picks_screen.dart';
 import 'screens/enhanced_matches_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/profile_hub_screen.dart';
+import 'screens/enhanced_chat_screen.dart';
 import 'screens/forum_feed_screen.dart';
 import 'services/app_initialization_service.dart';
 import 'services/api_service.dart' hide PhotoService;
 import 'services/photo_service.dart';
 import 'services/messaging_service.dart';
+import 'services/session_restore.dart';
 import 'services/matchmaking_realtime_service.dart';
 import 'services/spark_notification_service.dart';
 import 'services/location_service.dart';
-import 'models.dart' show Message;
+import 'models.dart' show Message, Match, UserProfile;
 import 'widgets/connectivity_banner.dart';
 
 class MainApp extends StatefulWidget {
@@ -56,7 +58,54 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
+    _restorePosition();
     _initializeApp();
+  }
+
+  /// Restore the last tab + conversation so a cold restart (process killed
+  /// while backgrounded) returns to where the user was, not the login screen.
+  Future<void> _restorePosition() async {
+    final tab = await SessionRestore.loadLastTab();
+    if (mounted && tab > 0 && tab < _screens.length) {
+      setState(() => _currentIndex = tab);
+    }
+    final chat = await SessionRestore.loadLastChat();
+    if (chat != null && mounted) {
+      final userId = chat['userId'] ?? '';
+      if (userId.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _openChatRestored(chat);
+        });
+      }
+    }
+  }
+
+  /// Reopen the last conversation (reconstructs the Match like the Messages /
+  /// Matches screens do; the chat screen re-fetches messages from the id).
+  void _openChatRestored(Map<String, String> chat) {
+    final userId = chat['userId'] ?? '';
+    final name = chat['name'] ?? '';
+    final photoUrl = chat['photoUrl'] ?? '';
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EnhancedChatScreen(
+          match: Match(
+            id: '',
+            userId1: '',
+            userId2: userId,
+            matchedAt: DateTime.now(),
+            otherUserProfile: UserProfile(
+              userId: userId,
+              firstName: name.split(' ').first,
+              lastName: '',
+              dateOfBirth: DateTime.now(),
+              photoUrls: photoUrl.isNotEmpty ? [photoUrl] : [],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _initializeApp() async {
@@ -373,6 +422,8 @@ class _MainAppState extends State<MainApp> {
             setState(() {
               _currentIndex = index;
             });
+            // Remember the tab so a cold restart returns here (SessionRestore).
+            SessionRestore.saveLastTab(index);
           },
           items: [
             // 0: Discover
