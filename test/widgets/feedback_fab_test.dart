@@ -253,6 +253,36 @@ void main() {
         reason: 'text-only submit should have null audioFile');
   });
 
+  testWidgets('Audio submit shows toast, never a blocking transcript dialog',
+      (tester) async {
+    final fake = _FakeFeedbackService();
+    final recorder = _FakeFeedbackRecorder();
+    await tester.pumpWidget(
+        _wrap(FeedbackFab(service: fake, recorder: recorder)));
+
+    // Open the sheet, record, then stop -> an audio file exists.
+    await tester.tap(find.byKey(const Key('feedback-fab')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('feedback-mic-toggle')));
+    await tester.pump();
+    expect(recorder.recording, isTrue);
+    await tester.tap(find.byKey(const Key('feedback-mic-toggle')));
+    await tester.pumpAndSettle();
+
+    // Send with audio.
+    await tester.tap(find.byKey(const Key('feedback-send-button')));
+    await tester.pumpAndSettle();
+
+    expect(fake.callCount, 1);
+    expect(fake.lastArgs?['audioFile'], isNotNull,
+        reason: 'audio submit should include the audio file');
+    // Confirmation toast, NOT the old blocking 'Transcribing…' dialog.
+    expect(find.text('Feedback sent — thanks!'), findsOneWidget);
+    expect(find.text('Transcribing…'), findsNothing);
+    expect(find.text('Waiting for Whisper to process…'), findsNothing);
+    expect(find.byType(AlertDialog), findsNothing);
+  });
+
   testWidgets('_FakeFeedbackService fetchById returns configured result',
       (tester) async {
     final fake = _FakeFeedbackService()

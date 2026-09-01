@@ -265,12 +265,25 @@ class _EnhancedMatchesScreenState extends State<EnhancedMatchesScreen>
   }
 
   UserProfile _buildProfileFromMatch(MatchSummary match) {
+    // Build a deduped photo URL list. MatchSummary carries a single photoUrl
+    // populated by the matchmaking enrichment pipeline. If the backend later
+    // returns multiple URLs we'll keep them in order so the primary one is
+    // always first.
+    final photos = <String>[
+      if (match.photoUrl != null && match.photoUrl!.isNotEmpty) match.photoUrl!,
+    ];
+    final seen = <String>{};
+    final uniquePhotos = <String>[];
+    for (final url in photos) {
+      if (seen.add(url)) uniquePhotos.add(url);
+    }
     return UserProfile(
       userId: match.keycloakUserId ?? match.matchedUserId,
       firstName: match.displayName.split(' ').first,
       lastName: '',
       dateOfBirth: DateTime(2000, 1, 1),
-      photoUrls: match.photoUrl != null ? [match.photoUrl!] : [],
+      primaryPhotoUrl: uniquePhotos.isNotEmpty ? uniquePhotos.first : null,
+      photoUrls: uniquePhotos,
     );
   }
 

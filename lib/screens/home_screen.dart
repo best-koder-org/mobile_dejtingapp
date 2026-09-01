@@ -130,6 +130,69 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  /// Builds a [UserProfile] for the candidate being shown on the discovery
+  /// card, using the candidate's primary photo URL when available so the
+  /// avatar renders as a real photo instead of a colored letter.
+  UserProfile _userProfileFromCandidate(MatchCandidate candidate) {
+    final photos = <String>[
+      if (candidate.photoUrl != null && candidate.photoUrl!.isNotEmpty)
+        candidate.photoUrl!,
+      ...candidate.photoUrls,
+    ];
+    // De-duplicate while preserving order
+    final seen = <String>{};
+    final uniquePhotos = <String>[];
+    for (final url in photos) {
+      if (url.isEmpty) continue;
+      if (seen.add(url)) uniquePhotos.add(url);
+    }
+    return UserProfile(
+      userId: candidate.userId,
+      firstName: candidate.displayName,
+      lastName: '',
+      dateOfBirth: DateTime.now().subtract(const Duration(days: 25 * 365)),
+      interests: candidate.interestsOverlap,
+      city: candidate.city,
+      occupation: candidate.occupation,
+      primaryPhotoUrl: uniquePhotos.isNotEmpty ? uniquePhotos.first : null,
+      photoUrls: uniquePhotos,
+    );
+  }
+
+  /// Builds a [UserProfile] for the current logged-in user using the cached
+  /// profile stored in [AppState]. Returns null if the profile is unavailable,
+  /// in which case the discovery card falls back to a single letter avatar.
+  UserProfile? _currentUserProfileForCard() {
+    final cached = AppState().userProfile;
+    if (cached == null) return null;
+    final userId = AppState().userId ?? '';
+    if (userId.isEmpty) return null;
+    final firstName = (cached['firstName'] ?? cached['name'] ?? 'You').toString();
+    final primary = (cached['primaryPhotoUrl'] ?? cached['photoUrl'])?.toString();
+    final rawPhotos = cached['photoUrls'];
+    final photos = <String>[
+      if (primary != null && primary.isNotEmpty) primary,
+      if (rawPhotos is List)
+        ...rawPhotos.map((e) => e.toString()).where((u) => u.isNotEmpty),
+    ];
+    final seen = <String>{};
+    final uniquePhotos = <String>[];
+    for (final url in photos) {
+      if (seen.add(url)) uniquePhotos.add(url);
+    }
+    final dob = DateTime.tryParse(cached['dateOfBirth']?.toString() ?? '') ??
+        DateTime.now().subtract(const Duration(days: 25 * 365));
+    return UserProfile(
+      id: cached['id']?.toString(),
+      userId: userId,
+      firstName: firstName,
+      lastName: (cached['lastName'] ?? '').toString(),
+      dateOfBirth: dob,
+      primaryPhotoUrl: uniquePhotos.isNotEmpty ? uniquePhotos.first : null,
+      photoUrls: uniquePhotos,
+    );
+  }
+
   void _passProfile() {
     final candidate = _currentCandidate;
     if (candidate == null) return;
@@ -643,15 +706,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               if (_preMatchInsight != null && _preMatchInsight!.headline.isNotEmpty)
                 ConnectionInsightCard(
                   hook: _preMatchInsight!,
-                  matchProfile: UserProfile(
-                    userId: candidate.userId,
-                    firstName: candidate.displayName,
-                    lastName: '',
-                    dateOfBirth: DateTime.now().subtract(const Duration(days: 25 * 365)),
-                    interests: candidate.interestsOverlap,
-                    city: candidate.city,
-                    occupation: candidate.occupation,
-                  ),
+                  matchProfile: _userProfileFromCandidate(candidate),
+                  currentUserProfile: _currentUserProfileForCard(),
                 ),
               // Hero photo (first photo)
               _buildHeroPhoto(

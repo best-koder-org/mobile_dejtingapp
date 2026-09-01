@@ -148,17 +148,20 @@ class _MessagesScreenState extends State<MessagesScreen>
   }
 
   List<ConversationSummary> get _filteredConversations {
+    // Drop conversations that have no matching match record — these are
+    // typically stale messages from users that have been un-matched, or
+    // dev/test data. Without a match we can't show a name, photo, or
+    // avatar, so they end up as "Unknown" rows with letter avatars.
+    final withMatch = _conversations
+        .where((c) => _findMatchForConversation(c) != null)
+        .toList();
     switch (_activeFilter) {
       case 'unread':
-        return _conversations.where((c) => c.unreadCount > 0).toList();
+        return withMatch.where((c) => c.unreadCount > 0).toList();
       case 'active':
-        // Active Now — users active in the last 5 minutes
-        return _conversations.where((c) {
-          final match = _findMatchForConversation(c);
-          return match != null; // Simplified: all matches are "active enough"
-        }).toList();
+        return withMatch;
       default:
-        return _conversations;
+        return withMatch;
     }
   }
 
@@ -181,6 +184,9 @@ class _MessagesScreenState extends State<MessagesScreen>
     final filtered = _filteredConversations;
     final unreadCount =
         _conversations.fold<int>(0, (sum, c) => sum + c.unreadCount);
+    // Cap displayed unread count at 9+ so a single chatty contact cannot
+    // break the app-bar layout. Mirrors the WhatsApp / Instagram pattern.
+    final unreadLabel = unreadCount > 9 ? '9+' : '$unreadCount';
 
     return Semantics(
       label: 'screen:messages',
@@ -202,7 +208,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '$unreadCount',
+                    unreadLabel,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -341,6 +347,11 @@ class _MessagesScreenState extends State<MessagesScreen>
     final hasUnread = conversation.unreadCount > 0;
     final profileName = match?.displayName ?? 'Unknown';
     final profilePhoto = match?.photoUrl;
+    // Cap the per-conversation badge at 9+ so a chatty user cannot break
+    // the design with a multi-digit count.
+    final unreadLabel = conversation.unreadCount > 9
+        ? '9+'
+        : conversation.unreadCount.toString();
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -364,15 +375,17 @@ class _MessagesScreenState extends State<MessagesScreen>
                 top: 0,
                 right: 0,
                 child: Container(
-                  width: 16,
-                  height: 16,
+                  constraints:
+                      const BoxConstraints(minWidth: 18, minHeight: 18),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                   decoration: const BoxDecoration(
                     color: AppTheme.primaryColor,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
-                      conversation.unreadCount.toString(),
+                      unreadLabel,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,

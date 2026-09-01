@@ -73,7 +73,7 @@ class RecordAudioRecorder implements FeedbackRecorder {
 /// bot-service. Tap = open sheet (record/text). Hidden in production by default.
 class FeedbackFab extends StatefulWidget {
   final FeedbackService? service;
-  final AudioRecorder? recorder;
+  final FeedbackRecorder? recorder;
   final String? currentScreenLabel;
 
   const FeedbackFab({
@@ -89,7 +89,7 @@ class FeedbackFab extends StatefulWidget {
 
 class _FeedbackFabState extends State<FeedbackFab> {
   late final FeedbackService _service = widget.service ?? FeedbackService();
-  late final FeedbackRecorder _recorder = RecordAudioRecorder(widget.recorder);
+  late final FeedbackRecorder _recorder = widget.recorder ?? RecordAudioRecorder();
 
   Offset _position = const Offset(16, 240);
   bool _isUploading = false;
@@ -163,6 +163,9 @@ class _FeedbackFabState extends State<FeedbackFab> {
     // Use the root navigator context (set in main.dart) because this widget
     // lives in MaterialApp.builder, above the actual Navigator.
     final navCtx = rootNavigatorKey.currentContext ?? context;
+    // Capture the messenger before any async gap so we never touch
+    // BuildContext across the submit (avoids use_build_context_synchronously).
+    final messenger = ScaffoldMessenger.of(navCtx);
     final result = await showModalBottomSheet<_FeedbackResult>(
       context: navCtx,
       isScrollControlled: true,
@@ -176,7 +179,7 @@ class _FeedbackFabState extends State<FeedbackFab> {
 
     setState(() => _isUploading = true);
     try {
-      final response = await _service.submit(
+      await _service.submit(
         audioFile: result.audioPath != null ? File(result.audioPath!) : null,
         noteText: result.noteText,
         durationSec: result.durationSec,
@@ -184,22 +187,16 @@ class _FeedbackFabState extends State<FeedbackFab> {
         appVersion: 'dev',
       );
       if (!mounted) return;
-      final id = response['id'];
-      final dialogCtx = rootNavigatorKey.currentContext ?? context;
-      if (id is int && result.audioPath != null) {
-        // ignore: use_build_context_synchronously
-        await _showTranscriptDialog(dialogCtx, id);
-      } else {
-        ScaffoldMessenger.of(dialogCtx).showSnackBar(
-          const SnackBar(content: Text('Feedback sent — thanks!')),
-        );
-      }
+      // Non-blocking: transcription runs automatically server-side
+      // (bot-service -> whisper-service). We never block the tester on it.
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Feedback sent — thanks!')),
+      );
     } catch (e, stack) {
       if (kDebugMode) debugPrint('[FeedbackFab] submit failed: $e');
       if (kDebugMode) debugPrint('$stack');
       if (!mounted) return;
-      final snackCtx = rootNavigatorKey.currentContext ?? context;
-      ScaffoldMessenger.of(snackCtx).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Feedback failed: $e')),
       );
     } finally {
@@ -207,85 +204,6 @@ class _FeedbackFabState extends State<FeedbackFab> {
     }
   }
 
-  /// Polls the server for the transcript and shows it to the user.
-  /// Times out after ~5 minutes (whisper cold-start + processing can take
-  /// a while on the laptop watcher).
-  Future<void> _showTranscriptDialog(BuildContext context, int id) async {
-    final completer = Completer<String?>();
-    var attempts = 0;
-    const maxAttempts = 60; // ~5 min at 5s interval
-
-    final poll = Timer.periodic(const Duration(seconds: 5), (t) async {
-      attempts++;
-      try {
-        final row = await _service.fetchById(id);
-        final tx = row?['transcript'];
-        if (tx is String && tx.isNotEmpty) {
-          t.cancel();
-          if (!completer.isCompleted) completer.complete(tx);
-        }
-      } catch (_) {/* ignore transient */}
-      if (attempts >= maxAttempts && !completer.isCompleted) {
-        t.cancel();
-        completer.complete(null);
-      }
-    });
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => FutureBuilder<String?>(
-        future: completer.future,
-        builder: (c, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return AlertDialog(
-              title: const Text('Transcribing…'),
-              content: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 24, height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(child: Text('Waiting for Whisper to process…')),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    poll.cancel();
-                    if (!completer.isCompleted) completer.complete(null);
-                  },
-                  child: const Text('Hide'),
-                ),
-              ],
-            );
-          }
-          final transcript = snap.data;
-          return AlertDialog(
-            title: Text(transcript == null
-                ? 'Transcript not ready'
-                : 'You said (feedback #$id)'),
-            content: SingleChildScrollView(
-              child: Text(
-                transcript ??
-                    'No transcript after 5 min.\nThe audio is saved — '
-                        'process-feedback.py will pick it up.',
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(c).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    poll.cancel();
-  }
 }
 
 class _FeedbackResult {
