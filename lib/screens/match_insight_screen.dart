@@ -388,10 +388,9 @@ class _RadarSectionState extends State<_RadarSection> {
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (_) => RadarProfileScreen(
-                          keycloakId: AppState().userId ?? '',
-                          compareKeycloakId: widget.otherKeycloakId,
-                        ),
+                        // RadarProfileScreen shows the current user's radar;
+                        // it does not accept keycloakId/compareKeycloakId.
+                        builder: (_) => const RadarProfileScreen(),
                       ),
                     ),
                     child: const Text('Visa mer'),

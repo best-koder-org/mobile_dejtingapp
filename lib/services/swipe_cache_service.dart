@@ -258,7 +258,7 @@ class SwipeCacheService {
     try {
       final result = await SwipeService.swipe(
         targetUserId: targetUserId,
-        isLike: isLike,
+        direction: isLike ? SwipeDirection.like : SwipeDirection.pass,
         idempotencyKey: idempotencyKey,
       );
 
@@ -361,7 +361,7 @@ class SwipeCacheService {
       try {
         final result = await SwipeService.swipe(
           targetUserId: swipe.targetUserId,
-          isLike: swipe.isLike,
+          direction: swipe.isLike ? SwipeDirection.like : SwipeDirection.pass,
           idempotencyKey: swipe.idempotencyKey,
         );
 
