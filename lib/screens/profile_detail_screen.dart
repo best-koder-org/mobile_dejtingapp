@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:convert';
 import '../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -432,7 +433,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           ),
 
         // Voice Prompt (only if flavor has prominent voice prompts)
-        if (_voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts)
+        if (!kIsWeb && _voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts)
           VoicePromptPlayer(
             voicePromptUrl: _voicePromptUrl!,
             displayName: _displayName,

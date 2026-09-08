@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:just_audio/just_audio.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/widgets/skeleton_loaders.dart';
@@ -73,7 +74,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _loadCandidates() async {
+  Future<void> _loadCandidates() => _loadCandidatesWithRetry(attempt: 1);
+
+  /// Loads the discovery deck.
+  ///
+  /// Right after login the very first call can race profile-resolution /
+  /// auth warm-up and come back empty even though the backend has profiles.
+  /// We auto-retry a couple of times so the deck appears without the user
+  /// having to hit reload manually. Errors are also retried once.
+  Future<void> _loadCandidatesWithRetry({required int attempt}) async {
     setState(() {
       _isLoading = true;
       _hasError = false;
@@ -81,6 +90,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     try {
       final candidates = await matchmakingApi.getCandidates();
+      if (candidates.isEmpty && attempt < 3 && mounted) {
+        debugPrint('⚠️ getCandidates empty on attempt $attempt — retrying…');
+        await Future<void>.delayed(const Duration(milliseconds: 1500));
+        if (!mounted) return;
+        return _loadCandidatesWithRetry(attempt: attempt + 1);
+      }
       setState(() {
         _candidates = candidates;
         _currentIndex = 0;
@@ -90,6 +105,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _fetchPreMatchInsight();
     } catch (e) {
       debugPrint('Error loading candidates: $e');
+      if (attempt < 3 && mounted) {
+        await Future<void>.delayed(const Duration(milliseconds: 1500));
+        if (!mounted) return;
+        return _loadCandidatesWithRetry(attempt: attempt + 1);
+      }
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -958,14 +978,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
 
       // Insert voice prompt after the second content pair (only if flavor has prominent voice prompts)
-      if (!voiceInserted && candidate.voicePromptUrl != null && widgets.length >= 3 && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
+      if (!voiceInserted && !kIsWeb && candidate.voicePromptUrl != null && widgets.length >= 3 && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
         widgets.add(_buildVoicePromptCard(candidate.voicePromptUrl!, candidate.displayName));
         voiceInserted = true;
       }
     }
 
     // Voice prompt at end if not yet inserted (only if flavor shows voice prompts)
-    if (!voiceInserted && candidate.voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
+    if (!voiceInserted && !kIsWeb && candidate.voicePromptUrl != null && FlavorConfig.current.featureFlags.prominentVoicePrompts) {
       widgets.add(_buildVoicePromptCard(candidate.voicePromptUrl!, candidate.displayName));
     }
 

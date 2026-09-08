@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
@@ -22,6 +23,13 @@ class VoicePromptService {
   static final VoicePromptService _instance = VoicePromptService._();
   factory VoicePromptService() => _instance;
   VoicePromptService._();
+
+  // Web builds cannot record audio (no native mic + `record` plugin is
+  // mobile-only). All public methods that need the microphone are
+  // short-circuited so the calling screen can show a "not available on web"
+  // message and avoid the platform-channel crash.
+  static const bool _webUnsupported = kIsWeb;
+  bool get isWeb => _webUnsupported;
 
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _player = AudioPlayer();
@@ -51,11 +59,13 @@ class VoicePromptService {
 
   /// Check if microphone permission is granted
   Future<bool> hasPermission() async {
+    if (_webUnsupported) return false;
     return await _recorder.hasPermission();
   }
 
   /// Start recording a voice prompt (AAC format for best compatibility)
   Future<bool> startRecording() async {
+    if (_webUnsupported) return false;
     try {
       if (_isRecording) return false;
 
@@ -157,14 +167,21 @@ class VoicePromptService {
   // PLAYBACK
   // ──────────────────────────────────────────
 
-  /// Play audio from URL (for other users' voice prompts)
+  /// Play audio from URL (for other users' voice prompts).
+  ///
+  /// Backends emit relative paths (/api/voice-prompts/audio/{id}); resolve them
+  /// against the gateway before handing them to the player. Voice prompts are a
+  /// native feature: on web just_audio's HTML5 player cannot send the bearer
+  /// header, so playback is intentionally a no-op (mirrors recording).
   Future<void> playFromUrl(String url) async {
+    if (_webUnsupported) return;
     try {
       final token = await AppState().getOrRefreshAuthToken();
       if (token == null) return;
 
+      final resolved = url.startsWith('/') ? '${ApiUrls.gateway}$url' : url;
       await _player.setUrl(
-        url,
+        resolved,
         headers: {'Authorization': 'Bearer $token'},
       );
       _isPlaying = true;
@@ -214,7 +231,7 @@ class VoicePromptService {
 
   /// Upload a recorded voice prompt to the server
   /// Returns the voice prompt URL on success, null on failure
-  Future<String?> uploadVoicePrompt(String filePath) async {
+  Future<String?> uploadVoicePrompt(String filePath, {int? durationSeconds}) async {
     try {
       final token = await AppState().getOrRefreshAuthToken();
       if (token == null) {
@@ -236,6 +253,11 @@ class VoicePromptService {
           filePath,
           filename: p.basename(filePath),
         ));
+      // Send the real recorded length so server-side duration metadata is
+      // accurate (the endpoint otherwise defaults to 15s).
+      if (durationSeconds != null && durationSeconds > 0) {
+        request.fields['duration'] = durationSeconds.toString();
+      }
 
       final streamedResponse = await request.send().timeout(
         const Duration(seconds: 30),

@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/services/voice_prompt_service.dart';
 import 'package:dejtingapp/theme/app_theme.dart';
+import 'package:dejtingapp/widgets/web_unsupported_screen.dart';
 
 /// Voice Prompt recording screen — Hinge-style direct flow.
 ///
@@ -105,7 +107,7 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
     // Go straight to uploading — no preview
     setState(() => _phase = _Phase.uploading);
 
-    final url = await _service.uploadVoicePrompt(path);
+    final url = await _service.uploadVoicePrompt(path, durationSeconds: _secondsElapsed);
     if (!mounted) return;
 
     if (url != null) {
@@ -139,6 +141,16 @@ class _VoicePromptScreenState extends State<VoicePromptScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Web: voice prompts require native mic + audio plugins, neither of
+    // which are wired up for the browser. Show a friendly placeholder.
+    if (kIsWeb) {
+      return const WebUnsupportedScreen(
+        title: 'Voice Prompt',
+        message:
+            'Voice recording is only available in the mobile app. Open DatingApp on your phone to record a voice prompt.',
+      );
+    }
+
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.scaffoldLight,
