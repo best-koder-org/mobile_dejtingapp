@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:dejtingapp/screens/forum_feed_screen.dart';
+
 import '../helpers/core_screen_test_helper.dart';
 
-// Minimal stub — ForumService calls the real HTTP stack only when token is
-// available. In tests no token is vended, so listPosts returns [] from the
-// catch branch, giving us the empty-state UI.
+/// No token is vended in widget tests, so the feed settles into its error state. Every
+/// assertion below is therefore about the screen chrome and the composer rather than
+/// about loaded content — those are covered by test/services/forum_service_test.dart.
 void main() {
   setUpAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -29,88 +31,84 @@ void main() {
     );
   });
 
+  Future<void> pumpFeed(WidgetTester tester) async {
+    await tester.pumpWidget(
+      buildCoreScreenTestApp(home: const ForumFeedScreen()),
+    );
+    // Let initState's async load settle into its error state.
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+
   group('ForumFeedScreen', () {
-    testWidgets('shows AppBar with Community title', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      // Allow initState async to settle
-      await tester.pump(const Duration(milliseconds: 100));
+    testWidgets('shows the Community title', (tester) async {
+      await pumpFeed(tester);
 
       expect(find.text('Community'), findsOneWidget);
     });
 
-    testWidgets('shows category chips', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
+    testWidgets('offers an All chip alongside the channel chips', (tester) async {
+      await pumpFeed(tester);
 
       expect(find.text('All'), findsOneWidget);
-      expect(find.text('Advice'), findsOneWidget);
-      expect(find.text('General'), findsOneWidget);
+      expect(find.byType(ChoiceChip), findsWidgets);
+      // First channel after "All", so it is on screen without scrolling.
+      expect(find.text('App feedback'), findsOneWidget);
     });
 
-    testWidgets('shows FAB for compose', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
+    testWidgets('shows a compose action', (tester) async {
+      await pumpFeed(tester);
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
-    });
-
-    testWidgets('compose FAB opens bottom sheet', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
-
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
-
       expect(find.text('New Post'), findsOneWidget);
+    });
+
+    testWidgets('composer takes a single capped field and no title', (tester) async {
+      await pumpFeed(tester);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
       expect(find.text('Post'), findsOneWidget);
+      expect(find.text('Channel'), findsOneWidget);
+
+      // A topic is one short text plus a channel — there is deliberately no title input.
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.maxLength, 200);
+      expect(field.maxLines, 4);
     });
 
-    testWidgets('compose sheet has title and body fields', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
+    testWidgets('submitting an empty topic is refused with a message', (tester) async {
+      await pumpFeed(tester);
 
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(TextField, 'Title'), findsOneWidget);
-      expect(find.text('Category'), findsOneWidget);
-    });
-
-    testWidgets('submit without title shows validation error', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      await tester.pump(const Duration(milliseconds: 100));
-
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
-
-      // Tap Post button without filling fields
       await tester.tap(find.text('Post'));
       await tester.pump();
 
-      expect(find.text('Title and body are required.'), findsOneWidget);
+      expect(find.text('Write something first.'), findsOneWidget);
     });
 
-    testWidgets('empty state shows write-something prompt', (tester) async {
-      await tester.pumpWidget(
-        buildCoreScreenTestApp(home: const ForumFeedScreen()),
-      );
-      // Wait for async load to complete (returns [] with no token)
+    testWidgets('the composer stays open after a refusal so the text is not lost',
+        (tester) async {
+      await pumpFeed(tester);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'En fråga');
+      await tester.tap(find.text('Post'));
+      await tester.pump();
+
+      // A failed submit must not dismiss the sheet.
+      expect(find.text('Post'), findsOneWidget);
+      expect(find.text('En fråga'), findsOneWidget);
+    });
+
+    testWidgets('renders without crashing when the feed cannot load', (tester) async {
+      await pumpFeed(tester);
       await tester.pump(const Duration(seconds: 1));
 
-      // Either loading indicator gone and empty state shown, or still loading
-      // — both are valid. Check no crash occurred.
       expect(find.byType(ForumFeedScreen), findsOneWidget);
     });
   });

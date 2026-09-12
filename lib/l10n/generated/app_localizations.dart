@@ -2641,6 +2641,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load questions'**
   String get errorLoadQuestions;
+
+  /// Forum: forumTitle
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get forumTitle;
+
+  /// Forum: forumAllChannels
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get forumAllChannels;
+
+  /// Forum: forumNewTopic
+  ///
+  /// In en, this message translates to:
+  /// **'New Post'**
+  String get forumNewTopic;
+
+  /// Forum: forumComposeHint
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to share?'**
+  String get forumComposeHint;
+
+  /// Forum: forumPostButton
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get forumPostButton;
+
+  /// Forum: forumTextRequired
+  ///
+  /// In en, this message translates to:
+  /// **'Write something first.'**
+  String get forumTextRequired;
+
+  /// Forum: forumChannelLabel
+  ///
+  /// In en, this message translates to:
+  /// **'Channel'**
+  String get forumChannelLabel;
+
+  /// Forum: forumAnswerHint
+  ///
+  /// In en, this message translates to:
+  /// **'Write a short answer'**
+  String get forumAnswerHint;
+
+  /// Forum: forumAnswerButton
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get forumAnswerButton;
+
+  /// Forum: forumAnswerCount
+  ///
+  /// In en, this message translates to:
+  /// **'answers'**
+  String get forumAnswerCount;
+
+  /// Forum: forumEmpty
+  ///
+  /// In en, this message translates to:
+  /// **'No topics yet. Start the first one!'**
+  String get forumEmpty;
+
+  /// Forum: forumLoadFailed
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the forum.'**
+  String get forumLoadFailed;
+
+  /// Forum: forumRateLimited
+  ///
+  /// In en, this message translates to:
+  /// **'You are posting too quickly. Try again shortly.'**
+  String get forumRateLimited;
+
+  /// Forum: forumHeldForReview
+  ///
+  /// In en, this message translates to:
+  /// **'Your post is being reviewed before it appears.'**
+  String get forumHeldForReview;
+
+  /// Forum: forumVoiceUnavailable
+  ///
+  /// In en, this message translates to:
+  /// **'Voice input is unavailable. Type instead.'**
+  String get forumVoiceUnavailable;
+
+  /// Forum: channelFeedback
+  ///
+  /// In en, this message translates to:
+  /// **'App feedback'**
+  String get channelFeedback;
+
+  /// Forum: channelFirstDates
+  ///
+  /// In en, this message translates to:
+  /// **'First dates'**
+  String get channelFirstDates;
+
+  /// Forum: channelRedFlags
+  ///
+  /// In en, this message translates to:
+  /// **'Red flags'**
+  String get channelRedFlags;
+
+  /// Forum: channelVent
+  ///
+  /// In en, this message translates to:
+  /// **'Vent'**
+  String get channelVent;
+
+  /// Forum: channelSuccessStories
+  ///
+  /// In en, this message translates to:
+  /// **'Success stories'**
+  String get channelSuccessStories;
+
+  /// Forum: channelAsk
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the community'**
+  String get channelAsk;
+
+  /// Forum: forumExpiresInHours
+  ///
+  /// In en, this message translates to:
+  /// **'Disappears in {hours}h'**
+  String forumExpiresInHours(int hours);
 }
 
 class _AppLocalizationsDelegate

@@ -523,40 +523,67 @@
   "@messageWarningTitle": {
     "description": "Profanity nudge dialog title"
   },
-
   "consentTitle": "Välj ett konto",
-  "@consentTitle": { "description": "Titel på kontogodkännandeskärmen" },
+  "@consentTitle": {
+    "description": "Titel på kontogodkännandeskärmen"
+  },
   "consentSubtitle": "Logga in med {provider}",
   "@consentSubtitle": {
     "description": "Undertext på kontogodkännandeskärmen som visar vilken leverantör som används",
     "placeholders": {
-      "provider": { "type": "String" }
+      "provider": {
+        "type": "String"
+      }
     }
   },
   "consentAnotherAccount": "Använd ett annat konto",
-  "@consentAnotherAccount": { "description": "Knapp för att byta till ett annat konto på godkännandeskärmen" },
+  "@consentAnotherAccount": {
+    "description": "Knapp för att byta till ett annat konto på godkännandeskärmen"
+  },
   "consentLegalText": "Innan du använder appen kan du läsa igenom ",
-  "@consentLegalText": { "description": "Juridisk inledningstext före integritets-/villkorslänkarna på godkännandeskärmen" },
+  "@consentLegalText": {
+    "description": "Juridisk inledningstext före integritets-/villkorslänkarna på godkännandeskärmen"
+  },
   "consentPrivacyPolicy": "integritetspolicyn",
-  "@consentPrivacyPolicy": { "description": "Klickbar integritetspolicylänktext på godkännandeskärmen" },
+  "@consentPrivacyPolicy": {
+    "description": "Klickbar integritetspolicylänktext på godkännandeskärmen"
+  },
   "consentAnd": " och ",
-  "@consentAnd": { "description": "Konjunktion mellan integritetspolicyn och användarvillkorslänkarna på godkännandeskärmen" },
+  "@consentAnd": {
+    "description": "Konjunktion mellan integritetspolicyn och användarvillkorslänkarna på godkännandeskärmen"
+  },
   "consentTermsOfUse": "användarvillkoren",
-  "@consentTermsOfUse": { "description": "Klickbar användarvillkorslänktext på godkännandeskärmen" },
+  "@consentTermsOfUse": {
+    "description": "Klickbar användarvillkorslänktext på godkännandeskärmen"
+  },
   "consentForApp": " för DejTing.",
-  "@consentForApp": { "description": "Avslutande text efter juridiska länkar på godkännandeskärmen" },
+  "@consentForApp": {
+    "description": "Avslutande text efter juridiska länkar på godkännandeskärmen"
+  },
   "consentHelp": "Hjälp",
-  "@consentHelp": { "description": "Hjälplänk i sidfoten på godkännandeskärmen" },
+  "@consentHelp": {
+    "description": "Hjälplänk i sidfoten på godkännandeskärmen"
+  },
   "consentPrivacy": "Integritet",
-  "@consentPrivacy": { "description": "Integritetslänk i sidfoten på godkännandeskärmen" },
+  "@consentPrivacy": {
+    "description": "Integritetslänk i sidfoten på godkännandeskärmen"
+  },
   "consentTerms": "Villkor",
-  "@consentTerms": { "description": "Villkorslänk i sidfoten på godkännandeskärmen" },
+  "@consentTerms": {
+    "description": "Villkorslänk i sidfoten på godkännandeskärmen"
+  },
   "consentProviderPhone": "Telefon",
-  "@consentProviderPhone": { "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen" },
+  "@consentProviderPhone": {
+    "description": "Leverantörsnamn för telefonverifiering på godkännandeskärmen"
+  },
   "helpScreenTitle": "Hjälp och support",
-  "@helpScreenTitle": { "description": "Titel för hjälp- och supportskärmen" },
+  "@helpScreenTitle": {
+    "description": "Titel för hjälp- och supportskärmen"
+  },
   "locationSettings": "Platsinställningar",
-  "@locationSettings": { "description": "Titel för platsinställningsskärmen" },
+  "@locationSettings": {
+    "description": "Titel för platsinställningsskärmen"
+  },
   "hearVoice": "Hör {name}s röst",
   "@hearVoice": {
     "description": "Etikett på röstpromptkortet som visar vems röstklipp det är",
@@ -570,32 +597,142 @@
   "@blockedCount": {
     "description": "Undertext som visar hur många kontakter som är blockerade",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "voicePromptSubtitle": "Spela in en röstintro till din profil",
-  "@voicePromptSubtitle": { "description": "Undertext för röstprompt-funktionskortet på profilhubskärmen" },
+  "@voicePromptSubtitle": {
+    "description": "Undertext för röstprompt-funktionskortet på profilhubskärmen"
+  },
   "voicePromptSaved": "Röstprompt sparad!",
-  "@voicePromptSaved": { "description": "Snackbar-meddelande efter att en röstprompt har sparats" },
+  "@voicePromptSaved": {
+    "description": "Snackbar-meddelande efter att en röstprompt har sparats"
+  },
   "yourSparks": "Dina Gnistor",
-  "@yourSparks": { "description": "Etikett för Gnistor-balansraden i Gnistor-bottenplattan" },
+  "@yourSparks": {
+    "description": "Etikett för Gnistor-balansraden i Gnistor-bottenplattan"
+  },
   "howItWorks": "Så här fungerar det",
-  "@howItWorks": { "description": "Sektionsrubrik i Spotlight-bottenplattan som förklarar funktionsstegen" },
+  "@howItWorks": {
+    "description": "Sektionsrubrik i Spotlight-bottenplattan som förklarar funktionsstegen"
+  },
   "spotlightActivated": "🔦 Spotlight aktiverat! 30 min med ökad synlighet.",
-  "@spotlightActivated": { "description": "Snackbar-meddelande efter att användaren aktiverar en Spotlight-boost" },
+  "@spotlightActivated": {
+    "description": "Snackbar-meddelande efter att användaren aktiverar en Spotlight-boost"
+  },
   "failedToLoadBlockList": "Det gick inte att ladda blocklistan: {error}",
   "@failedToLoadBlockList": {
     "description": "Snackbar-felmeddelande när blocklistan inte kan hämtas",
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "couldNotOpenStore": "Det gick inte att öppna butikssidan. Försök igen senare.",
-  "@couldNotOpenStore": { "description": "Snackbar-meddelande som visas när appbutikssidan inte kan öppnas" },
+  "@couldNotOpenStore": {
+    "description": "Snackbar-meddelande som visas när appbutikssidan inte kan öppnas"
+  },
   "compatibilityQuestionsTitle": "Kompatibilitetsfrågor",
-  "@compatibilityQuestionsTitle": { "description": "Rubrik för skärmen med kompatibilitetsfrågor" },
+  "@compatibilityQuestionsTitle": {
+    "description": "Rubrik för skärmen med kompatibilitetsfrågor"
+  },
   "compatibilityQuestionsSubtitle": "Hjälp oss hitta dina bästa matchningar.",
-  "@compatibilityQuestionsSubtitle": { "description": "Underrubrik för skärmen med kompatibilitetsfrågor" },
+  "@compatibilityQuestionsSubtitle": {
+    "description": "Underrubrik för skärmen med kompatibilitetsfrågor"
+  },
   "errorLoadQuestions": "Kunde inte ladda frågorna",
-  "@errorLoadQuestions": { "description": "Felmeddelande när kompatibilitetsfrågor inte kan laddas" }
+  "@errorLoadQuestions": {
+    "description": "Felmeddelande när kompatibilitetsfrågor inte kan laddas"
+  },
+  "forumTitle": "Community",
+  "@forumTitle": {
+    "description": "Forum: forumTitle"
+  },
+  "forumAllChannels": "Alla",
+  "@forumAllChannels": {
+    "description": "Forum: forumAllChannels"
+  },
+  "forumNewTopic": "Nytt inlägg",
+  "@forumNewTopic": {
+    "description": "Forum: forumNewTopic"
+  },
+  "forumComposeHint": "Vad vill du dela?",
+  "@forumComposeHint": {
+    "description": "Forum: forumComposeHint"
+  },
+  "forumPostButton": "Posta",
+  "@forumPostButton": {
+    "description": "Forum: forumPostButton"
+  },
+  "forumTextRequired": "Skriv något först.",
+  "@forumTextRequired": {
+    "description": "Forum: forumTextRequired"
+  },
+  "forumChannelLabel": "Kanal",
+  "@forumChannelLabel": {
+    "description": "Forum: forumChannelLabel"
+  },
+  "forumAnswerHint": "Skriv ett kort svar",
+  "@forumAnswerHint": {
+    "description": "Forum: forumAnswerHint"
+  },
+  "forumAnswerButton": "Svara",
+  "@forumAnswerButton": {
+    "description": "Forum: forumAnswerButton"
+  },
+  "forumAnswerCount": "svar",
+  "@forumAnswerCount": {
+    "description": "Forum: forumAnswerCount"
+  },
+  "forumEmpty": "Inga ämnen än. Starta det första!",
+  "@forumEmpty": {
+    "description": "Forum: forumEmpty"
+  },
+  "forumLoadFailed": "Kunde inte ladda forumet.",
+  "@forumLoadFailed": {
+    "description": "Forum: forumLoadFailed"
+  },
+  "forumRateLimited": "Du postar för snabbt. Försök igen snart.",
+  "@forumRateLimited": {
+    "description": "Forum: forumRateLimited"
+  },
+  "forumHeldForReview": "Ditt inlägg granskas innan det visas.",
+  "@forumHeldForReview": {
+    "description": "Forum: forumHeldForReview"
+  },
+  "forumVoiceUnavailable": "Röstinmatning är otillgänglig. Skriv i stället.",
+  "@forumVoiceUnavailable": {
+    "description": "Forum: forumVoiceUnavailable"
+  },
+  "channelFeedback": "Appfeedback",
+  "@channelFeedback": {
+    "description": "Forum: channelFeedback"
+  },
+  "channelFirstDates": "Första dejter",
+  "@channelFirstDates": {
+    "description": "Forum: channelFirstDates"
+  },
+  "channelRedFlags": "Varningsflaggor",
+  "@channelRedFlags": {
+    "description": "Forum: channelRedFlags"
+  },
+  "channelVent": "Ventilera",
+  "@channelVent": {
+    "description": "Forum: channelVent"
+  },
+  "channelSuccessStories": "Lyckade dejter",
+  "@channelSuccessStories": {
+    "description": "Forum: channelSuccessStories"
+  },
+  "channelAsk": "Fråga communityt",
+  "@channelAsk": {
+    "description": "Forum: channelAsk"
+  },
+  "forumExpiresInHours": "Försvinner om {hours} tim",
+  "@forumExpiresInHours": {
+    "description": "Forum: forumExpiresInHours"
+  }
 }

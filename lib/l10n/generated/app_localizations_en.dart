@@ -1395,4 +1395,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLoadQuestions => 'Could not load questions';
+
+  @override
+  String get forumTitle => 'Community';
+
+  @override
+  String get forumAllChannels => 'All';
+
+  @override
+  String get forumNewTopic => 'New Post';
+
+  @override
+  String get forumComposeHint => 'What do you want to share?';
+
+  @override
+  String get forumPostButton => 'Post';
+
+  @override
+  String get forumTextRequired => 'Write something first.';
+
+  @override
+  String get forumChannelLabel => 'Channel';
+
+  @override
+  String get forumAnswerHint => 'Write a short answer';
+
+  @override
+  String get forumAnswerButton => 'Answer';
+
+  @override
+  String get forumAnswerCount => 'answers';
+
+  @override
+  String get forumEmpty => 'No topics yet. Start the first one!';
+
+  @override
+  String get forumLoadFailed => 'Could not load the forum.';
+
+  @override
+  String get forumRateLimited =>
+      'You are posting too quickly. Try again shortly.';
+
+  @override
+  String get forumHeldForReview =>
+      'Your post is being reviewed before it appears.';
+
+  @override
+  String get forumVoiceUnavailable =>
+      'Voice input is unavailable. Type instead.';
+
+  @override
+  String get channelFeedback => 'App feedback';
+
+  @override
+  String get channelFirstDates => 'First dates';
+
+  @override
+  String get channelRedFlags => 'Red flags';
+
+  @override
+  String get channelVent => 'Vent';
+
+  @override
+  String get channelSuccessStories => 'Success stories';
+
+  @override
+  String get channelAsk => 'Ask the community';
+
+  @override
+  String forumExpiresInHours(int hours) {
+    return 'Disappears in ${hours}h';
+  }
 }

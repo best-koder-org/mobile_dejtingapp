@@ -1,13 +1,17 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:dejtingapp/backend_url.dart';
-import 'package:dejtingapp/services/api_service.dart';
-import 'package:dejtingapp/theme/app_theme.dart';
+import 'package:dejtingapp/l10n/generated/app_localizations.dart';
+import 'package:dejtingapp/services/forum_service.dart';
+import 'package:dejtingapp/widgets/forum/forum_compose_sheet.dart';
+import 'package:dejtingapp/widgets/forum/forum_labels.dart';
+import 'package:dejtingapp/widgets/forum/forum_topic_card.dart';
 
-/// Jodel-inspired simple forum — one main feed, posts + comments.
-/// Anonymous posting option, no subforums.
+/// Jodel-style anonymous community feed.
+///
+/// One flat feed of short topics, each with short answers underneath. Everything is
+/// anonymous: the server returns a per-topic colour and pseudonym instead of an identity,
+/// so the same person keeps one colour inside a topic but is unlinkable across topics.
+///
+/// Topics expire after 48h, which is why each card shows roughly how long it has left.
 class ForumFeedScreen extends StatefulWidget {
   const ForumFeedScreen({super.key});
 
@@ -16,401 +20,266 @@ class ForumFeedScreen extends StatefulWidget {
 }
 
 class _ForumFeedScreenState extends State<ForumFeedScreen> {
-  List<_ForumPost> _posts = [];
+  final ForumService _service = ForumService();
+  final ScrollController _scroll = ScrollController();
+
+  List<ForumTopic> _topics = [];
+
+  /// null means every channel.
+  String? _channel;
+
   bool _loading = true;
-  bool _isAnonymous = false;
+  bool _loadingMore = false;
+  bool _hasMore = false;
+  int _page = 1;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadPosts();
-  }
-
-  Future<void> _loadPosts() async {
-    setState(() => _loading = true);
-    try {
-      final token = await AppState().getOrRefreshAuthToken();
-      final url = Uri.parse('${ApiUrls.matchmakingService}/api/forum/posts');
-      final resp = await http.get(url, headers: {
-        'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      });
-      if (resp.statusCode == 200 && mounted) {
-        final list = jsonDecode(resp.body) as List;
-        setState(() {
-          _posts = list.map((j) => _ForumPost.fromJson(j)).toList();
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _createPost(String content) async {
-    if (content.trim().isEmpty) return;
-    try {
-      final token = await AppState().getOrRefreshAuthToken();
-      final url = Uri.parse('${ApiUrls.matchmakingService}/api/forum/posts');
-      final resp = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-            if (token != null) 'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({'content': content, 'isAnonymous': _isAnonymous}));
-      if (resp.statusCode == 200) {
-        _loadPosts();
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _createComment(int postId, String content) async {
-    if (content.trim().isEmpty) return;
-    try {
-      final token = await AppState().getOrRefreshAuthToken();
-      final url = Uri.parse('${ApiUrls.matchmakingService}/api/forum/posts/$postId/comments');
-      await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-            if (token != null) 'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({'content': content}));
-      _loadPosts();
-    } catch (_) {}
+    _scroll.addListener(_onScroll);
+    _load();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F0EB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('Forum', style: TextStyle(color: Color(0xFF2D2D2D), fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: Icon(_isAnonymous ? Icons.visibility_off : Icons.visibility,
-                color: _isAnonymous ? AppTheme.primaryColor : Colors.grey),
-            tooltip: _isAnonymous ? 'Anonymt inlägg' : 'Visar ditt namn',
-            onPressed: () => setState(() => _isAnonymous = !_isAnonymous),
-          ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadPosts,
-              child: _posts.isEmpty
-                  ? ListView(children: const [
-                      SizedBox(height: 120),
-                      Center(
-                        child: Text('Inga inlägg än.\nVar först med att posta!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Color(0xFF8B8578), fontSize: 16)),
-                      ),
-                    ])
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: _posts.length,
-                      itemBuilder: (ctx, i) => _PostCard(
-                        post: _posts[i],
-                        onComment: (content) => _createComment(_posts[i].id, content),
-                      ),
-                    ),
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreatePostDialog(),
-        backgroundColor: AppTheme.primaryColor,
-        icon: const Icon(Icons.edit, color: Colors.white),
-        label: const Text('Skapa inlägg', style: TextStyle(color: Colors.white)),
-      ),
-    );
+  void dispose() {
+    _scroll.removeListener(_onScroll);
+    _scroll.dispose();
+    super.dispose();
   }
 
-  void _showCreatePostDialog() {
-    final controller = TextEditingController();
+  void _onScroll() {
+    if (!_hasMore || _loadingMore) return;
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 320) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    final result = await _service.listTopics(channel: _channel, page: 1);
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+      if (result.ok) {
+        _topics = result.data!.items;
+        _page = result.data!.page;
+        _hasMore = result.data!.hasMore;
+      } else {
+        _error = AppLocalizations.of(context).forumLoadFailed;
+      }
+    });
+  }
+
+  Future<void> _loadMore() async {
+    if (_loadingMore || !_hasMore) return;
+    setState(() => _loadingMore = true);
+
+    final result = await _service.listTopics(channel: _channel, page: _page + 1);
+    if (!mounted) return;
+
+    setState(() {
+      _loadingMore = false;
+      if (result.ok) {
+        _topics = [..._topics, ...result.data!.items];
+        _page = result.data!.page;
+        _hasMore = result.data!.hasMore;
+      }
+    });
+  }
+
+  Future<void> _selectChannel(String? channel) async {
+    if (_channel == channel) return;
+    setState(() => _channel = channel);
+    await _load();
+  }
+
+  /// Updates one topic in place without rebuilding the whole list.
+  void _patch(int id, {int? voteScore, int? myVote}) {
+    final index = _topics.indexWhere((t) => t.id == id);
+    if (index == -1) return;
+    final updated = [..._topics];
+    updated[index] = updated[index].copyWith(voteScore: voteScore, myVote: myVote);
+    _topics = updated;
+  }
+
+  Future<void> _vote(ForumTopic topic, int value) async {
+    // Optimistic: move the arrows straight away, then reconcile with the server's score.
+    final previousScore = topic.voteScore;
+    final previousVote = topic.myVote;
+    final nextVote = previousVote == value ? 0 : value;
+    final nextScore = previousScore - previousVote + nextVote;
+
+    setState(() => _patch(topic.id, voteScore: nextScore, myVote: nextVote));
+
+    final result = await _service.voteTopic(topic.id, value);
+    if (!mounted) return;
+
+    setState(() {
+      if (result.ok) {
+        _patch(topic.id, voteScore: result.data, myVote: nextVote);
+      } else {
+        _patch(topic.id, voteScore: previousScore, myVote: previousVote);
+      }
+    });
+
+    if (!result.ok) _showError(result);
+  }
+
+  Future<void> _deleteTopic(ForumTopic topic) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: const Text('Delete this topic?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final result = await _service.deleteTopic(topic.id);
+    if (!mounted) return;
+
+    if (result.ok) {
+      setState(() => _topics = _topics.where((t) => t.id != topic.id).toList());
+    } else {
+      _showError(result);
+    }
+  }
+
+  /// Creates a topic. Returns the result so the compose sheet can stay open and explain
+  /// a refusal (cooldown, daily cap, held for review) instead of losing the text.
+  Future<ForumResult<int>> _createTopic(String text, String channel) async {
+    final result = await _service.createTopic(text: text, channel: channel);
+    if (result.ok && mounted) await _load();
+    return result;
+  }
+
+  void _showError(ForumResult<dynamic> result) {
+    final l10n = AppLocalizations.of(context);
+    final message = result.isRateLimited
+        ? l10n.forumRateLimited
+        : result.isHeldForReview
+            ? l10n.forumHeldForReview
+            : result.isUnavailable
+                ? l10n.forumVoiceUnavailable
+                : (result.error ?? l10n.somethingWentWrong);
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _openCompose() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(ctx).viewInsets.bottom + 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Nytt inlägg',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: controller,
-              maxLength: 1000,
-              maxLines: 3,
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: 'Vad tänker du på?',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Switch(
-                  value: _isAnonymous,
-                  activeColor: AppTheme.primaryColor,
-                  onChanged: (v) => setState(() => _isAnonymous = v),
-                ),
-                Text(_isAnonymous ? 'Anonym' : 'Med namn',
-                    style: const TextStyle(fontSize: 13)),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    _createPost(controller.text);
-                    Navigator.pop(ctx);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
-                  child: const Text('Posta', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => ForumComposeSheet(onSubmit: _createTopic),
     );
-  }
-}
-
-// ── Models ────────────────────────────────────────────────────────
-
-class _ForumPost {
-  final int id;
-  final String content;
-  final bool isAnonymous;
-  final String authorName;
-  final DateTime createdAt;
-  int commentCount;
-  List<_ForumComment>? comments;
-
-  _ForumPost({
-    required this.id,
-    required this.content,
-    required this.isAnonymous,
-    required this.authorName,
-    required this.createdAt,
-    required this.commentCount,
-  });
-
-  factory _ForumPost.fromJson(Map<String, dynamic> j) => _ForumPost(
-    id: j['id'] as int,
-    content: j['content'] as String? ?? '',
-    isAnonymous: j['isAnonymous'] as bool? ?? false,
-    authorName: (j['isAnonymous'] as bool? ?? false) ? 'Anonym' : 'Användare',
-    createdAt: DateTime.parse(j['createdAt'] as String),
-    commentCount: j['commentCount'] as int? ?? 0,
-  );
-}
-
-class _ForumComment {
-  final int id;
-  final String content;
-  final String authorName;
-  final DateTime createdAt;
-
-  _ForumComment({required this.id, required this.content, required this.authorName, required this.createdAt});
-  factory _ForumComment.fromJson(Map<String, dynamic> j) => _ForumComment(
-    id: j['id'] as int,
-    content: j['content'] as String? ?? '',
-    authorName: 'Användare',
-    createdAt: DateTime.parse(j['createdAt'] as String),
-  );
-}
-
-// ── Widgets ───────────────────────────────────────────────────────
-
-class _PostCard extends StatefulWidget {
-  final _ForumPost post;
-  final Future<void> Function(String) onComment;
-
-  const _PostCard({required this.post, required this.onComment});
-
-  @override
-  State<_PostCard> createState() => _PostCardState();
-}
-
-class _PostCardState extends State<_PostCard> {
-  bool _expanded = false;
-  bool _loadingComments = false;
-
-  Future<void> _loadComments() async {
-    setState(() => _loadingComments = true);
-    try {
-      final token = await AppState().getOrRefreshAuthToken();
-      final url = Uri.parse('${ApiUrls.userService}/api/forum/posts/${widget.post.id}/comments');
-      final resp = await http.get(url, headers: {
-        'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      });
-      if (resp.statusCode == 200 && mounted) {
-        final list = jsonDecode(resp.body) as List;
-        setState(() {
-          widget.post.comments = list.map((j) => _ForumComment.fromJson(j)).toList();
-          _loadingComments = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _loadingComments = false);
-    }
-  }
-
-  void _toggleComments() {
-    final wasExpanded = _expanded;
-    setState(() => _expanded = !_expanded);
-    if (!wasExpanded && widget.post.comments == null) {
-      _loadComments();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.post;
-    final timeAgo = _formatTimeAgo(p.createdAt);
+    final l10n = AppLocalizations.of(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header: author + time
-            Row(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.forumTitle),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.15),
-                  child: const Icon(Icons.person, size: 16, color: AppTheme.primaryColor),
-                ),
-                const SizedBox(width: 8),
-                Text(p.authorName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                const Spacer(),
-                Text(timeAgo, style: const TextStyle(color: Color(0xFF8B8578), fontSize: 12)),
-              ],
-            ),
-            const SizedBox(height: 10),
-            // Content
-            Text(p.content, style: const TextStyle(fontSize: 15, height: 1.4)),
-            const SizedBox(height: 10),
-            // Actions: comment button
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: _toggleComments,
-                  child: Row(
-                    children: [
-                      Icon(Icons.chat_bubble_outline, size: 18, color: _expanded ? AppTheme.primaryColor : Colors.grey),
-                      const SizedBox(width: 4),
-                      Text('${p.commentCount}', style: TextStyle(fontSize: 13, color: _expanded ? AppTheme.primaryColor : Colors.grey)),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 4, bottom: 8),
+                  child: ChoiceChip(
+                    label: Text(l10n.forumAllChannels),
+                    selected: _channel == null,
+                    onSelected: (_) => _selectChannel(null),
                   ),
                 ),
-              ],
-            ),
-            // Comments section
-            if (_expanded) ...[
-              const Divider(height: 20),
-              if (_loadingComments)
-                const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)))
-              else ...[
-                ...?p.comments?.map((c) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('└ ', style: TextStyle(color: Color(0xFF8B8578), fontSize: 13)),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(color: Color(0xFF2D2D2D), fontSize: 14),
-                            children: [
-                              TextSpan(
-                                text: '${c.authorName}: ',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              TextSpan(text: c.content),
-                            ],
-                          ),
-                        ),
+                ...ForumService.channels.map((slug) => Padding(
+                      padding: const EdgeInsets.only(right: 8, top: 4, bottom: 8),
+                      child: ChoiceChip(
+                        label: Text(forumChannelLabel(l10n, slug)),
+                        selected: _channel == slug,
+                        onSelected: (_) => _selectChannel(slug),
                       ),
-                    ],
-                  ),
-                )),
-                // Add comment input
-                _CommentInput(onSubmit: (text) => widget.onComment(text)),
+                    )),
               ],
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatTimeAgo(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Nu';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
-    return DateFormat('d MMM').format(dt);
-  }
-}
-
-class _CommentInput extends StatefulWidget {
-  final Future<void> Function(String) onSubmit;
-  const _CommentInput({required this.onSubmit});
-
-  @override
-  State<_CommentInput> createState() => _CommentInputState();
-}
-
-class _CommentInputState extends State<_CommentInput> {
-  final _ctrl = TextEditingController();
-  bool _sending = false;
-
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _ctrl,
-            decoration: const InputDecoration(
-              hintText: 'Skriv en kommentar...',
-              isDense: true,
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             ),
-            style: const TextStyle(fontSize: 13),
           ),
         ),
-        const SizedBox(width: 8),
-        _sending
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-            : IconButton(
-                icon: const Icon(Icons.send, color: AppTheme.primaryColor, size: 20),
-                onPressed: () async {
-                  if (_ctrl.text.trim().isEmpty) return;
-                  setState(() => _sending = true);
-                  await widget.onSubmit(_ctrl.text);
-                  _ctrl.clear();
-                  if (mounted) setState(() => _sending = false);
-                },
-              ),
-      ],
+      ),
+      body: RefreshIndicator(onRefresh: _load, child: _buildBody(l10n)),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openCompose,
+        icon: const Icon(Icons.edit),
+        label: Text(l10n.forumNewTopic),
+      ),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+
+    if (_error != null) {
+      return ListView(children: [
+        const SizedBox(height: 120),
+        Center(child: Text(_error!)),
+        const SizedBox(height: 12),
+        Center(
+          child: TextButton(onPressed: _load, child: Text(l10n.retryButton)),
+        ),
+      ]);
+    }
+
+    if (_topics.isEmpty) {
+      // A ListView (not a Center) so pull-to-refresh still works on an empty feed.
+      return ListView(children: [
+        const SizedBox(height: 120),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              l10n.forumEmpty,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          ),
+        ),
+      ]);
+    }
+
+    return ListView.builder(
+      controller: _scroll,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+      itemCount: _topics.length + (_loadingMore ? 1 : 0),
+      itemBuilder: (ctx, i) {
+        if (i >= _topics.length) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final topic = _topics[i];
+        return ForumTopicCard(
+          key: ValueKey(topic.id),
+          topic: topic,
+          onVote: (value) => _vote(topic, value),
+          onLoadAnswers: (page) => _service.listAnswers(topic.id, page: page),
+          onAnswer: (text) => _service.createAnswer(topic.id, text),
+          onDelete: () => _deleteTopic(topic),
+        );
+      },
     );
   }
 }

@@ -1399,4 +1399,73 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get errorLoadQuestions => 'Kunde inte ladda frågorna';
+
+  @override
+  String get forumTitle => 'Community';
+
+  @override
+  String get forumAllChannels => 'Alla';
+
+  @override
+  String get forumNewTopic => 'Nytt inlägg';
+
+  @override
+  String get forumComposeHint => 'Vad vill du dela?';
+
+  @override
+  String get forumPostButton => 'Posta';
+
+  @override
+  String get forumTextRequired => 'Skriv något först.';
+
+  @override
+  String get forumChannelLabel => 'Kanal';
+
+  @override
+  String get forumAnswerHint => 'Skriv ett kort svar';
+
+  @override
+  String get forumAnswerButton => 'Svara';
+
+  @override
+  String get forumAnswerCount => 'svar';
+
+  @override
+  String get forumEmpty => 'Inga ämnen än. Starta det första!';
+
+  @override
+  String get forumLoadFailed => 'Kunde inte ladda forumet.';
+
+  @override
+  String get forumRateLimited => 'Du postar för snabbt. Försök igen snart.';
+
+  @override
+  String get forumHeldForReview => 'Ditt inlägg granskas innan det visas.';
+
+  @override
+  String get forumVoiceUnavailable =>
+      'Röstinmatning är otillgänglig. Skriv i stället.';
+
+  @override
+  String get channelFeedback => 'Appfeedback';
+
+  @override
+  String get channelFirstDates => 'Första dejter';
+
+  @override
+  String get channelRedFlags => 'Varningsflaggor';
+
+  @override
+  String get channelVent => 'Ventilera';
+
+  @override
+  String get channelSuccessStories => 'Lyckade dejter';
+
+  @override
+  String get channelAsk => 'Fråga communityt';
+
+  @override
+  String forumExpiresInHours(int hours) {
+    return 'Försvinner om $hours tim';
+  }
 }

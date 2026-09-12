@@ -1563,113 +1563,188 @@
   "notVisibleOnProfile": "Not visible on profile",
   "@notVisibleOnProfile": {
     "description": "Hint that this preference is private"
-  }
-,
-
+  },
   "orientationStraightDesc": "Attracted to the opposite gender",
-  "@orientationStraightDesc": { "description": "Straight orientation description" },
+  "@orientationStraightDesc": {
+    "description": "Straight orientation description"
+  },
   "orientationGayDesc": "Attracted to the same gender",
-  "@orientationGayDesc": { "description": "Gay orientation description" },
+  "@orientationGayDesc": {
+    "description": "Gay orientation description"
+  },
   "orientationLesbianDesc": "Women attracted to women",
-  "@orientationLesbianDesc": { "description": "Lesbian orientation description" },
+  "@orientationLesbianDesc": {
+    "description": "Lesbian orientation description"
+  },
   "orientationBisexualDesc": "Attracted to more than one gender",
-  "@orientationBisexualDesc": { "description": "Bisexual orientation description" },
+  "@orientationBisexualDesc": {
+    "description": "Bisexual orientation description"
+  },
   "orientationAsexualDesc": "Little or no sexual attraction",
-  "@orientationAsexualDesc": { "description": "Asexual orientation description" },
+  "@orientationAsexualDesc": {
+    "description": "Asexual orientation description"
+  },
   "orientationDemisexualDesc": "Attraction after emotional bond",
-  "@orientationDemisexualDesc": { "description": "Demisexual orientation description" },
+  "@orientationDemisexualDesc": {
+    "description": "Demisexual orientation description"
+  },
   "orientationPansexualDesc": "Attraction regardless of gender",
-  "@orientationPansexualDesc": { "description": "Pansexual orientation description" },
+  "@orientationPansexualDesc": {
+    "description": "Pansexual orientation description"
+  },
   "orientationQueerDesc": "Not heterosexual or cisgender",
-  "@orientationQueerDesc": { "description": "Queer orientation description" },
+  "@orientationQueerDesc": {
+    "description": "Queer orientation description"
+  },
   "orientationQuestioningDesc": "Exploring or unsure",
-  "@orientationQuestioningDesc": { "description": "Questioning orientation description" },
-
+  "@orientationQuestioningDesc": {
+    "description": "Questioning orientation description"
+  },
   "lifestyleSmokingTitle": "How often do you smoke?",
-  "@lifestyleSmokingTitle": { "description": "Smoking section title in lifestyle screen" },
+  "@lifestyleSmokingTitle": {
+    "description": "Smoking section title in lifestyle screen"
+  },
   "lifestyleExerciseTitle": "Do you exercise?",
-  "@lifestyleExerciseTitle": { "description": "Exercise section title in lifestyle screen" },
+  "@lifestyleExerciseTitle": {
+    "description": "Exercise section title in lifestyle screen"
+  },
   "lifestylePetsTitle": "Do you have any pets?",
-  "@lifestylePetsTitle": { "description": "Pets section title in lifestyle screen" },
-
+  "@lifestylePetsTitle": {
+    "description": "Pets section title in lifestyle screen"
+  },
   "aboutMeCommunicationStyle": "Communication style",
-  "@aboutMeCommunicationStyle": { "description": "About me section header for communication style" },
+  "@aboutMeCommunicationStyle": {
+    "description": "About me section header for communication style"
+  },
   "aboutMeLoveLanguage": "Love language",
-  "@aboutMeLoveLanguage": { "description": "About me section header for love language" },
+  "@aboutMeLoveLanguage": {
+    "description": "About me section header for love language"
+  },
   "aboutMeEducationLevel": "Education level",
-  "@aboutMeEducationLevel": { "description": "About me section header for education level" },
-
+  "@aboutMeEducationLevel": {
+    "description": "About me section header for education level"
+  },
   "interestCategoryOutdoors": "Outdoors & adventure",
-  "@interestCategoryOutdoors": { "description": "Interest category: outdoors" },
+  "@interestCategoryOutdoors": {
+    "description": "Interest category: outdoors"
+  },
   "interestCategoryValues": "Values & causes",
-  "@interestCategoryValues": { "description": "Interest category: values" },
+  "@interestCategoryValues": {
+    "description": "Interest category: values"
+  },
   "interestCategoryStayingIn": "Staying in",
-  "@interestCategoryStayingIn": { "description": "Interest category: staying in" },
+  "@interestCategoryStayingIn": {
+    "description": "Interest category: staying in"
+  },
   "interestCategoryTvMovies": "TV & movies",
-  "@interestCategoryTvMovies": { "description": "Interest category: tv & movies" },
+  "@interestCategoryTvMovies": {
+    "description": "Interest category: tv & movies"
+  },
   "interestCategoryMusic": "Music",
-  "@interestCategoryMusic": { "description": "Interest category: music" },
+  "@interestCategoryMusic": {
+    "description": "Interest category: music"
+  },
   "interestCategoryFoodDrink": "Food & drink",
-  "@interestCategoryFoodDrink": { "description": "Interest category: food & drink" },
+  "@interestCategoryFoodDrink": {
+    "description": "Interest category: food & drink"
+  },
   "interestCategoryGoingOut": "Going out",
-  "@interestCategoryGoingOut": { "description": "Interest category: going out" },
-
+  "@interestCategoryGoingOut": {
+    "description": "Interest category: going out"
+  },
   "interestsSelectedCount": "{count} / {max} selected",
   "@interestsSelectedCount": {
     "description": "Interest selection counter",
     "placeholders": {
-      "count": { "type": "int" },
-      "max": { "type": "int" }
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
-  }
-,
+  },
   "nameNotAllowed": "This name is not allowed. Please choose another.",
   "@nameNotAllowed": {
     "description": "Error shown when user enters an offensive or blocked name"
-  }
-,
+  },
   "messageWarningTitle": "Are you sure?",
-  "@messageWarningTitle": { "description": "Title for offensive message warning bottom sheet" },
+  "@messageWarningTitle": {
+    "description": "Title for offensive message warning bottom sheet"
+  },
   "messageWarningBody": "This message may be hurtful. Would you like to edit it?",
-  "@messageWarningBody": { "description": "Body text for offensive message warning" },
+  "@messageWarningBody": {
+    "description": "Body text for offensive message warning"
+  },
   "messageWarningEdit": "Edit message",
-  "@messageWarningEdit": { "description": "Button to go back and edit the message" },
+  "@messageWarningEdit": {
+    "description": "Button to go back and edit the message"
+  },
   "messageWarningSendAnyway": "Send anyway",
-  "@messageWarningSendAnyway": { "description": "Button to send the flagged message despite warning" },
-
+  "@messageWarningSendAnyway": {
+    "description": "Button to send the flagged message despite warning"
+  },
   "consentTitle": "Choose an account",
-  "@consentTitle": { "description": "Title on the account consent screen" },
+  "@consentTitle": {
+    "description": "Title on the account consent screen"
+  },
   "consentSubtitle": "Log in with {provider}",
   "@consentSubtitle": {
     "description": "Subtitle on the account consent screen showing which provider to use",
     "placeholders": {
-      "provider": { "type": "String" }
+      "provider": {
+        "type": "String"
+      }
     }
   },
   "consentAnotherAccount": "Use another account",
-  "@consentAnotherAccount": { "description": "Button to switch to a different account on the consent screen" },
+  "@consentAnotherAccount": {
+    "description": "Button to switch to a different account on the consent screen"
+  },
   "consentLegalText": "Before using the app, you can read through the ",
-  "@consentLegalText": { "description": "Legal preamble text before the privacy/terms links on the consent screen" },
+  "@consentLegalText": {
+    "description": "Legal preamble text before the privacy/terms links on the consent screen"
+  },
   "consentPrivacyPolicy": "privacy policy",
-  "@consentPrivacyPolicy": { "description": "Tappable privacy policy link text on the consent screen" },
+  "@consentPrivacyPolicy": {
+    "description": "Tappable privacy policy link text on the consent screen"
+  },
   "consentAnd": " and ",
-  "@consentAnd": { "description": "Conjunction between privacy policy and terms of use links on the consent screen" },
+  "@consentAnd": {
+    "description": "Conjunction between privacy policy and terms of use links on the consent screen"
+  },
   "consentTermsOfUse": "terms of use",
-  "@consentTermsOfUse": { "description": "Tappable terms of use link text on the consent screen" },
+  "@consentTermsOfUse": {
+    "description": "Tappable terms of use link text on the consent screen"
+  },
   "consentForApp": " for DejTing.",
-  "@consentForApp": { "description": "Trailing text after the legal links on the consent screen" },
+  "@consentForApp": {
+    "description": "Trailing text after the legal links on the consent screen"
+  },
   "consentHelp": "Help",
-  "@consentHelp": { "description": "Footer help link on the consent screen" },
+  "@consentHelp": {
+    "description": "Footer help link on the consent screen"
+  },
   "consentPrivacy": "Privacy",
-  "@consentPrivacy": { "description": "Footer privacy link on the consent screen" },
+  "@consentPrivacy": {
+    "description": "Footer privacy link on the consent screen"
+  },
   "consentTerms": "Terms",
-  "@consentTerms": { "description": "Footer terms link on the consent screen" },
+  "@consentTerms": {
+    "description": "Footer terms link on the consent screen"
+  },
   "consentProviderPhone": "Phone",
-  "@consentProviderPhone": { "description": "Provider name for phone authentication on the consent screen" },
+  "@consentProviderPhone": {
+    "description": "Provider name for phone authentication on the consent screen"
+  },
   "helpScreenTitle": "Help & Support",
-  "@helpScreenTitle": { "description": "Title for the Help & Support screen" },
+  "@helpScreenTitle": {
+    "description": "Title for the Help & Support screen"
+  },
   "locationSettings": "Location Settings",
-  "@locationSettings": { "description": "Title for the location settings screen" },
+  "@locationSettings": {
+    "description": "Title for the location settings screen"
+  },
   "hearVoice": "Hear {name}'s voice",
   "@hearVoice": {
     "description": "Label on the voice prompt card showing whose voice clip it is",
@@ -1683,32 +1758,147 @@
   "@blockedCount": {
     "description": "Subtitle showing how many contacts are blocked",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "voicePromptSubtitle": "Record a voice intro for your profile",
-  "@voicePromptSubtitle": { "description": "Subtitle for the voice prompt feature card on the profile hub screen" },
+  "@voicePromptSubtitle": {
+    "description": "Subtitle for the voice prompt feature card on the profile hub screen"
+  },
   "voicePromptSaved": "Voice prompt saved!",
-  "@voicePromptSaved": { "description": "Snackbar message shown after a voice prompt is successfully saved" },
+  "@voicePromptSaved": {
+    "description": "Snackbar message shown after a voice prompt is successfully saved"
+  },
   "yourSparks": "Your Sparks",
-  "@yourSparks": { "description": "Label for the Sparks balance row in the Sparks bottom sheet" },
+  "@yourSparks": {
+    "description": "Label for the Sparks balance row in the Sparks bottom sheet"
+  },
   "howItWorks": "How it works",
-  "@howItWorks": { "description": "Section heading inside the Spotlight bottom sheet explaining the feature steps" },
+  "@howItWorks": {
+    "description": "Section heading inside the Spotlight bottom sheet explaining the feature steps"
+  },
   "spotlightActivated": "🔦 Spotlight activated! 30 min of boosted visibility.",
-  "@spotlightActivated": { "description": "Snackbar message shown after the user activates a Spotlight boost" },
+  "@spotlightActivated": {
+    "description": "Snackbar message shown after the user activates a Spotlight boost"
+  },
   "failedToLoadBlockList": "Failed to load block list: {error}",
   "@failedToLoadBlockList": {
     "description": "Snackbar error message shown when the block list cannot be fetched",
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "couldNotOpenStore": "Could not open the store page. Please try again later.",
-  "@couldNotOpenStore": { "description": "Snackbar message shown when the app store page cannot be opened" },
+  "@couldNotOpenStore": {
+    "description": "Snackbar message shown when the app store page cannot be opened"
+  },
   "compatibilityQuestionsTitle": "Compatibility questions",
-  "@compatibilityQuestionsTitle": { "description": "Title for the compatibility questions onboarding screen" },
+  "@compatibilityQuestionsTitle": {
+    "description": "Title for the compatibility questions onboarding screen"
+  },
   "compatibilityQuestionsSubtitle": "Help us find your best matches.",
-  "@compatibilityQuestionsSubtitle": { "description": "Subtitle for the compatibility questions onboarding screen" },
+  "@compatibilityQuestionsSubtitle": {
+    "description": "Subtitle for the compatibility questions onboarding screen"
+  },
   "errorLoadQuestions": "Could not load questions",
-  "@errorLoadQuestions": { "description": "Error message shown when compatibility questions cannot be loaded" }
+  "@errorLoadQuestions": {
+    "description": "Error message shown when compatibility questions cannot be loaded"
+  },
+  "forumTitle": "Community",
+  "@forumTitle": {
+    "description": "Forum: forumTitle"
+  },
+  "forumAllChannels": "All",
+  "@forumAllChannels": {
+    "description": "Forum: forumAllChannels"
+  },
+  "forumNewTopic": "New Post",
+  "@forumNewTopic": {
+    "description": "Forum: forumNewTopic"
+  },
+  "forumComposeHint": "What do you want to share?",
+  "@forumComposeHint": {
+    "description": "Forum: forumComposeHint"
+  },
+  "forumPostButton": "Post",
+  "@forumPostButton": {
+    "description": "Forum: forumPostButton"
+  },
+  "forumTextRequired": "Write something first.",
+  "@forumTextRequired": {
+    "description": "Forum: forumTextRequired"
+  },
+  "forumChannelLabel": "Channel",
+  "@forumChannelLabel": {
+    "description": "Forum: forumChannelLabel"
+  },
+  "forumAnswerHint": "Write a short answer",
+  "@forumAnswerHint": {
+    "description": "Forum: forumAnswerHint"
+  },
+  "forumAnswerButton": "Answer",
+  "@forumAnswerButton": {
+    "description": "Forum: forumAnswerButton"
+  },
+  "forumAnswerCount": "answers",
+  "@forumAnswerCount": {
+    "description": "Forum: forumAnswerCount"
+  },
+  "forumEmpty": "No topics yet. Start the first one!",
+  "@forumEmpty": {
+    "description": "Forum: forumEmpty"
+  },
+  "forumLoadFailed": "Could not load the forum.",
+  "@forumLoadFailed": {
+    "description": "Forum: forumLoadFailed"
+  },
+  "forumRateLimited": "You are posting too quickly. Try again shortly.",
+  "@forumRateLimited": {
+    "description": "Forum: forumRateLimited"
+  },
+  "forumHeldForReview": "Your post is being reviewed before it appears.",
+  "@forumHeldForReview": {
+    "description": "Forum: forumHeldForReview"
+  },
+  "forumVoiceUnavailable": "Voice input is unavailable. Type instead.",
+  "@forumVoiceUnavailable": {
+    "description": "Forum: forumVoiceUnavailable"
+  },
+  "channelFeedback": "App feedback",
+  "@channelFeedback": {
+    "description": "Forum: channelFeedback"
+  },
+  "channelFirstDates": "First dates",
+  "@channelFirstDates": {
+    "description": "Forum: channelFirstDates"
+  },
+  "channelRedFlags": "Red flags",
+  "@channelRedFlags": {
+    "description": "Forum: channelRedFlags"
+  },
+  "channelVent": "Vent",
+  "@channelVent": {
+    "description": "Forum: channelVent"
+  },
+  "channelSuccessStories": "Success stories",
+  "@channelSuccessStories": {
+    "description": "Forum: channelSuccessStories"
+  },
+  "channelAsk": "Ask the community",
+  "@channelAsk": {
+    "description": "Forum: channelAsk"
+  },
+  "forumExpiresInHours": "Disappears in {hours}h",
+  "@forumExpiresInHours": {
+    "description": "Forum: forumExpiresInHours",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  }
 }
