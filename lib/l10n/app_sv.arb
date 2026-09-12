@@ -746,5 +746,17 @@
   "forumReportFailed": "Kunde inte skicka rapporten.",
   "@forumReportFailed": {
     "description": "Forum: forumReportFailed"
+  },
+  "forumDictate": "Diktera",
+  "@forumDictate": {
+    "description": "Forum: forumDictate"
+  },
+  "forumRecording": "Spelar in… tryck för att stoppa",
+  "@forumRecording": {
+    "description": "Forum: forumRecording"
+  },
+  "forumMicDenied": "Mikrofonbehörighet krävs.",
+  "@forumMicDenied": {
+    "description": "Forum: forumMicDenied"
   }
 }

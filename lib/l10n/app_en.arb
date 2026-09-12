@@ -1912,5 +1912,17 @@
   "forumReportFailed": "Could not send the report.",
   "@forumReportFailed": {
     "description": "Forum: forumReportFailed"
+  },
+  "forumDictate": "Dictate",
+  "@forumDictate": {
+    "description": "Forum: forumDictate"
+  },
+  "forumRecording": "Recording… tap to stop",
+  "@forumRecording": {
+    "description": "Forum: forumRecording"
+  },
+  "forumMicDenied": "Microphone permission is needed.",
+  "@forumMicDenied": {
+    "description": "Forum: forumMicDenied"
   }
 }

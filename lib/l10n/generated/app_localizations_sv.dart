@@ -1477,4 +1477,13 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get forumReportFailed => 'Kunde inte skicka rapporten.';
+
+  @override
+  String get forumDictate => 'Diktera';
+
+  @override
+  String get forumRecording => 'Spelar in… tryck för att stoppa';
+
+  @override
+  String get forumMicDenied => 'Mikrofonbehörighet krävs.';
 }

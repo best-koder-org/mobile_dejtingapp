@@ -1,8 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:dejtingapp/l10n/generated/app_localizations.dart';
 import 'package:dejtingapp/services/forum_service.dart';
 import 'package:dejtingapp/widgets/forum/forum_compose_sheet.dart';
 import 'package:dejtingapp/widgets/forum/forum_labels.dart';
+import 'package:dejtingapp/services/forum_voice_service.dart';
 import 'package:dejtingapp/widgets/forum/forum_topic_card.dart';
 
 /// Jodel-style anonymous community feed.
@@ -22,6 +26,12 @@ class ForumFeedScreen extends StatefulWidget {
 class _ForumFeedScreenState extends State<ForumFeedScreen> {
   final ForumService _service = ForumService();
   final ScrollController _scroll = ScrollController();
+  final ForumVoiceService _voice = ForumVoiceService();
+
+  /// Set once a recording has stopped, either because the user tapped stop or because the
+  /// length cap fired. Consumed by [_stopDictation].
+  File? _pendingNote;
+  Timer? _autoStop;
 
   List<ForumTopic> _topics = [];
 
@@ -45,6 +55,8 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
   void dispose() {
     _scroll.removeListener(_onScroll);
     _scroll.dispose();
+    _autoStop?.cancel();
+    unawaited(_voice.dispose());
     super.dispose();
   }
 
@@ -186,11 +198,72 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _snack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// Starts recording, and stops automatically at the cap so a forgotten recording cannot
+  /// run on and be rejected for size later.
+  Future<void> _startDictation() async {
+    final l10n = AppLocalizations.of(context);
+
+    if (!await _voice.hasPermission() || await _voice.start() == null) {
+      if (mounted) _snack(l10n.forumMicDenied);
+      return;
+    }
+
+    _pendingNote = null;
+    _autoStop?.cancel();
+    _autoStop = Timer(const Duration(seconds: ForumVoiceService.maxSeconds), () async {
+      _pendingNote ??= await _voice.stop();
+    });
+  }
+
+  /// Stops recording and transcribes. Returns null when either step failed, having already
+  /// told the user why.
+  Future<String?> _stopDictation() async {
+    _autoStop?.cancel();
+
+    try {
+      _pendingNote ??= await _voice.stop();
+    } catch (e) {
+      debugPrint('Forum dictation stop failed: $e');
+      _pendingNote = null;
+    }
+
+    final note = _pendingNote;
+    _pendingNote = null;
+
+    if (note == null) {
+      if (mounted) _snack(AppLocalizations.of(context).forumVoiceUnavailable);
+      return null;
+    }
+
+    final result = await _service.transcribe(note);
+    try {
+      await note.delete();
+    } catch (_) {
+      // A leftover temp file is harmless; the OS clears the temp directory.
+    }
+    if (!mounted) return null;
+
+    if (result.ok && (result.data ?? '').isNotEmpty) return result.data;
+
+    _showError(result);
+    return null;
+  }
+
   void _openCompose() {
+    final canDictate = _voice.isSupported;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => ForumComposeSheet(onSubmit: _createTopic),
+      builder: (_) => ForumComposeSheet(
+        onSubmit: _createTopic,
+        onStartDictation: canDictate ? _startDictation : null,
+        onStopDictation: canDictate ? _stopDictation : null,
+      ),
     );
   }
 

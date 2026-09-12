@@ -1475,4 +1475,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forumReportFailed => 'Could not send the report.';
+
+  @override
+  String get forumDictate => 'Dictate';
+
+  @override
+  String get forumRecording => 'Recording… tap to stop';
+
+  @override
+  String get forumMicDenied => 'Microphone permission is needed.';
 }

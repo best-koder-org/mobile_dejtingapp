@@ -2791,6 +2791,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not send the report.'**
   String get forumReportFailed;
+
+  /// Forum: forumDictate
+  ///
+  /// In en, this message translates to:
+  /// **'Dictate'**
+  String get forumDictate;
+
+  /// Forum: forumRecording
+  ///
+  /// In en, this message translates to:
+  /// **'Recording… tap to stop'**
+  String get forumRecording;
+
+  /// Forum: forumMicDenied
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission is needed.'**
+  String get forumMicDenied;
 }
 
 class _AppLocalizationsDelegate
