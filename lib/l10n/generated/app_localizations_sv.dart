@@ -1468,4 +1468,13 @@ class AppLocalizationsSv extends AppLocalizations {
   String forumExpiresInHours(int hours) {
     return 'Försvinner om $hours tim';
   }
+
+  @override
+  String get forumReport => 'Rapportera';
+
+  @override
+  String get forumReportSent => 'Rapporterat. Tack.';
+
+  @override
+  String get forumReportFailed => 'Kunde inte skicka rapporten.';
 }

@@ -25,6 +25,9 @@ class ForumTopicCard extends StatefulWidget {
 
   final Future<void> Function() onDelete;
 
+  /// Reports this topic to the safety service.
+  final Future<void> Function() onReport;
+
   const ForumTopicCard({
     super.key,
     required this.topic,
@@ -32,6 +35,7 @@ class ForumTopicCard extends StatefulWidget {
     required this.onLoadAnswers,
     required this.onAnswer,
     required this.onDelete,
+    required this.onReport,
   });
 
   @override
@@ -179,6 +183,14 @@ class _ForumTopicCardState extends State<ForumTopicCard> {
                               visualDensity: VisualDensity.compact,
                               onPressed: () => unawaited(widget.onDelete()),
                               icon: const Icon(Icons.delete_outline),
+                            )
+                          else
+                            IconButton(
+                              tooltip: l10n.forumReport,
+                              iconSize: 18,
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => unawaited(widget.onReport()),
+                              icon: const Icon(Icons.flag_outlined),
                             ),
                           Text(
                             l10n.forumExpiresInHours(topic.hoursRemaining),

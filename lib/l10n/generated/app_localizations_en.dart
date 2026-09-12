@@ -1466,4 +1466,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String forumExpiresInHours(int hours) {
     return 'Disappears in ${hours}h';
   }
+
+  @override
+  String get forumReport => 'Report';
+
+  @override
+  String get forumReportSent => 'Reported. Thank you.';
+
+  @override
+  String get forumReportFailed => 'Could not send the report.';
 }

@@ -304,4 +304,56 @@ void main() {
       expect(called, isFalse);
     });
   });
+
+  group('reporting', () {
+    test('reportTopic posts the topicId and expects a 201', () async {
+      Map<String, dynamic>? sent;
+      final client = MockClient((request) async {
+        expect(request.method, 'POST');
+        expect(request.url.path, '/api/forum/report');
+        sent = json.decode(request.body) as Map<String, dynamic>;
+        return http.Response(json.encode({'id': 555}), 201);
+      });
+
+      final result = await serviceWith(client).reportTopic(7, reason: 'Obehagligt');
+
+      expect(result.ok, isTrue);
+      expect(result.data, 555);
+      expect(sent!['topicId'], 7);
+      expect(sent!['reason'], 'Obehagligt');
+    });
+
+    test('reportAnswer sends answerId rather than topicId', () async {
+      Map<String, dynamic>? sent;
+      final client = MockClient((request) async {
+        sent = json.decode(request.body) as Map<String, dynamic>;
+        return http.Response(json.encode({'id': 556}), 201);
+      });
+
+      await serviceWith(client).reportAnswer(12);
+
+      expect(sent!['answerId'], 12);
+      expect(sent!.containsKey('topicId'), isFalse);
+    });
+
+    test('surfaces the self-report rejection', () async {
+      final client = MockClient((_) async => http.Response(
+          json.encode({'error': 'You cannot report your own post.'}), 422));
+
+      final result = await serviceWith(client).reportTopic(7);
+
+      expect(result.ok, isFalse);
+      expect(result.error, 'You cannot report your own post.');
+    });
+
+    test('a 503 means reporting is unavailable, not silently fine', () async {
+      final client = MockClient((_) async => http.Response(
+          json.encode({'error': 'Reporting is unavailable right now.'}), 503));
+
+      final result = await serviceWith(client).reportTopic(7);
+
+      expect(result.ok, isFalse);
+      expect(result.isUnavailable, isTrue);
+    });
+  });
 }

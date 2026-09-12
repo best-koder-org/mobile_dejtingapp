@@ -2773,6 +2773,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disappears in {hours}h'**
   String forumExpiresInHours(int hours);
+
+  /// Forum: forumReport
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get forumReport;
+
+  /// Forum: forumReportSent
+  ///
+  /// In en, this message translates to:
+  /// **'Reported. Thank you.'**
+  String get forumReportSent;
+
+  /// Forum: forumReportFailed
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the report.'**
+  String get forumReportFailed;
 }
 
 class _AppLocalizationsDelegate

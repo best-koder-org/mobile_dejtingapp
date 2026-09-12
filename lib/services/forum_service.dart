@@ -411,6 +411,35 @@ class ForumService {
     }
   }
 
+  /// Reports a topic. The author stays anonymous to the reporter — the server resolves who
+  /// wrote it and forwards an accountable report to the safety service.
+  Future<ForumResult<int>> reportTopic(int topicId, {String? reason}) =>
+      _report({'topicId': topicId, if (reason != null) 'reason': reason});
+
+  /// Reports an answer.
+  Future<ForumResult<int>> reportAnswer(int answerId, {String? reason}) =>
+      _report({'answerId': answerId, if (reason != null) 'reason': reason});
+
+  Future<ForumResult<int>> _report(Map<String, dynamic> body) async {
+    try {
+      final headers = await _authHeader();
+      if (headers == null) return ForumResult.failure('Not signed in', 401);
+
+      final response = await _client
+          .post(Uri.parse('$_base/report'), headers: headers, body: json.encode(body))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 201) {
+        return ForumResult.failure(_messageFrom(response), response.statusCode);
+      }
+      final decoded = json.decode(response.body) as Map<String, dynamic>;
+      return ForumResult.success(decoded['id'] as int? ?? 0, 201);
+    } catch (e) {
+      debugPrint('ForumService.report error: $e');
+      return ForumResult.failure('Network error', 0);
+    }
+  }
+
   /// Voice-to-text for the composer. Returns the transcript for the user to edit before
   /// posting — nothing is submitted on their behalf.
   ///

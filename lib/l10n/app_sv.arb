@@ -734,5 +734,17 @@
   "forumExpiresInHours": "Försvinner om {hours} tim",
   "@forumExpiresInHours": {
     "description": "Forum: forumExpiresInHours"
+  },
+  "forumReport": "Rapportera",
+  "@forumReport": {
+    "description": "Forum: forumReport"
+  },
+  "forumReportSent": "Rapporterat. Tack.",
+  "@forumReportSent": {
+    "description": "Forum: forumReportSent"
+  },
+  "forumReportFailed": "Kunde inte skicka rapporten.",
+  "@forumReportFailed": {
+    "description": "Forum: forumReportFailed"
   }
 }

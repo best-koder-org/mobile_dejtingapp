@@ -162,6 +162,17 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
     return result;
   }
 
+  Future<void> _reportTopic(ForumTopic topic) async {
+    final l10n = AppLocalizations.of(context);
+    final result = await _service.reportTopic(topic.id);
+    if (!mounted) return;
+
+    // Reporting is a safety action, so always confirm the outcome — never fail silently.
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(result.ok ? l10n.forumReportSent : l10n.forumReportFailed),
+    ));
+  }
+
   void _showError(ForumResult<dynamic> result) {
     final l10n = AppLocalizations.of(context);
     final message = result.isRateLimited
@@ -278,6 +289,7 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
           onLoadAnswers: (page) => _service.listAnswers(topic.id, page: page),
           onAnswer: (text) => _service.createAnswer(topic.id, text),
           onDelete: () => _deleteTopic(topic),
+          onReport: () => _reportTopic(topic),
         );
       },
     );
