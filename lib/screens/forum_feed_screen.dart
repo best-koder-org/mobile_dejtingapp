@@ -17,14 +17,20 @@ import 'package:dejtingapp/widgets/forum/forum_topic_card.dart';
 ///
 /// Topics expire after 48h, which is why each card shows roughly how long it has left.
 class ForumFeedScreen extends StatefulWidget {
-  const ForumFeedScreen({super.key});
+  const ForumFeedScreen({super.key, this.service});
+
+  /// Test seam: lets a widget test drive the feed with a stubbed client. Without it the
+  /// screen always uses the app-wide singleton, which cannot be pointed at a fake, so the
+  /// tests could only ever observe a generic error and never *why* there was one.
+  @visibleForTesting
+  final ForumService? service;
 
   @override
   State<ForumFeedScreen> createState() => _ForumFeedScreenState();
 }
 
 class _ForumFeedScreenState extends State<ForumFeedScreen> {
-  final ForumService _service = ForumService();
+  late final ForumService _service = widget.service ?? ForumService();
   final ScrollController _scroll = ScrollController();
   final ForumVoiceService _voice = ForumVoiceService();
 
@@ -82,6 +88,10 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
         _topics = result.data!.items;
         _page = result.data!.page;
         _hasMore = result.data!.hasMore;
+      } else if (result.isUnavailable) {
+        // The gateway answered but the forum service did not. Saying so beats a bare
+        // "could not load", which reads like the feed is empty or broken.
+        _error = AppLocalizations.of(context).forumBackendUnavailable;
       } else {
         _error = AppLocalizations.of(context).forumLoadFailed;
       }
@@ -192,7 +202,9 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
         : result.isHeldForReview
             ? l10n.forumHeldForReview
             : result.isUnavailable
-                ? l10n.forumVoiceUnavailable
+                // Was forumVoiceUnavailable, which talked about the microphone when the
+                // real problem was that the whole service was unreachable.
+                ? l10n.forumBackendUnavailable
                 : (result.error ?? l10n.somethingWentWrong);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));

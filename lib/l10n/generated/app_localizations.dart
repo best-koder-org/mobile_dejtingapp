@@ -2714,6 +2714,12 @@ abstract class AppLocalizations {
   /// **'Could not load the forum.'**
   String get forumLoadFailed;
 
+  /// Forum: the forum service is not answering (502/503/504)
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the forum right now. It may still be starting up.'**
+  String get forumBackendUnavailable;
+
   /// Forum: forumRateLimited
   ///
   /// In en, this message translates to:

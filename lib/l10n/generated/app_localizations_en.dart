@@ -1433,6 +1433,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forumLoadFailed => 'Could not load the forum.';
 
   @override
+  String get forumBackendUnavailable =>
+      'Can\'t reach the forum right now. It may still be starting up.';
+
+  @override
   String get forumRateLimited =>
       'You are posting too quickly. Try again shortly.';
 

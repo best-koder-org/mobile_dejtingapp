@@ -1437,6 +1437,10 @@ class AppLocalizationsSv extends AppLocalizations {
   String get forumLoadFailed => 'Kunde inte ladda forumet.';
 
   @override
+  String get forumBackendUnavailable =>
+      'Kan inte nå forumet just nu. Det kanske fortfarande startar.';
+
+  @override
   String get forumRateLimited => 'Du postar för snabbt. Försök igen snart.';
 
   @override

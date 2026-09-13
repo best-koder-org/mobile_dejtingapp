@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
 import 'package:dejtingapp/screens/forum_feed_screen.dart';
+import 'package:dejtingapp/services/forum_service.dart';
 
 import '../helpers/core_screen_test_helper.dart';
 
@@ -110,6 +115,42 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(ForumFeedScreen), findsOneWidget);
+    });
+  });
+
+  group('ForumFeedScreen — forum service unreachable', () {
+    // The gateway answers 502 when it cannot reach forum-service, which is exactly what
+    // happens when the stack is not running. The screen used to collapse that into a plain
+    // "could not load the forum", which reads like an empty feed or a bad request and hides
+    // the one thing the user needs to know: the service behind the gateway is not up.
+    const unreachable =
+        "Can't reach the forum right now. It may still be starting up.";
+
+    Future<void> pumpWithStatus(WidgetTester tester, int status) async {
+      final client = MockClient(
+          (_) async => http.Response(json.encode({'error': 'Bad Gateway'}), status));
+      final service = ForumService.testing(client: client);
+
+      await tester.pumpWidget(
+        buildCoreScreenTestApp(home: ForumFeedScreen(service: service)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    for (final status in <int>[502, 503, 504]) {
+      testWidgets('a $status explains the backend is unreachable', (tester) async {
+        await pumpWithStatus(tester, status);
+
+        expect(find.text(unreachable), findsOneWidget);
+        expect(find.text('Could not load the forum.'), findsNothing);
+      });
+    }
+
+    testWidgets('a real error still reads as a plain load failure', (tester) async {
+      await pumpWithStatus(tester, 400);
+
+      expect(find.text('Could not load the forum.'), findsOneWidget);
+      expect(find.text(unreachable), findsNothing);
     });
   });
 }

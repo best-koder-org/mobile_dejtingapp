@@ -695,6 +695,10 @@
   "@forumLoadFailed": {
     "description": "Forum: forumLoadFailed"
   },
+  "forumBackendUnavailable": "Kan inte nå forumet just nu. Det kanske fortfarande startar.",
+  "@forumBackendUnavailable": {
+    "description": "Forum: the forum service is not answering (502/503/504)"
+  },
   "forumRateLimited": "Du postar för snabbt. Försök igen snart.",
   "@forumRateLimited": {
     "description": "Forum: forumRateLimited"

@@ -356,4 +356,51 @@ void main() {
       expect(result.isUnavailable, isTrue);
     });
   });
+
+  group('backend unavailable', () {
+    // A 502 is what the gateway returns when it cannot reach forum-service, and that is the
+    // most common local failure: the stack simply is not running. Only 503 used to count as
+    // "unavailable", so a dead backend surfaced as a generic failure and the app said
+    // "could not load the forum" — implying an empty feed or a bad request rather than a
+    // service that is down.
+    for (final code in <int>[502, 503, 504]) {
+      test('a $code is reported as the backend being unavailable', () async {
+        final client = MockClient(
+            (_) async => http.Response(json.encode({'error': 'Bad Gateway'}), code));
+
+        final result = await serviceWith(client).listTopics();
+
+        expect(result.ok, isFalse);
+        expect(result.isUnavailable, isTrue,
+            reason: '$code means the gateway answered but the service did not');
+      });
+    }
+
+    test('creating a topic against a dead backend is unavailable, not a bad request',
+        () async {
+      final client = MockClient(
+          (_) async => http.Response(json.encode({'error': 'Bad Gateway'}), 502));
+
+      final result =
+          await serviceWith(client).createTopic(text: 'hej', channel: 'vent');
+
+      expect(result.ok, isFalse);
+      expect(result.isUnavailable, isTrue);
+      expect(result.isRateLimited, isFalse);
+      expect(result.isHeldForReview, isFalse);
+    });
+
+    test('real answers are not mistaken for an outage', () async {
+      // These all mean the forum responded and had something to say, so the UI must not
+      // tell the user the service is down.
+      for (final code in <int>[400, 401, 403, 404, 422, 429, 500]) {
+        final client = MockClient(
+            (_) async => http.Response(json.encode({'error': 'nope'}), code));
+
+        final result = await serviceWith(client).listTopics();
+
+        expect(result.isUnavailable, isFalse, reason: '$code is a real response');
+      }
+    });
+  });
 }

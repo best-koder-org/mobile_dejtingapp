@@ -123,8 +123,8 @@ class ForumPage<T> {
 /// Result of a mutating call.
 ///
 /// Carries the backend's own message so the UI can explain what happened:
-/// 429 covers both the posting cooldown and the daily cap, 422 means the text was held
-/// for review, and 503 means voice input is unavailable.
+/// 429 covers both the posting cooldown and the daily cap, and 422 means the text was held
+/// for review. 502/503/504 mean the backend is unreachable — see [isUnavailable].
 class ForumResult<T> {
   final bool ok;
   final T? data;
@@ -141,7 +141,13 @@ class ForumResult<T> {
 
   bool get isRateLimited => statusCode == 429;
   bool get isHeldForReview => statusCode == 422;
-  bool get isUnavailable => statusCode == 503;
+
+  /// 502, 503 and 504 all mean the forum backend could not be reached: the gateway is up,
+  /// but the service behind it is not answering. Checking only 503 meant a dead backend —
+  /// the single most common local failure — surfaced as a generic "could not load" with
+  /// nothing to explain it.
+  bool get isUnavailable =>
+      statusCode == 502 || statusCode == 503 || statusCode == 504;
 }
 
 /// Client for the anonymous forum.
