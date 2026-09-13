@@ -26,8 +26,23 @@ class DevAutoLogin {
   static const _botProfiles = [2, 3, 4]; // maja, elsa, linnea
 
   /// Public entry point — timeout-protected.
+  ///
+  /// This is the *automatic* startup login. It is the only thing the
+  /// DEMO_AUTO_LOGIN_DISABLED flag suppresses; the Dev Sign In button uses
+  /// [signInDemoUser] and must keep working.
   static Future<void> ensureDemoSession() async {
     if (!EnvironmentConfig.isDevelopment && !EnvironmentConfig.isStaging) return;
+
+    // A --dart-define rather than only an env var, because Platform.environment is empty on
+    // Android: on a phone the app is spawned by the launcher, not by the shell, so setting
+    // DEMO_AUTO_LOGIN_DISABLED before `flutter run` silently does nothing and the app still
+    // skips the login screen.
+    if (const bool.fromEnvironment('DEMO_AUTO_LOGIN_DISABLED')) {
+      if (kDebugMode) {
+        debugPrint('🚫 Dev auto-login disabled — starting on the welcome screen.');
+      }
+      return;
+    }
 
     try {
       await _doLogin().timeout(const Duration(seconds: 60));
@@ -38,19 +53,22 @@ class DevAutoLogin {
     }
   }
 
+  /// Explicit sign-in for the Dev Sign In button.
+  ///
+  /// Deliberately NOT gated by DEMO_AUTO_LOGIN_DISABLED. That flag exists to stop the app
+  /// logging in *by itself*, not to make the button a no-op — and because both paths used to
+  /// share one method, suppressing the automatic login also silently broke the manual one:
+  /// the button appeared to work, navigated to /home, and every screen then said
+  /// "auth required" because no token had ever been issued.
+  ///
+  /// Returns whether a usable session now exists, so callers never navigate on a failure.
+  static Future<bool> signInDemoUser() async {
+    await _doLogin().timeout(const Duration(seconds: 60));
+    return AppState().hasValidAuthSession();
+  }
+
   /// Actual login logic with optional reset + seed.
   static Future<void> _doLogin() async {
-    // A --dart-define rather than only an env var, because Platform.environment is empty on
-    // Android: on a phone the app is spawned by the launcher, not by the shell, so setting
-    // DEMO_AUTO_LOGIN_DISABLED before `flutter run` silently does nothing and the app still
-    // skips the login screen.
-    if (const bool.fromEnvironment('DEMO_AUTO_LOGIN_DISABLED')) {
-      if (kDebugMode) {
-        debugPrint('🚫 Dev auto-login disabled via --dart-define.');
-      }
-      return;
-    }
-
     if (!kIsWeb) {
       final env = Platform.environment;
       if (env[_disableFlag] == '1' ||

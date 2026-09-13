@@ -260,7 +260,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Future<void> _handleDevSignIn() async {
     setState(() => _devLoggingIn = true);
     try {
-      await DevAutoLogin.ensureDemoSession();
+      // signInDemoUser, not ensureDemoSession: the latter is the automatic startup login and
+      // is skipped when DEMO_AUTO_LOGIN_DISABLED is set, which would make this button do
+      // nothing but still navigate.
+      final signedIn = await DevAutoLogin.signInDemoUser();
+
+      // Refuse to navigate without a session. Landing on /home unauthenticated is what
+      // produced the blank discovery list and the "auth required" banner, with no clue why.
+      if (!signedIn) {
+        throw StateError('Dev sign-in did not produce a session. '
+            'Check the backend is up and Keycloak is reachable at the selected dev server.');
+      }
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
