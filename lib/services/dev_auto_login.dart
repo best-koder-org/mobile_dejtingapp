@@ -40,6 +40,17 @@ class DevAutoLogin {
 
   /// Actual login logic with optional reset + seed.
   static Future<void> _doLogin() async {
+    // A --dart-define rather than only an env var, because Platform.environment is empty on
+    // Android: on a phone the app is spawned by the launcher, not by the shell, so setting
+    // DEMO_AUTO_LOGIN_DISABLED before `flutter run` silently does nothing and the app still
+    // skips the login screen.
+    if (const bool.fromEnvironment('DEMO_AUTO_LOGIN_DISABLED')) {
+      if (kDebugMode) {
+        debugPrint('🚫 Dev auto-login disabled via --dart-define.');
+      }
+      return;
+    }
+
     if (!kIsWeb) {
       final env = Platform.environment;
       if (env[_disableFlag] == '1' ||
