@@ -2708,6 +2708,12 @@ abstract class AppLocalizations {
   /// **'No topics yet. Start the first one!'**
   String get forumEmpty;
 
+  /// Forum: empty answer list in a topic sub-page
+  ///
+  /// In en, this message translates to:
+  /// **'No answers yet. Be the first to reply.'**
+  String get forumNoAnswers;
+
   /// Forum: forumLoadFailed
   ///
   /// In en, this message translates to:

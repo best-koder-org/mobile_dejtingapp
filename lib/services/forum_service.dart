@@ -78,6 +78,10 @@ class ForumAnswer {
   final int topicId;
   final String text;
   final DateTime createdAt;
+  final int voteScore;
+
+  /// The viewer's own vote: +1, -1, or 0 for none.
+  final int myVote;
   final bool isOwn;
   final String colorHex;
   final String pseudonym;
@@ -87,6 +91,8 @@ class ForumAnswer {
     required this.topicId,
     required this.text,
     required this.createdAt,
+    required this.voteScore,
+    required this.myVote,
     required this.isOwn,
     required this.colorHex,
     required this.pseudonym,
@@ -97,9 +103,23 @@ class ForumAnswer {
         topicId: j['topicId'] as int? ?? 0,
         text: j['text'] as String? ?? '',
         createdAt: DateTime.parse(j['createdAt'] as String).toLocal(),
+        voteScore: j['voteScore'] as int? ?? 0,
+        myVote: j['myVote'] as int? ?? 0,
         isOwn: j['isOwn'] as bool? ?? false,
         colorHex: j['colorHex'] as String? ?? '#FF7F50',
         pseudonym: j['pseudonym'] as String? ?? '',
+      );
+
+  ForumAnswer copyWith({int? voteScore, int? myVote}) => ForumAnswer(
+        id: id,
+        topicId: topicId,
+        text: text,
+        createdAt: createdAt,
+        voteScore: voteScore ?? this.voteScore,
+        myVote: myVote ?? this.myVote,
+        isOwn: isOwn,
+        colorHex: colorHex,
+        pseudonym: pseudonym,
       );
 }
 
@@ -321,6 +341,32 @@ class ForumService {
       return ForumResult.success(body['voteScore'] as int? ?? 0);
     } catch (e) {
       debugPrint('ForumService.voteTopic error: $e');
+      return ForumResult.failure('Network error', 0);
+    }
+  }
+
+  /// Casts or changes a vote on an answer. Same toggle rule as [voteTopic]: sending the
+  /// same value again removes the vote. The server rejects voting on your own answer.
+  Future<ForumResult<int>> voteAnswer(int answerId, int value) async {
+    try {
+      final headers = await _authHeader();
+      if (headers == null) return ForumResult.failure('Not signed in', 401);
+
+      final response = await _client
+          .post(
+            Uri.parse('$_base/answers/$answerId/vote'),
+            headers: headers,
+            body: json.encode({'value': value}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        return ForumResult.failure(_messageFrom(response), response.statusCode);
+      }
+      final body = json.decode(response.body) as Map<String, dynamic>;
+      return ForumResult.success(body['voteScore'] as int? ?? 0);
+    } catch (e) {
+      debugPrint('ForumService.voteAnswer error: $e');
       return ForumResult.failure('Network error', 0);
     }
   }

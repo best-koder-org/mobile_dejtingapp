@@ -691,6 +691,10 @@
   "@forumEmpty": {
     "description": "Forum: forumEmpty"
   },
+  "forumNoAnswers": "Inga svar än. Bli den första att svara.",
+  "@forumNoAnswers": {
+    "description": "Forum: empty answer list in a topic sub-page"
+  },
   "forumLoadFailed": "Kunde inte ladda forumet.",
   "@forumLoadFailed": {
     "description": "Forum: forumLoadFailed"

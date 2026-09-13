@@ -403,4 +403,116 @@ void main() {
       }
     });
   });
+
+  group('answer votes', () {
+    test('listAnswers keeps the score and the viewer\'s own vote', () async {
+      final client = MockClient((_) async => http.Response(
+            json.encode({
+              'total': 1,
+              'page': 1,
+              'pageSize': 20,
+              'items': [
+                {
+                  'id': 7,
+                  'topicId': 3,
+                  'text': 'ett svar',
+                  'createdAt': '2026-09-13T08:00:00Z',
+                  'voteScore': 4,
+                  'myVote': -1,
+                  'isOwn': false,
+                  'colorHex': '#FF7F50',
+                  'pseudonym': 'Anonym räv',
+                }
+              ],
+            }),
+            200,
+          ));
+
+      final result = await serviceWith(client).listAnswers(3);
+
+      final answer = result.data!.items.single;
+      expect(answer.voteScore, 4);
+      expect(answer.myVote, -1);
+    });
+
+    test('a missing myVote defaults to no vote rather than throwing', () async {
+      // Older payloads, and any list where the viewer has not voted, omit the field.
+      final client = MockClient((_) async => http.Response(
+            json.encode({
+              'total': 1,
+              'page': 1,
+              'pageSize': 20,
+              'items': [
+                {
+                  'id': 8,
+                  'topicId': 3,
+                  'text': 'utan rost',
+                  'createdAt': '2026-09-13T08:00:00Z',
+                  'isOwn': false,
+                  'colorHex': '#FF7F50',
+                  'pseudonym': 'Anonym',
+                }
+              ],
+            }),
+            200,
+          ));
+
+      final answer = (await serviceWith(client).listAnswers(3)).data!.items.single;
+      expect(answer.voteScore, 0);
+      expect(answer.myVote, 0);
+    });
+
+    test('voteAnswer posts the value and returns the new score', () async {
+      Map<String, dynamic>? sent;
+      String? path;
+      final client = MockClient((request) async {
+        path = request.url.path;
+        sent = json.decode(request.body) as Map<String, dynamic>;
+        return http.Response(json.encode({'voteScore': 3, 'myVote': 1}), 200);
+      });
+
+      final result = await serviceWith(client).voteAnswer(42, 1);
+
+      expect(path, '/api/forum/answers/42/vote');
+      expect(sent!['value'], 1);
+      expect(result.ok, isTrue);
+      expect(result.data, 3);
+    });
+
+    test('voting on your own answer surfaces the refusal', () async {
+      final client = MockClient((_) async => http.Response(
+          json.encode({'error': 'You cannot vote on your own answer.'}), 422));
+
+      final result = await serviceWith(client).voteAnswer(42, 1);
+
+      expect(result.ok, isFalse);
+      expect(result.isHeldForReview, isTrue);
+      expect(result.error, 'You cannot vote on your own answer.');
+    });
+
+    test('copyWith changes only the vote fields', () {
+      final answer = ForumAnswer(
+        id: 1,
+        topicId: 2,
+        text: 'hej',
+        createdAt: DateTime.utc(2026, 9, 13, 8),
+        voteScore: 0,
+        myVote: 0,
+        isOwn: false,
+        colorHex: '#FF7F50',
+        pseudonym: 'x',
+      );
+
+      final updated = answer.copyWith(voteScore: 5, myVote: 1);
+
+      expect(updated.id, 1);
+      expect(updated.topicId, 2);
+      expect(updated.text, 'hej');
+      expect(updated.pseudonym, 'x');
+      expect(updated.voteScore, 5);
+      expect(updated.myVote, 1);
+      // Untouched fields must survive the copy.
+      expect(updated.createdAt, answer.createdAt);
+    });
+  });
 }

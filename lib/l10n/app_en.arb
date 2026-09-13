@@ -1852,6 +1852,10 @@
   "@forumEmpty": {
     "description": "Forum: forumEmpty"
   },
+  "forumNoAnswers": "No answers yet. Be the first to reply.",
+  "@forumNoAnswers": {
+    "description": "Forum: empty answer list in a topic sub-page"
+  },
   "forumLoadFailed": "Could not load the forum.",
   "@forumLoadFailed": {
     "description": "Forum: forumLoadFailed"

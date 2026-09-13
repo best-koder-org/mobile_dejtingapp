@@ -1430,6 +1430,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forumEmpty => 'No topics yet. Start the first one!';
 
   @override
+  String get forumNoAnswers => 'No answers yet. Be the first to reply.';
+
+  @override
   String get forumLoadFailed => 'Could not load the forum.';
 
   @override

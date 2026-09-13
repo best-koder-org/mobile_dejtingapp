@@ -7,6 +7,7 @@ import 'package:dejtingapp/services/forum_service.dart';
 import 'package:dejtingapp/widgets/forum/forum_compose_sheet.dart';
 import 'package:dejtingapp/widgets/forum/forum_labels.dart';
 import 'package:dejtingapp/services/forum_voice_service.dart';
+import 'package:dejtingapp/screens/forum_topic_screen.dart';
 import 'package:dejtingapp/widgets/forum/forum_topic_card.dart';
 
 /// Jodel-style anonymous community feed.
@@ -195,6 +196,17 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
     ));
   }
 
+  /// Opens the topic's own page. Answers live there, so they can carry their own votes.
+  Future<void> _openTopic(ForumTopic topic) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ForumTopicScreen(topic: topic)),
+    );
+
+    // Reload on return so the answer count and topic score reflect what happened inside.
+    if (mounted) await _load();
+  }
+
   void _showError(ForumResult<dynamic> result) {
     final l10n = AppLocalizations.of(context);
     final message = result.isRateLimited
@@ -371,8 +383,7 @@ class _ForumFeedScreenState extends State<ForumFeedScreen> {
           key: ValueKey(topic.id),
           topic: topic,
           onVote: (value) => _vote(topic, value),
-          onLoadAnswers: (page) => _service.listAnswers(topic.id, page: page),
-          onAnswer: (text) => _service.createAnswer(topic.id, text),
+          onOpen: () => _openTopic(topic),
           onDelete: () => _deleteTopic(topic),
           onReport: () => _reportTopic(topic),
         );

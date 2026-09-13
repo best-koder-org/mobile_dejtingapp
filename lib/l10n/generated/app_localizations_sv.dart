@@ -1434,6 +1434,9 @@ class AppLocalizationsSv extends AppLocalizations {
   String get forumEmpty => 'Inga ämnen än. Starta det första!';
 
   @override
+  String get forumNoAnswers => 'Inga svar än. Bli den första att svara.';
+
+  @override
   String get forumLoadFailed => 'Kunde inte ladda forumet.';
 
   @override
