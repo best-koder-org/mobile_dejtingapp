@@ -91,8 +91,19 @@ class _FeedbackFabState extends State<FeedbackFab> {
   late final FeedbackService _service = widget.service ?? FeedbackService();
   late final FeedbackRecorder _recorder = widget.recorder ?? RecordAudioRecorder();
 
-  Offset _position = const Offset(16, 240);
+  /// Null until the first layout, when a screen-size-aware default is chosen.
+  /// See [didChangeDependencies].
+  Offset? _position;
   bool _isUploading = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Default to the right edge. The old fixed (16, 240) sat exactly on top of the
+    // first list item's vote column in the forum feed and topic pages, so tapping
+    // "up" on the top post opened this feedback sheet instead of casting a vote.
+    _position ??= Offset(MediaQuery.of(context).size.width - 72, 320);
+  }
 
   @override
   void dispose() {
@@ -108,8 +119,10 @@ class _FeedbackFabState extends State<FeedbackFab> {
     // Respect system navigation bar / safe area so the FAB can't be dragged
     // beneath the native home/back buttons.
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-    final clampedX = _position.dx.clamp(0.0, size.width - 56);
-    final clampedY = _position.dy.clamp(0.0, size.height - 56 - bottomPadding);
+    // Fallback only — didChangeDependencies normally sets this on first layout.
+    final position = _position ?? Offset(size.width - 72, 320);
+    final clampedX = position.dx.clamp(0.0, size.width - 56);
+    final clampedY = position.dy.clamp(0.0, size.height - 56 - bottomPadding);
 
     return Positioned(
       left: clampedX,
@@ -123,10 +136,11 @@ class _FeedbackFabState extends State<FeedbackFab> {
           _openSheet();
         },
         onPanUpdate: (details) {
+          final base = _position ?? position;
           setState(() {
             _position = Offset(
-              (_position.dx + details.delta.dx).clamp(0.0, size.width - 56),
-              (_position.dy + details.delta.dy).clamp(0.0, size.height - 56 - bottomPadding),
+              (base.dx + details.delta.dx).clamp(0.0, size.width - 56),
+              (base.dy + details.delta.dy).clamp(0.0, size.height - 56 - bottomPadding),
             );
           });
         },

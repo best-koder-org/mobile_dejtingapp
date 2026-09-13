@@ -59,9 +59,20 @@ class ForumAnswerCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            // Each answer gets its own tinted bubble, matching the feed cards (and Jodel's
+            // thread view) so the anonymous colour is consistent in both places.
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 10),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(
+                  anonColor.withValues(alpha: 0.14),
+                  theme.colorScheme.surface,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   children: [
                     Container(
@@ -87,7 +98,8 @@ class ForumAnswerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(answer.text, style: theme.textTheme.bodyMedium),
-              ],
+                ],
+              ),
             ),
           ),
         ],

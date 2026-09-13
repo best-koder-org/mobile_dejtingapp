@@ -49,12 +49,26 @@ class _ForumTopicCardState extends State<ForumTopicCard> {
     final topic = widget.topic;
     final anonColor = forumColorFromHex(topic.colorHex);
 
+    // Tint the whole card with the poster's anonymous colour, the way Jodel does. It is the
+    // fastest way to tell one thread from another when scanning, and it makes the anonymous
+    // colour mean something beyond a small dot.
+    final tint = Color.alphaBlend(
+      anonColor.withValues(alpha: 0.16),
+      Theme.of(context).colorScheme.surface,
+    );
+
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      color: tint,
+      child: InkWell(
+        // The WHOLE card opens the thread. Previously only the small answer-count button
+        // did, so a topic felt unresponsive — the obvious gesture (tapping the post) did
+        // nothing, and you had to hit a small target.
+        onTap: widget.onOpen,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,19 +104,8 @@ class _ForumTopicCardState extends State<ForumTopicCard> {
                             forumChannelLabel(l10n, topic.channel),
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(topic.text, style: const TextStyle(fontSize: 15, height: 1.3)),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          TextButton.icon(
-                            onPressed: widget.onOpen,
-                            icon: const Icon(Icons.mode_comment_outlined, size: 16),
-                            label: Text('${topic.answerCount} ${l10n.forumAnswerCount}'),
-                          ),
-                          const Spacer(),
+                          // Delete/report live in the top-right corner, where Jodel keeps its
+                          // overflow menu. They stay clear of the main "open this thread" tap.
                           if (topic.isOwn)
                             IconButton(
                               tooltip: 'Delete',
@@ -119,10 +122,46 @@ class _ForumTopicCardState extends State<ForumTopicCard> {
                               onPressed: () => unawaited(widget.onReport()),
                               icon: const Icon(Icons.flag_outlined),
                             ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(topic.text, style: const TextStyle(fontSize: 15, height: 1.3)),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          // A compact count chip instead of the old wide text button: it reads
+                          // as "N answers inside" at a glance and marks the card as openable.
+                          Semantics(
+                            button: true,
+                            label: '${topic.answerCount} ${l10n.forumAnswerCount}',
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.20),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.mode_comment_outlined, size: 14),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    '${topic.answerCount}',
+                                    style: const TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Text(
                             l10n.forumExpiresInHours(topic.hoursRemaining),
                             style: const TextStyle(fontSize: 10, color: Colors.grey),
                           ),
+                          const Spacer(),
+                          // Explicit affordance: this card is a link into the thread.
+                          const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
                         ],
                       ),
                     ],
@@ -131,11 +170,13 @@ class _ForumTopicCardState extends State<ForumTopicCard> {
               ),
             ],
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
 /// Up / score / down. Sending the value you already chose removes the vote.
 class _VoteColumn extends StatelessWidget {
   final int score;
