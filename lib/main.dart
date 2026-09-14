@@ -35,6 +35,7 @@ import 'edit_profile_screen.dart';
 import 'services/api_service.dart';
 import 'config/environment.dart';
 import 'config/dev_mode.dart';
+import 'theme/theme_controller.dart';
 import 'services/dev_auto_login.dart';
 import 'services/http_client_factory.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -172,14 +173,26 @@ class DatingApp extends StatelessWidget {
         theme: FlavorConfig.current.theme,
         initialRoute: _getInitialRoute(),
         builder: (context, child) {
-          // Overlay the dev-only feedback FAB above every screen.
-          return Stack(
-            children: [
-              child ?? const SizedBox.shrink(),
-              if (feedbackFabEnabled) const FeedbackFab(),
-          ],
-        );
-      },
+          // Dev-only skin override (Quiet Room spike). Coral = no override, so
+          // the existing app renders identically. See ThemeController.
+          return ValueListenableBuilder<AppSkin>(
+            valueListenable: ThemeController.skin,
+            builder: (context, skin, _) {
+              final override = ThemeController.overrideFor(skin);
+              Widget content = child ?? const SizedBox.shrink();
+              if (override != null && DevMode.enabled) {
+                content = Theme(data: override, child: content);
+              }
+              return Stack(
+                children: [
+                  content,
+                  // Overlay the dev-only feedback FAB above every screen.
+                  if (feedbackFabEnabled) const FeedbackFab(),
+                ],
+              );
+            },
+          );
+        },
       routes: {
         // Auth routes
         '/login': (context) => const LoginScreen(),

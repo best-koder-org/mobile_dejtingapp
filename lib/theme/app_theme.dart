@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_colors.dart';
 
 /// DatingApp dark premium theme — matches Welcome screen's immersive aesthetic
 /// Coral #FF7F50 → Purple #7F13EC gradient, dark surfaces, high contrast
@@ -115,6 +116,7 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    extensions: const [AppColors.coral],
 
     colorScheme: ColorScheme.dark(
       primary: primaryColor,

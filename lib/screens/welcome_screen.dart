@@ -3,8 +3,9 @@ import '../l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/dev_mode.dart';
 import '../services/dev_auto_login.dart';
-import '../theme/app_theme.dart';
 import '../flavors/flavor_config.dart';
+import '../theme/app_colors.dart';
+import '../theme/theme_controller.dart';
 import '../widgets/environment_selector.dart';
 import '../services/api_service.dart';
 
@@ -16,7 +17,11 @@ import '../services/api_service.dart';
 /// - "Dev Sign In" → auto-login as demo-user → /home
 /// - "Fresh Onboarding" → clear session + go to onboarding
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+  const WelcomeScreen({super.key, this.previewMode = false});
+
+  /// When true (dev preview only), skip the auto-jump to /home when a session
+  /// exists — lets a preview runner show this screen in different themes.
+  final bool previewMode;
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -33,6 +38,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     // welcome screen and go straight into the app.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      if (widget.previewMode) return; // dev preview: stay on this screen
       if (AppState().hasValidAuthSession(gracePeriod: const Duration(minutes: 1))) {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
@@ -42,13 +48,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = AppColors.of(context);
 
     return Semantics(
       label: 'screen:onboarding-welcome',
       child: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(
-            gradient: AppTheme.brandGradient,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [colors.heroGradientBegin, colors.heroGradientEnd],
+            ),
           ),
           child: SafeArea(
           child: Column(
@@ -59,7 +70,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 24),
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(216),
+                      color: colors.heroPanelColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -69,8 +80,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primaryColor,
+                          decoration: BoxDecoration(
+                            color: colors.primary,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.local_fire_department, color: Colors.white, size: 32),
@@ -79,7 +90,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                         Text(
                           l10n.createAccount,
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: colors.displayFontFamily,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         // Flavor-specific tagline
@@ -104,14 +120,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               WidgetSpan(
                                 child: GestureDetector(
                                   onTap: () => _openUrl('https://dejtingapp.com/terms'),
-                                  child: Text(l10n.termsLink, style: const TextStyle(fontSize: 12, color: AppTheme.primaryColor, decoration: TextDecoration.underline)),
+                                  child: Text(l10n.termsLink, style: TextStyle(fontSize: 12, color: colors.primary, decoration: TextDecoration.underline)),
                                 ),
                               ),
                               const TextSpan(text: '. Learn how we process your data in our '),
                               WidgetSpan(
                                 child: GestureDetector(
                                   onTap: () => _openUrl('https://dejtingapp.com/privacy'),
-                                  child: Text(l10n.privacyPolicyLink, style: const TextStyle(fontSize: 12, color: AppTheme.primaryColor, decoration: TextDecoration.underline)),
+                                  child: Text(l10n.privacyPolicyLink, style: TextStyle(fontSize: 12, color: colors.primary, decoration: TextDecoration.underline)),
                                 ),
                               ),
                               const TextSpan(text: '.'),
@@ -127,8 +143,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           child: ElevatedButton(
                             onPressed: () => Navigator.pushNamed(context, '/onboarding/phone-entry'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryColor,
-                              foregroundColor: Colors.white,
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onPrimary,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
                               elevation: 2,
                             ),
@@ -145,8 +161,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           onPressed: () => Navigator.pushNamed(context, '/signin/phone-entry'),
                           child: Text(
                             l10n.signInButton,
-                            style: const TextStyle(
-                              color: AppTheme.primaryColor,
+                            style: TextStyle(
+                              color: colors.primary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
@@ -244,6 +260,49 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       'Fresh Onboard',
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Quiet Room skin preview toggle (dev only)
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: ValueListenableBuilder<AppSkin>(
+                    valueListenable: ThemeController.skin,
+                    builder: (context, skin, _) {
+                      final isQuiet = skin == AppSkin.quietRoom;
+                      return OutlinedButton.icon(
+                        onPressed: () => ThemeController.select(
+                          isQuiet ? AppSkin.coral : AppSkin.quietRoom,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.black45,
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white24),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
+                        icon: Icon(
+                          isQuiet
+                              ? Icons.palette_outlined
+                              : Icons.dark_mode_outlined,
+                          size: 16,
+                        ),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            isQuiet ? 'Skin QR' : 'Skin Coral',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
